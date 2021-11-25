@@ -19,6 +19,7 @@ if (UNIX)
 endif ()
 
 add_executable(video-benchmark-tool
+	src/View/QBenchmarkConfigView.cpp
 	src/View/QMainView.cpp
 	src/main.cpp
 )
