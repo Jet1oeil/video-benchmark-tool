@@ -1,5 +1,5 @@
-#ifndef Q_MAIN_VIEW_H
-#define Q_MAIN_VIEW_H
+#ifndef Q_MAIN_VIEW_H_
+#define Q_MAIN_VIEW_H_
 
 #include <QWidget>
 
@@ -13,4 +13,4 @@ namespace view {
 	};
 }
 
-#endif // Q_MAIN_VIEW_H
+#endif // Q_MAIN_VIEW_H_
