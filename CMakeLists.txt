@@ -11,6 +11,13 @@ set(CMAKE_AUTOUIC ON)
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
+if (UNIX)
+	add_compile_options(
+		"-Wall" "-Wextra"
+		"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
+	)
+endif ()
+
 add_executable(video-benchmark-tool
 	src/View/QMainView.cpp
 	src/main.cpp
@@ -20,3 +27,10 @@ target_link_libraries(video-benchmark-tool
 	PRIVATE
 		Qt5::Widgets
 )
+
+if (UNIX)
+	target_link_libraries(video-benchmark-tool
+		PRIVATE
+			"$<$<CONFIG:DEBUG>:-fno-omit-frame-pointer;-fsanitize=address>"
+	)
+endif ()
