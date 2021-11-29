@@ -59,11 +59,6 @@ namespace ctrl {
 			return;
 		}
 
-		qDebug("selected video: %s", qPrintable(szVideoFileName));
-		qDebug("CRF: [%d - %d]", iMinCRF, iMaxCRF);
-		qDebug("selected preset:");
-		for (const auto& szPreset: listPreset) {
-			qDebug("\t%s", qPrintable(szPreset));
-		}
+		m_benchmarkVMAF.start(szVideoFileName, iMinCRF, iMaxCRF, listPreset);
 	}
 }

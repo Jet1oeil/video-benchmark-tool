@@ -22,6 +22,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
+	src/Process/BenchmarkVMAF.cpp
 	src/View/QBenchmarkConfigView.cpp
 	src/View/QMainView.cpp
 	src/main.cpp
