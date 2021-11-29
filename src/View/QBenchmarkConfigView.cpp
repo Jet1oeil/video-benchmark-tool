@@ -22,6 +22,35 @@ namespace view {
 
 		// Connect signals
 		connect(m_pFileButton, &QPushButton::clicked, this, &QBenchmarkConfigView::browseFileTriggered);
+		connect(m_pStartButton, &QPushButton::clicked, this, &QBenchmarkConfigView::startBenchmarkTriggered);
+	}
+
+	QString QBenchmarkConfigView::getSelectedFile() const
+	{
+		return m_pFileLabel->text();
+	}
+
+	int QBenchmarkConfigView::getMinCRF() const
+	{
+		return m_pMinCRFSpinBox->value();
+	}
+
+	int QBenchmarkConfigView::getMaxCRF() const
+	{
+		return m_pMaxCRFSpinBox->value();
+	}
+
+	QStringList QBenchmarkConfigView::getPresetList() const
+	{
+		QStringList listPreset;
+
+		for (const auto& presetCheckbox: m_listPresetCheckbox) {
+			if (presetCheckbox->isChecked()) {
+				listPreset.append(presetCheckbox->text());
+			}
+		}
+
+		return listPreset;
 	}
 
 	void QBenchmarkConfigView::setSelectedFile(const QString& szFileName)

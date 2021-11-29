@@ -17,6 +17,7 @@ namespace ctrl {
 
 	private slots:
 		void onBrowseFile();
+		void onStartBenchmark();
 
 	private:
 		view::QBenchmarkConfigView& m_benchmarkConfigView;

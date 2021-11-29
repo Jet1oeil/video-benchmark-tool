@@ -18,6 +18,11 @@ namespace view {
 	public:
 		QBenchmarkConfigView(QWidget* pParent);
 
+		QString getSelectedFile() const;
+		int getMinCRF() const;
+		int getMaxCRF() const;
+		QStringList getPresetList() const;
+
 		void setSelectedFile(const QString& szFileName);
 
 	private:
@@ -27,6 +32,7 @@ namespace view {
 
 	signals:
 		void browseFileTriggered();
+		void startBenchmarkTriggered();
 
 	private:
 		// Options for file selection
