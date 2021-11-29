@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QVector>
@@ -29,7 +30,7 @@ namespace view {
 
 	private:
 		// Options for file selection
-		QLabel* m_pFileLabel;
+		QLineEdit* m_pFileLabel;
 		QPushButton* m_pFileButton;
 
 		// CRF options

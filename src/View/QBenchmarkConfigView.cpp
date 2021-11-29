@@ -6,7 +6,7 @@
 namespace view {
 	QBenchmarkConfigView::QBenchmarkConfigView(QWidget* pParent)
 	: QWidget(pParent)
-	, m_pFileLabel(new QLabel(tr("Select video source")))
+	, m_pFileLabel(new QLineEdit())
 	, m_pFileButton(new QPushButton(tr("Browse")))
 	, m_pMinCRFSpinBox(new QSpinBox())
 	, m_pMaxCRFSpinBox(new QSpinBox())
@@ -31,11 +31,13 @@ namespace view {
 
 	QGroupBox* QBenchmarkConfigView::createFileGroupBox()
 	{
+		m_pFileLabel->setEnabled(false);
+		m_pFileLabel->setPlaceholderText(tr("Select video source"));
+
 		QGroupBox *pGroupBox = new QGroupBox(tr("Source video file"));
 
 		QHBoxLayout* pLayout = new QHBoxLayout();
 		pLayout->addWidget(m_pFileLabel);
-		pLayout->addStretch();
 		pLayout->addWidget(m_pFileButton);
 
 		pGroupBox->setLayout(pLayout);
