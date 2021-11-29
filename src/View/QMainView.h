@@ -19,6 +19,8 @@ namespace view {
 	QMainView& operator=(const QMainView&) = delete;
 	QMainView& operator=(QMainView&&) = delete;
 
+	const QBenchmarkConfigView& getBenchmarkConfigView() const;
+
 	private:
 		QBenchmarkConfigView* m_pBenchmarkConfigView;
 	};

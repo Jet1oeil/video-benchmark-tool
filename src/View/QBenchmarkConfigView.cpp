@@ -19,6 +19,9 @@ namespace view {
 		pLayout->addWidget(createEncoderOptionsGroupBox());
 		pLayout->addStretch();
 		pLayout->addLayout(createControlButtons());
+
+		// Connect signals
+		connect(m_pFileButton, &QPushButton::clicked, this, &QBenchmarkConfigView::browseFileTriggered);
 	}
 
 

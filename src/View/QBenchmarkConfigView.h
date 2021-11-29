@@ -22,6 +22,9 @@ namespace view {
 		QGroupBox* createEncoderOptionsGroupBox();
 		QLayout* createControlButtons();
 
+	signals:
+		void browseFileTriggered();
+
 	private:
 		// Options for file selection
 		QLabel* m_pFileLabel;

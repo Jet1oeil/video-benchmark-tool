@@ -12,4 +12,9 @@ namespace view {
 
 		pLayout->addWidget(m_pBenchmarkConfigView);
 	}
+
+	const QBenchmarkConfigView& QMainView::getBenchmarkConfigView() const
+	{
+		return *m_pBenchmarkConfigView;
+	}
 }
