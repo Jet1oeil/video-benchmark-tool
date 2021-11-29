@@ -17,6 +17,8 @@ namespace view {
 	public:
 		QBenchmarkConfigView(QWidget* pParent);
 
+		void setSelectedFile(const QString& szFileName);
+
 	private:
 		QGroupBox* createFileGroupBox();
 		QGroupBox* createEncoderOptionsGroupBox();

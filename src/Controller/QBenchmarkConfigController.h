@@ -13,13 +13,13 @@ namespace ctrl {
 	Q_OBJECT
 
 	public:
-		QBenchmarkConfigController(const view::QMainView& mainView);
+		QBenchmarkConfigController(view::QMainView& mainView);
 
 	private slots:
 		void onBrowseFile();
 
 	private:
-		const view::QBenchmarkConfigView& m_benchmarkConfigView;
+		view::QBenchmarkConfigView& m_benchmarkConfigView;
 	};
 }
 

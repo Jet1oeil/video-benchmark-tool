@@ -24,6 +24,10 @@ namespace view {
 		connect(m_pFileButton, &QPushButton::clicked, this, &QBenchmarkConfigView::browseFileTriggered);
 	}
 
+	void QBenchmarkConfigView::setSelectedFile(const QString& szFileName)
+	{
+		m_pFileLabel->setText(szFileName);
+	}
 
 	QGroupBox* QBenchmarkConfigView::createFileGroupBox()
 	{
