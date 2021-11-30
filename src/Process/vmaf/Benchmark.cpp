@@ -38,8 +38,8 @@ namespace vmaf {
 			qDebug("\t%s", qPrintable(szPreset));
 		}
 
-		QByteArray yuvBytes;
-		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvBytes)) {
+		QVector<QByteArray> yuvFrames;
+		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames)) {
 			qDebug("Error decoding...");
 		}
 
@@ -48,7 +48,7 @@ namespace vmaf {
 		emit benchmarkFinished();
 	}
 
-	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes)
+	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
 	{
 		avformat::Context formatContext;
 		avcodec::Context codecContex;
@@ -65,7 +65,7 @@ namespace vmaf {
 
 		avcodec::Error errorCodec = avcodec::Error::Success;
 		do {
-			errorCodec = codecContex.decodePacket(formatContext, yuvBytes);
+			errorCodec = codecContex.decodePacket(formatContext, yuvFrames);
 		} while (errorCodec == avcodec::Error::Success);
 
 		if (errorCodec != avcodec::Error::Success && errorCodec != avcodec::Error::EndOfFile) {

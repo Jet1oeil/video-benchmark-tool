@@ -1,5 +1,7 @@
 #include "AVCodecHelper.h"
 
+#include <QVector>
+
 #include "AVFormatHelper.h"
 
 namespace avcodec {
@@ -61,15 +63,15 @@ namespace avcodec {
 		return Error::Success;
 	}
 
-	Error Context::decodePacket(avformat::Context& formatContext, QByteArray& yuvBytes)
+	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
 	{
 		Error codecError = Error::Success;
 		auto formatError = formatContext.readVideoFrame(*m_pPacket);
 
 		if (formatError == avformat::Error::Success) {
-			codecError = decodeVideoFrame(m_pPacket, yuvBytes);
+			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
 		} else if (formatError == avformat::Error::EndOfFile) {
-			codecError = decodeVideoFrame(nullptr, yuvBytes);
+			codecError = decodeVideoFrame(nullptr, yuvFrames);
 		} else {
 			codecError = Error::Unkown;
 		}
@@ -79,7 +81,7 @@ namespace avcodec {
 		return codecError;
 	}
 
-	Error Context::decodeVideoFrame(const AVPacket* pPacket, QByteArray& yuvBytes)
+	Error Context::decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames)
 	{
 		if (avcodec_send_packet(m_pContext, pPacket) < 0) {
 			return Error::SendPacket;
@@ -97,9 +99,12 @@ namespace avcodec {
 			}
 
 			// Dump yuv
+			QByteArray yuvBytes;
 			yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[0]), m_pFrame->width * m_pFrame->height);
 			yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[1]), m_pFrame->width * m_pFrame->height / 4);
 			yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[2]), m_pFrame->width * m_pFrame->height / 4);
+
+			yuvFrames.append(yuvBytes);
 		}
 
 		return Error::Success;

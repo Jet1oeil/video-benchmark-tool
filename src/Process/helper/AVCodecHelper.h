@@ -37,10 +37,10 @@ namespace avcodec {
 		void setCodec(AVCodec* pCodec);
 
 		Error open(const avformat::Context& formatContext);
-		Error decodePacket(avformat::Context& formatContext, QByteArray& yuvBytes);
+		Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
 
 	private:
-		Error decodeVideoFrame(const AVPacket* pPacket, QByteArray& yuvBytes);
+		Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
 
 	private:
 		AVCodecContext* m_pContext;
