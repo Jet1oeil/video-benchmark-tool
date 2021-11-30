@@ -6,10 +6,10 @@
 namespace view {
 	QBenchmarkConfigView::QBenchmarkConfigView(QWidget* pParent)
 	: QWidget(pParent)
-	, m_pFileLabel(new QLineEdit())
+	, m_pFileLabel(new QLineEdit)
 	, m_pFileButton(new QPushButton(tr("Browse")))
-	, m_pMinCRFSpinBox(new QSpinBox())
-	, m_pMaxCRFSpinBox(new QSpinBox())
+	, m_pMinCRFSpinBox(new QSpinBox)
+	, m_pMaxCRFSpinBox(new QSpinBox)
 	, m_pStartButton(new QPushButton(tr("Run benchmark")))
 	{
 		QVBoxLayout* pLayout = new QVBoxLayout(this);
