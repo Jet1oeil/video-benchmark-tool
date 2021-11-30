@@ -1,5 +1,7 @@
 #include "BenchmarkVMAF.h"
 
+#include "Decoder.h"
+
 namespace proc {
 	WorkerVMAF::WorkerVMAF(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	: m_szVideoFileName(szVideoFileName)
@@ -17,6 +19,11 @@ namespace proc {
 		qDebug("selected preset:");
 		for (const auto& szPreset: m_listPreset) {
 			qDebug("\t%s", qPrintable(szPreset));
+		}
+
+		QByteArray yuvBytes;
+		if (!Decoder::decodeVideoFile(m_szVideoFileName, yuvBytes)) {
+			qDebug("Error decoding...");
 		}
 
 		QThread::sleep(5);

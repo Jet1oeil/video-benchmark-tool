@@ -9,7 +9,10 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
+
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(FFMPEG COMPONENTS avcodec avformat REQUIRED)
 
 if (UNIX)
 	add_compile_options(
@@ -22,7 +25,10 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 
 add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
+	src/Process/helper/AVCodecHelper.cpp
+	src/Process/helper/AVFormatHelper.cpp
 	src/Process/BenchmarkVMAF.cpp
+	src/Process/Decoder.cpp
 	src/View/QBenchmarkConfigView.cpp
 	src/View/QMainView.cpp
 	src/main.cpp
@@ -31,6 +37,8 @@ add_executable(video-benchmark-tool
 target_link_libraries(video-benchmark-tool
 	PRIVATE
 		Qt5::Widgets
+		FFMPEG::avcodec
+		FFMPEG::avformat
 )
 
 if (UNIX)
