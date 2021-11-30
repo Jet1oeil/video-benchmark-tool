@@ -9,17 +9,15 @@ namespace proc {
 	namespace Decoder {
 		bool decodeVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes)
 		{
-			avcodec::Codec codec;
 			avformat::Context formatContext;
-			avformat::Stream videoStream;
+			avcodec::Context codecContex;
 
-			if (formatContext.openFile(qPrintable(szVideoFileName), videoStream, codec) != avformat::Error::Success) {
+			if (formatContext.openFile(qPrintable(szVideoFileName), codecContex) != avformat::Error::Success) {
 				qDebug("Error format...");
 				return false;
 			}
 
-			avcodec::Context codecContex;
-			if (codecContex.open(codec, videoStream) != avcodec::Error::Success) {
+			if (codecContex.open(formatContext) != avcodec::Error::Success) {
 				qDebug("Error codec...");
 				return false;
 			}

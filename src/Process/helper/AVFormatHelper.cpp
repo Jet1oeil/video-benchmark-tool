@@ -3,23 +3,6 @@
 #include "AVCodecHelper.h"
 
 namespace avformat {
-	Stream::Stream()
-	: m_pStream(nullptr)
-	{
-
-	}
-
-	Error Stream::findVideoStream(Context& context, avcodec::Codec& codec)
-	{
-		int iRes = av_find_best_stream(context.m_pContext, AVMEDIA_TYPE_VIDEO, -1, -1, &codec.m_pCodec, 0);
-		if (iRes < 0) {
-			return Error::NoVideoStream;
-		}
-		m_pStream = context.m_pContext->streams[iRes];
-
-		return Error::Success;
-	}
-
 	Context::Context()
 	: m_pContext(nullptr)
 	{
@@ -33,7 +16,12 @@ namespace avformat {
 		}
 	}
 
-	Error Context::openFile(const char* szVideoFileName, Stream& stream, avcodec::Codec& codec)
+	const Stream& Context::getVideoStream() const
+	{
+		return m_videoStream;
+	}
+
+	Error Context::openFile(const char* szVideoFileName, avcodec::Context& codecContext)
 	{
 		if (avformat_open_input(&m_pContext, szVideoFileName, nullptr, nullptr) != 0) {
 			return Error::InvalidInputFile;
@@ -43,10 +31,14 @@ namespace avformat {
 			return Error::NoStreamInfo;
 		}
 
-		Error error = stream.findVideoStream(*this, codec);
-		if (error != Error::Success) {
-			return error;
+		AVCodec* pCodec = nullptr;
+		int iRes = av_find_best_stream(m_pContext, AVMEDIA_TYPE_VIDEO, -1, -1, &pCodec, 0);
+		if (iRes < 0) {
+			return Error::NoVideoStream;
 		}
+		codecContext.setCodec(pCodec);
+		m_videoStream.pStream = m_pContext->streams[iRes];
+		m_videoStream.iIndex = iRes;
 
 		return Error::Success;
 	}

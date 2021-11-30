@@ -6,7 +6,7 @@ extern "C" {
 }
 
 namespace avformat {
-	class Stream;
+	class Context;
 }
 
 namespace avcodec {
@@ -16,24 +16,6 @@ namespace avcodec {
 		CopyParameters,
 		OpenCodec,
 		Unkown,
-	};
-
-	class Codec {
-	public:
-		Codec();
-		~Codec() = default;
-
-		Codec(const Codec&) = delete;
-		Codec(Codec&&) = delete;
-
-		Codec& operator=(const Codec&) = delete;
-		Codec& operator=(Codec&&) = delete;
-
-		friend class avformat::Stream;
-		friend class Context;
-
-	private:
-		AVCodec* m_pCodec;
 	};
 
 	class Context {
@@ -47,10 +29,13 @@ namespace avcodec {
 		Context& operator=(const Context&) = delete;
 		Context& operator=(Context&&) = delete;
 
-		Error open(const Codec& codec, const avformat::Stream& videoStream);
+		void setCodec(AVCodec* pCodec);
+
+		Error open(const avformat::Context& formatContext);
 
 	private:
 		AVCodecContext* m_pContext;
+		AVCodec* m_pCodec;
 	};
 }
 
