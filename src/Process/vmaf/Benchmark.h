@@ -1,10 +1,14 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
+#include <vector>
+
 #include <QObject>
 #include <QStringList>
 #include <QString>
 #include <QThread>
+
+#include "Experiment.h"
 
 namespace vmaf {
 	class Benchmark: public QObject {
@@ -30,12 +34,16 @@ namespace vmaf {
 		virtual void run() override;
 
 		bool decodeOriginalVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes);
+		void runExperiments();
 
 	private:
 		QString m_szVideoFileName;
 		int m_iMinCRF;
 		int m_iMaxCRF;
 		QStringList m_listPreset;
+
+		// Need to use STL vector to have emplace_back method
+		std::vector<ExperimentThread> m_poolThreads;
 	};
 }
 

@@ -43,6 +43,8 @@ namespace vmaf {
 			qDebug("Error decoding...");
 		}
 
+		runExperiments();
+
 		emit benchmarkFinished();
 	}
 
@@ -72,5 +74,33 @@ namespace vmaf {
 		}
 
 		return true;
+	}
+
+	void BenchmarkThread::runExperiments()
+	{
+		QVector<Experiment> listExperiments;
+
+		// Generate all configuration
+		for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
+			for (const auto& szPreset: m_listPreset) {
+				listExperiments.append({ iCRF, szPreset });
+			}
+		}
+
+		// Alloc the thread pool
+		QMutex mutexExperiments;
+		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
+			m_poolThreads.emplace_back(ExperimentThread(listExperiments, mutexExperiments));
+		}
+
+		// Start all threads
+		for (auto& thread: m_poolThreads) {
+			thread.start();
+		}
+
+		// Join all thread
+		for (auto& thread: m_poolThreads) {
+			thread.wait();
+		}
 	}
 }
