@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "Process/BenchmarkVMAF.h"
+#include "Process/vmaf/Benchmark.h"
 
 namespace view {
 	class QMainView;
@@ -23,7 +23,7 @@ namespace ctrl {
 
 	private:
 		view::QBenchmarkConfigView& m_benchmarkConfigView;
-		proc::BenchmarkVMAF m_benchmarkVMAF;
+		vmaf::Benchmark m_vmafBenchmark;
 	};
 }
 

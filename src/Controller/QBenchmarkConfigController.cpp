@@ -59,6 +59,6 @@ namespace ctrl {
 			return;
 		}
 
-		m_benchmarkVMAF.start(szVideoFileName, iMinCRF, iMaxCRF, listPreset);
+		m_vmafBenchmark.start(szVideoFileName, iMinCRF, iMaxCRF, listPreset);
 	}
 }

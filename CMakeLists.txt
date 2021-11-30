@@ -27,8 +27,7 @@ add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Process/helper/AVCodecHelper.cpp
 	src/Process/helper/AVFormatHelper.cpp
-	src/Process/BenchmarkVMAF.cpp
-	src/Process/Decoder.cpp
+	src/Process/vmaf/Benchmark.cpp
 	src/View/QBenchmarkConfigView.cpp
 	src/View/QMainView.cpp
 	src/main.cpp
