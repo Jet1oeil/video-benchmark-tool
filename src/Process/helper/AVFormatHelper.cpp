@@ -42,4 +42,28 @@ namespace avformat {
 
 		return Error::Success;
 	}
+
+	Error Context::readVideoFrame(AVPacket& packet)
+	{
+		Error error = Error::Success;
+		int iRes = 0;
+
+		while (iRes >= 0) {
+			iRes = av_read_frame(m_pContext, &packet);
+
+			// End of file or error
+			// TODO: handle error case properly
+			if (iRes < 0) {
+				error = Error::EndOfFile;
+				break;
+			}
+
+			// Video frame reached
+			if (m_videoStream.iIndex == packet.stream_index) {
+				break;
+			}
+		}
+
+		return error;
+	}
 }

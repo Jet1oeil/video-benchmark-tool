@@ -12,7 +12,7 @@ set(CMAKE_AUTOUIC ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_package(FFMPEG COMPONENTS avcodec avformat REQUIRED)
+find_package(FFMPEG COMPONENTS avcodec avformat avutil REQUIRED)
 
 if (UNIX)
 	add_compile_options(
@@ -39,6 +39,7 @@ target_link_libraries(video-benchmark-tool
 		Qt5::Widgets
 		FFMPEG::avcodec
 		FFMPEG::avformat
+		FFMPEG::avutil
 )
 
 if (UNIX)

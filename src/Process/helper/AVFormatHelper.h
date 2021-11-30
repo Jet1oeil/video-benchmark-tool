@@ -15,10 +15,9 @@ namespace avformat {
 		InvalidInputFile,
 		NoStreamInfo,
 		NoVideoStream,
+		EndOfFile,
 		Unkown,
 	};
-
-	class Context;
 
 	struct Stream {
 		AVStream* pStream = nullptr;
@@ -39,6 +38,7 @@ namespace avformat {
 		const Stream& getVideoStream() const;
 
 		Error openFile(const char* szVideoFileName, avcodec::Context& codecContext);
+		Error readVideoFrame(AVPacket& packet);
 
 	private:
 		AVFormatContext* m_pContext;

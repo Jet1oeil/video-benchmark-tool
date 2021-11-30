@@ -5,6 +5,8 @@ extern "C" {
 	#include <libavcodec/avcodec.h>
 }
 
+#include <QByteArray>
+
 namespace avformat {
 	class Context;
 }
@@ -15,6 +17,9 @@ namespace avcodec {
 		NoMemory,
 		CopyParameters,
 		OpenCodec,
+		SendPacket,
+		ReceiveFrame,
+		EndOfFile,
 		Unkown,
 	};
 
@@ -32,10 +37,16 @@ namespace avcodec {
 		void setCodec(AVCodec* pCodec);
 
 		Error open(const avformat::Context& formatContext);
+		Error decodePacket(avformat::Context& formatContext, QByteArray& yuvBytes);
+
+	private:
+		Error decodeVideoFrame(const AVPacket* pPacket, QByteArray& yuvBytes);
 
 	private:
 		AVCodecContext* m_pContext;
 		AVCodec* m_pCodec;
+		AVPacket* m_pPacket;
+		AVFrame* m_pFrame;
 	};
 }
 

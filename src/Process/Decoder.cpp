@@ -22,6 +22,16 @@ namespace proc {
 				return false;
 			}
 
+			avcodec::Error errorCodec = avcodec::Error::Success;
+			do {
+				errorCodec = codecContex.decodePacket(formatContext, yuvBytes);
+			} while (errorCodec == avcodec::Error::Success);
+
+			if (errorCodec != avcodec::Error::Success && errorCodec != avcodec::Error::EndOfFile) {
+				qDebug("Error decode...");
+				return false;
+			}
+
 			return true;
 		}
 	}
