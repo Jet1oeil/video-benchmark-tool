@@ -39,16 +39,14 @@ namespace vmaf {
 		}
 
 		QByteArray yuvBytes;
-		if (!decodeVideoFile(m_szVideoFileName, yuvBytes)) {
+		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvBytes)) {
 			qDebug("Error decoding...");
 		}
-
-		QThread::sleep(5);
 
 		emit benchmarkFinished();
 	}
 
-	bool BenchmarkThread::decodeVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes)
+	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes)
 	{
 		avformat::Context formatContext;
 		avcodec::Context codecContex;

@@ -29,7 +29,7 @@ namespace vmaf {
 	private:
 		virtual void run() override;
 
-		bool decodeVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes);
+		bool decodeOriginalVideoFile(const QString& szVideoFileName, QByteArray& yuvBytes);
 
 	private:
 		QString m_szVideoFileName;
