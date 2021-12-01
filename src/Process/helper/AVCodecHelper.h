@@ -21,7 +21,7 @@ namespace avcodec {
 		SendPacket,
 		SendFrame,
 		ReceiveFrame,
-		EndOfFile,
+		CodecFlushed,
 		NoEncoderFound,
 		Unkown,
 	};

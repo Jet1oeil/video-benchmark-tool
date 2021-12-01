@@ -75,7 +75,7 @@ namespace vmaf {
 		}
 
 		// Flush decoder
-		if (encoderContext.encodeFrame(QByteArray(), packets) != avcodec::Error::EndOfFile) {
+		if (encoderContext.encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
 			return false;
 		}
 

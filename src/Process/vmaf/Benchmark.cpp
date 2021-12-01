@@ -71,7 +71,7 @@ namespace vmaf {
 			errorCodec = codecContex.decodePacket(formatContext, yuvFrames);
 		} while (errorCodec == avcodec::Error::Success);
 
-		if (errorCodec != avcodec::Error::Success && errorCodec != avcodec::Error::EndOfFile) {
+		if (errorCodec != avcodec::Error::CodecFlushed) {
 			qDebug("Error decode...");
 			return false;
 		}

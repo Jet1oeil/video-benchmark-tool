@@ -191,7 +191,7 @@ namespace avcodec {
 			if (iRes == AVERROR(EAGAIN)) {
 				return Error::Success;
 			} else if (iRes == AVERROR_EOF) {
-				return Error::EndOfFile;
+				return Error::CodecFlushed;
 			} else if (iRes < 0) {
 				return Error::ReceiveFrame;
 			}
@@ -220,7 +220,7 @@ namespace avcodec {
 			if (iRes == AVERROR(EAGAIN)) {
 				return Error::Success;
 			} else if (iRes == AVERROR_EOF) {
-				return Error::EndOfFile;
+				return Error::CodecFlushed;
 			} else if (iRes < 0) {
 				return Error::ReceiveFrame;
 			}
