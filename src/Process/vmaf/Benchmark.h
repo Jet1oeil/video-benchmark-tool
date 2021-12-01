@@ -10,6 +10,10 @@
 
 #include "Experiment.h"
 
+namespace avcodec {
+	struct EncoderParameters;
+}
+
 namespace vmaf {
 	class Benchmark: public QObject {
 	Q_OBJECT
@@ -33,8 +37,8 @@ namespace vmaf {
 	private:
 		virtual void run() override;
 
-		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames);
-		void runExperiments();
+		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames, avcodec::EncoderParameters& codecParameters);
+		void runExperiments(const QVector<QByteArray>& yuvFrames, const avcodec::EncoderParameters& codecParameters);
 
 	private:
 		QString m_szVideoFileName;

@@ -6,6 +6,8 @@
 #include <QThread>
 #include <QVector>
 
+#include "Process/helper/AVCodecHelper.h"
+
 namespace vmaf {
 	struct Experiment {
 		int iCRF;
@@ -16,7 +18,12 @@ namespace vmaf {
 	Q_OBJECT
 
 	public:
-		ExperimentThread(QVector<Experiment>& listExperiments, QMutex& mutexExperiments);
+		ExperimentThread(
+			const QVector<QByteArray>& yuvFrames,
+			const avcodec::EncoderParameters& encoderParameters,
+			QVector<Experiment>& listExperiments,
+			QMutex& mutexExperiments
+		);
 		~ExperimentThread() = default;
 
 		ExperimentThread(const ExperimentThread&) = delete;
@@ -30,7 +37,11 @@ namespace vmaf {
 
 		bool stoleTask(Experiment& experiment);
 
+		bool encodeVideo(QVector<QByteArray>& packets);
+
 	private:
+		const QVector<QByteArray>& m_yuvFrames;
+		avcodec::EncoderParameters m_encoderParameters;
 		QVector<Experiment>& m_listExperiments;
 		QMutex& m_mutexExperiments;
 	};

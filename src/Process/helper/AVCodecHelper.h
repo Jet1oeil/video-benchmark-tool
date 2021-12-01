@@ -6,6 +6,7 @@ extern "C" {
 }
 
 #include <QByteArray>
+#include <QString>
 
 namespace avformat {
 	class Context;
@@ -18,9 +19,23 @@ namespace avcodec {
 		CopyParameters,
 		OpenCodec,
 		SendPacket,
+		SendFrame,
 		ReceiveFrame,
 		EndOfFile,
+		NoEncoderFound,
 		Unkown,
+	};
+
+	struct EncoderParameters {
+		EncoderParameters();
+
+		int iWidth;
+		int iHeight;
+		AVRational timeBase;
+		AVPixelFormat pixelFormat;
+		AVColorRange colorRange;
+		int iCRF;
+		QString szPreset;
 	};
 
 	class Context {
@@ -34,17 +49,23 @@ namespace avcodec {
 		Context& operator=(const Context&) = delete;
 		Context& operator=(Context&&) = delete;
 
+		EncoderParameters getCodecParameters() const;
 		void setCodec(AVCodec* pCodec);
 
-		Error open(const avformat::Context& formatContext);
+		Error openDecoder(const avformat::Context& formatContext);
+		Error openEncoder(const char* szCodecName, const EncoderParameters& parameters);
 		Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
+		Error encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets);
 
 	private:
+		Error allocateContext();
 		Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
+		Error encodeVideoFrame(const AVFrame* pFrame, QVector<QByteArray>& packets);
+		void setPixelFormantAndColorRange(EncoderParameters& parameters) const;
 
 	private:
 		AVCodecContext* m_pContext;
-		AVCodec* m_pCodec;
+		const AVCodec* m_pCodec;
 		AVPacket* m_pPacket;
 		AVFrame* m_pFrame;
 	};

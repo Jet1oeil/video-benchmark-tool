@@ -39,16 +39,17 @@ namespace vmaf {
 		}
 
 		QVector<QByteArray> yuvFrames;
-		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames)) {
+		avcodec::EncoderParameters codecParameters;
+		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames, codecParameters)) {
 			qDebug("Error decoding...");
 		}
 
-		runExperiments();
+		runExperiments(yuvFrames, codecParameters);
 
 		emit benchmarkFinished();
 	}
 
-	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
+	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames, avcodec::EncoderParameters& codecParameters)
 	{
 		avformat::Context formatContext;
 		avcodec::Context codecContex;
@@ -58,10 +59,12 @@ namespace vmaf {
 			return false;
 		}
 
-		if (codecContex.open(formatContext) != avcodec::Error::Success) {
+		if (codecContex.openDecoder(formatContext) != avcodec::Error::Success) {
 			qDebug("Error codec...");
 			return false;
 		}
+
+		codecParameters = codecContex.getCodecParameters();
 
 		avcodec::Error errorCodec = avcodec::Error::Success;
 		do {
@@ -76,21 +79,21 @@ namespace vmaf {
 		return true;
 	}
 
-	void BenchmarkThread::runExperiments()
+	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames, const avcodec::EncoderParameters& codecParameters)
 	{
 		QVector<Experiment> listExperiments;
 
 		// Generate all configuration
 		for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
 			for (const auto& szPreset: m_listPreset) {
-				listExperiments.append({ iCRF, szPreset });
+				listExperiments.append({iCRF, szPreset });
 			}
 		}
 
 		// Alloc the thread pool
 		QMutex mutexExperiments;
 		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
-			m_poolThreads.emplace_back(ExperimentThread(listExperiments, mutexExperiments));
+			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, codecParameters, listExperiments, mutexExperiments));
 		}
 
 		// Start all threads
