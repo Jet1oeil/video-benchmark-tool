@@ -53,15 +53,17 @@ namespace avcodec {
 		void setCodec(AVCodec* pCodec);
 
 		Error openDecoder(const avformat::Context& formatContext);
-		Error openEncoder(const char* szCodecName, const EncoderParameters& parameters);
 		Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
+
+		Error openEncoder(const char* szCodecName, const EncoderParameters& parameters);
 		Error encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets);
 
 	private:
 		Error allocateContext();
+		void setPixelFormantAndColorRange(EncoderParameters& parameters) const;
+
 		Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
 		Error encodeVideoFrame(const AVFrame* pFrame, QVector<QByteArray>& packets);
-		void setPixelFormantAndColorRange(EncoderParameters& parameters) const;
 
 	private:
 		AVCodecContext* m_pContext;

@@ -81,6 +81,24 @@ namespace avcodec {
 		return Error::Success;
 	}
 
+	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
+	{
+		Error codecError = Error::Success;
+		auto formatError = formatContext.readVideoFrame(*m_pPacket);
+
+		if (formatError == avformat::Error::Success) {
+			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
+		} else if (formatError == avformat::Error::EndOfFile) {
+			codecError = decodeVideoFrame(nullptr, yuvFrames);
+		} else {
+			codecError = Error::Unkown;
+		}
+
+		av_packet_unref(m_pPacket);
+
+		return codecError;
+	}
+
 	Error Context::openEncoder(const char* szCodecName, const EncoderParameters& parameters)
 	{
 		const AVCodec* pCodec = avcodec_find_encoder_by_name(szCodecName);
@@ -124,24 +142,6 @@ namespace avcodec {
 		return Error::Success;
 	}
 
-	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
-	{
-		Error codecError = Error::Success;
-		auto formatError = formatContext.readVideoFrame(*m_pPacket);
-
-		if (formatError == avformat::Error::Success) {
-			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
-		} else if (formatError == avformat::Error::EndOfFile) {
-			codecError = decodeVideoFrame(nullptr, yuvFrames);
-		} else {
-			codecError = Error::Unkown;
-		}
-
-		av_packet_unref(m_pPacket);
-
-		return codecError;
-	}
-
 	Error Context::encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets)
 	{
 		if (yuvFrame.isEmpty()) {
@@ -177,6 +177,30 @@ namespace avcodec {
 		}
 
 		return Error::Success;
+	}
+
+	void Context::setPixelFormantAndColorRange(EncoderParameters& parameters) const
+	{
+		switch (m_pContext->pix_fmt) {
+		case AV_PIX_FMT_YUVJ420P:
+			parameters.pixelFormat = AV_PIX_FMT_YUV420P;
+			parameters.colorRange = AVCOL_RANGE_JPEG;
+			break;
+
+		case AV_PIX_FMT_YUVJ422P:
+			parameters.pixelFormat = AV_PIX_FMT_YUV422P;
+			parameters.colorRange = AVCOL_RANGE_JPEG;
+			break;
+
+		case AV_PIX_FMT_YUVJ444P:
+			parameters.pixelFormat = AV_PIX_FMT_YUV444P;
+			parameters.colorRange = AVCOL_RANGE_JPEG;
+			break;
+
+		default:
+			parameters.pixelFormat = m_pContext->pix_fmt;
+			parameters.colorRange = m_pContext->color_range;
+		}
 	}
 
 	Error Context::decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames)
@@ -235,29 +259,5 @@ namespace avcodec {
 		}
 
 		return Error::Success;
-	}
-
-	void Context::setPixelFormantAndColorRange(EncoderParameters& parameters) const
-	{
-		switch (m_pContext->pix_fmt) {
-		case AV_PIX_FMT_YUVJ420P:
-			parameters.pixelFormat = AV_PIX_FMT_YUV420P;
-			parameters.colorRange = AVCOL_RANGE_JPEG;
-			break;
-
-		case AV_PIX_FMT_YUVJ422P:
-			parameters.pixelFormat = AV_PIX_FMT_YUV422P;
-			parameters.colorRange = AVCOL_RANGE_JPEG;
-			break;
-
-		case AV_PIX_FMT_YUVJ444P:
-			parameters.pixelFormat = AV_PIX_FMT_YUV444P;
-			parameters.colorRange = AVCOL_RANGE_JPEG;
-			break;
-
-		default:
-			parameters.pixelFormat = m_pContext->pix_fmt;
-			parameters.colorRange = m_pContext->color_range;
-		}
 	}
 }
