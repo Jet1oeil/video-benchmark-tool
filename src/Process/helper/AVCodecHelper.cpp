@@ -63,24 +63,6 @@ namespace avcodec {
 		m_pCodec = pCodec;
 	}
 
-	Error Context::openDecoder(const avformat::Context& formatContext)
-	{
-		if (allocateContext() != Error::Success) {
-			return Error::NoMemory;
-		}
-
-		auto videoStream = formatContext.getVideoStream();
-		if (avcodec_parameters_to_context(m_pContext, videoStream.pStream->codecpar) < 0) {
-			return Error::CopyParameters;
-		}
-
-		if (avcodec_open2(m_pContext, m_pCodec, nullptr) < 0) {
-			return Error::OpenCodec;
-		}
-
-		return Error::Success;
-	}
-
 	Error Context::decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames)
 	{
 		avformat::Context formatContext;
@@ -102,67 +84,6 @@ namespace avcodec {
 		if (errorCodec != avcodec::Error::CodecFlushed) {
 			return Error::Unkown;
 		}
-
-		return Error::Success;
-	}
-
-	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
-	{
-		Error codecError = Error::Success;
-		auto formatError = formatContext.readVideoFrame(*m_pPacket);
-
-		if (formatError == avformat::Error::Success) {
-			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
-		} else if (formatError == avformat::Error::EndOfFile) {
-			codecError = decodeVideoFrame(nullptr, yuvFrames);
-		} else {
-			codecError = Error::Unkown;
-		}
-
-		av_packet_unref(m_pPacket);
-
-		return codecError;
-	}
-
-	Error Context::openEncoder(const char* szCodecName, const EncoderParameters& parameters)
-	{
-		const AVCodec* pCodec = avcodec_find_encoder_by_name(szCodecName);
-		if (pCodec == nullptr) {
-			return Error::NoEncoderFound;
-		}
-		m_pCodec = pCodec;
-
-		if (allocateContext() != Error::Success) {
-			return Error::NoMemory;
-		}
-
-		m_pContext->time_base = parameters.timeBase;
-		m_pContext->framerate = { parameters.timeBase.num, parameters.timeBase.den };
-		m_pContext->pix_fmt = parameters.pixelFormat;
-		m_pContext->color_range = parameters.colorRange;
-		m_pContext->width = parameters.iWidth;
-		m_pContext->height = parameters.iHeight;
-		m_pContext->thread_count = 1;
-
-		AVDictionary* options = nullptr;
-		av_dict_set(&options, "crf", std::to_string(parameters.iCRF).c_str(), 0);
-		av_dict_set(&options, "preset", qPrintable(parameters.szPreset), 0);
-		av_dict_set(&options, "frame-threads", "1", 0);
-
-		if (avcodec_open2(m_pContext, m_pCodec, &options) < 0) {
-			return Error::OpenCodec;
-		}
-
-		m_pFrame->format = parameters.pixelFormat;
-		m_pFrame->color_range = parameters.colorRange;
-		m_pFrame->width = parameters.iWidth;
-		m_pFrame->height = parameters.iHeight;
-
-		if (av_frame_get_buffer(m_pFrame, 0) < 0) {
-			return Error::NoMemory;
-		}
-
-		assert(m_pContext->thread_count == 1);
 
 		return Error::Success;
 	}
@@ -249,6 +170,24 @@ namespace avcodec {
 		}
 	}
 
+	Error Context::openDecoder(const avformat::Context& formatContext)
+	{
+		if (allocateContext() != Error::Success) {
+			return Error::NoMemory;
+		}
+
+		auto videoStream = formatContext.getVideoStream();
+		if (avcodec_parameters_to_context(m_pContext, videoStream.pStream->codecpar) < 0) {
+			return Error::CopyParameters;
+		}
+
+		if (avcodec_open2(m_pContext, m_pCodec, nullptr) < 0) {
+			return Error::OpenCodec;
+		}
+
+		return Error::Success;
+	}
+
 	Error Context::decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames)
 	{
 		if (avcodec_send_packet(m_pContext, pPacket) < 0) {
@@ -274,6 +213,49 @@ namespace avcodec {
 
 			yuvFrames.append(yuvBytes);
 		}
+
+		return Error::Success;
+	}
+
+	Error Context::openEncoder(const char* szCodecName, const EncoderParameters& parameters)
+	{
+		const AVCodec* pCodec = avcodec_find_encoder_by_name(szCodecName);
+		if (pCodec == nullptr) {
+			return Error::NoEncoderFound;
+		}
+		m_pCodec = pCodec;
+
+		if (allocateContext() != Error::Success) {
+			return Error::NoMemory;
+		}
+
+		m_pContext->time_base = parameters.timeBase;
+		m_pContext->framerate = { parameters.timeBase.num, parameters.timeBase.den };
+		m_pContext->pix_fmt = parameters.pixelFormat;
+		m_pContext->color_range = parameters.colorRange;
+		m_pContext->width = parameters.iWidth;
+		m_pContext->height = parameters.iHeight;
+		m_pContext->thread_count = 1;
+
+		AVDictionary* options = nullptr;
+		av_dict_set(&options, "crf", std::to_string(parameters.iCRF).c_str(), 0);
+		av_dict_set(&options, "preset", qPrintable(parameters.szPreset), 0);
+		av_dict_set(&options, "frame-threads", "1", 0);
+
+		if (avcodec_open2(m_pContext, m_pCodec, &options) < 0) {
+			return Error::OpenCodec;
+		}
+
+		m_pFrame->format = parameters.pixelFormat;
+		m_pFrame->color_range = parameters.colorRange;
+		m_pFrame->width = parameters.iWidth;
+		m_pFrame->height = parameters.iHeight;
+
+		if (av_frame_get_buffer(m_pFrame, 0) < 0) {
+			return Error::NoMemory;
+		}
+
+		assert(m_pContext->thread_count == 1);
 
 		return Error::Success;
 	}
@@ -305,5 +287,23 @@ namespace avcodec {
 		}
 
 		return Error::Success;
+	}
+
+	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
+	{
+		Error codecError = Error::Success;
+		auto formatError = formatContext.readVideoFrame(*m_pPacket);
+
+		if (formatError == avformat::Error::Success) {
+			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
+		} else if (formatError == avformat::Error::EndOfFile) {
+			codecError = decodeVideoFrame(nullptr, yuvFrames);
+		} else {
+			codecError = Error::Unkown;
+		}
+
+		av_packet_unref(m_pPacket);
+
+		return codecError;
 	}
 }
