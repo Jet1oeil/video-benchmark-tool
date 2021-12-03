@@ -58,7 +58,7 @@ namespace avcodec {
 		return parameters;
 	}
 
-	void Context::setCodec(AVCodec* pCodec)
+	void Context::setCodec(const AVCodec* pCodec)
 	{
 		m_pCodec = pCodec;
 	}

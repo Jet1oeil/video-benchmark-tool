@@ -50,7 +50,7 @@ namespace avcodec {
 		Context& operator=(Context&&) = delete;
 
 		EncoderParameters getCodecParameters() const;
-		void setCodec(AVCodec* pCodec);
+		void setCodec(const AVCodec* pCodec);
 
 		Error openDecoder(const avformat::Context& formatContext);
 		Error decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames);
