@@ -39,47 +39,30 @@ namespace vmaf {
 		}
 
 		QVector<QByteArray> yuvFrames;
-		avcodec::EncoderParameters codecParameters;
-		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames, codecParameters)) {
+		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames)) {
 			qDebug("Error decoding...");
 		}
 
-		runExperiments(yuvFrames, codecParameters);
+		runExperiments(yuvFrames);
 
 		emit benchmarkFinished();
 	}
 
-	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames, avcodec::EncoderParameters& codecParameters)
+	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
 	{
-		avformat::Context formatContext;
 		avcodec::Context codecContex;
 
-		if (formatContext.openFile(qPrintable(szVideoFileName), codecContex) != avformat::Error::Success) {
-			qDebug("Error format...");
+		if (codecContex.decodeVideoFile(qPrintable(szVideoFileName), yuvFrames) != avcodec::Error::Success) {
+			qDebug("Error decode video...");
 			return false;
 		}
 
-		if (codecContex.openDecoder(formatContext) != avcodec::Error::Success) {
-			qDebug("Error codec...");
-			return false;
-		}
-
-		codecParameters = codecContex.getCodecParameters();
-
-		avcodec::Error errorCodec = avcodec::Error::Success;
-		do {
-			errorCodec = codecContex.decodePacket(formatContext, yuvFrames);
-		} while (errorCodec == avcodec::Error::Success);
-
-		if (errorCodec != avcodec::Error::CodecFlushed) {
-			qDebug("Error decode...");
-			return false;
-		}
+		m_originalCodecParameters = codecContex.getCodecParameters();
 
 		return true;
 	}
 
-	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames, const avcodec::EncoderParameters& codecParameters)
+	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames)
 	{
 		QVector<Experiment> listExperiments;
 
@@ -93,7 +76,7 @@ namespace vmaf {
 		// Alloc the thread pool
 		QMutex mutexExperiments;
 		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
-			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, codecParameters, listExperiments, mutexExperiments));
+			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, m_originalCodecParameters, listExperiments, mutexExperiments));
 		}
 
 		// Start all threads

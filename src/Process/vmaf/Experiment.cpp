@@ -39,8 +39,10 @@ namespace vmaf {
 			m_encoderParameters.szPreset = currentExperiment.szPreset;
 
 			// Encode the video
+			avcodec::Context encoder;
 			QVector<QByteArray> packets;
-			if (!encodeVideo(packets)) {
+
+			if (encoder.encodeFrameStream(m_yuvFrames, m_encoderParameters, packets) != avcodec::Error::Success) {
 				qDebug("Encode error...");
 				continue;
 			}
@@ -57,27 +59,6 @@ namespace vmaf {
 		}
 
 		experiment = m_listExperiments.takeLast();
-
-		return true;
-	}
-
-	bool ExperimentThread::encodeVideo(QVector<QByteArray>& packets)
-	{
-		avcodec::Context encoderContext;
-		if (encoderContext.openEncoder("libx265", m_encoderParameters) != avcodec::Error::Success) {
-			return false;
-		}
-
-		for (const auto& yuvFrame: m_yuvFrames) {
-			if (encoderContext.encodeFrame(yuvFrame, packets) != avcodec::Error::Success) {
-				return false;
-			}
-		}
-
-		// Flush decoder
-		if (encoderContext.encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
-			return false;
-		}
 
 		return true;
 	}

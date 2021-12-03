@@ -37,8 +37,6 @@ namespace vmaf {
 
 		bool stoleTask(Experiment& experiment);
 
-		bool encodeVideo(QVector<QByteArray>& packets);
-
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
 		avcodec::EncoderParameters m_encoderParameters;

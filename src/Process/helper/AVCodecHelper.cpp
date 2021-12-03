@@ -81,6 +81,31 @@ namespace avcodec {
 		return Error::Success;
 	}
 
+	Error Context::decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames)
+	{
+		avformat::Context formatContext;
+
+		if (formatContext.openFile(szVideoFileName, *this) != avformat::Error::Success) {
+			return Error::OpenCodec;
+		}
+
+		Error error = openDecoder(formatContext);
+		if (error != avcodec::Error::Success) {
+			return Error::OpenCodec;
+		}
+
+		avcodec::Error errorCodec = avcodec::Error::Success;
+		do {
+			errorCodec = decodePacket(formatContext, yuvFrames);
+		} while (errorCodec == avcodec::Error::Success);
+
+		if (errorCodec != avcodec::Error::CodecFlushed) {
+			return Error::Unkown;
+		}
+
+		return Error::Success;
+	}
+
 	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
 	{
 		Error codecError = Error::Success;
@@ -138,6 +163,27 @@ namespace avcodec {
 		}
 
 		assert(m_pContext->thread_count == 1);
+
+		return Error::Success;
+	}
+
+	Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const EncoderParameters& parameters, QVector<QByteArray>& packets)
+	{
+		avcodec::Context encoderContext;
+		if (encoderContext.openEncoder("libx265", parameters) != avcodec::Error::Success) {
+			return Error::OpenCodec;
+		}
+
+		for (const auto& yuvFrame: yuvFrames) {
+			if (encoderContext.encodeFrame(yuvFrame, packets) != avcodec::Error::Success) {
+				return Error::Unkown;
+			}
+		}
+
+		// Flush decoder
+		if (encoderContext.encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
+			return Error::Unkown;
+		}
 
 		return Error::Success;
 	}

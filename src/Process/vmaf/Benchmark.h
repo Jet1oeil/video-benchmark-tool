@@ -37,8 +37,8 @@ namespace vmaf {
 	private:
 		virtual void run() override;
 
-		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames, avcodec::EncoderParameters& codecParameters);
-		void runExperiments(const QVector<QByteArray>& yuvFrames, const avcodec::EncoderParameters& codecParameters);
+		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames);
+		void runExperiments(const QVector<QByteArray>& yuvFrames);
 
 	private:
 		QString m_szVideoFileName;
@@ -46,6 +46,7 @@ namespace vmaf {
 		int m_iMaxCRF;
 		QStringList m_listPreset;
 
+		avcodec::EncoderParameters m_originalCodecParameters;
 		// Need to use STL vector to have emplace_back method
 		std::vector<ExperimentThread> m_poolThreads;
 	};
