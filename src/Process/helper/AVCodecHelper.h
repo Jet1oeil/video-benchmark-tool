@@ -22,7 +22,7 @@ namespace avcodec {
 		SendFrame,
 		ReceiveFrame,
 		CodecFlushed,
-		NoEncoderFound,
+		NoCodecFound,
 		Unkown,
 	};
 
@@ -50,9 +50,11 @@ namespace avcodec {
 		Context& operator=(Context&&) = delete;
 
 		EncoderParameters getCodecParameters() const;
+		const AVCodec* getCodec() const;
 		void setCodec(const AVCodec* pCodec);
 
 		Error decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames);
+		Error decodePacketStream(QVector<QByteArray>& packets, const AVCodec* pCodec, QVector<QByteArray>& yuvFrames);
 
 		Error encodeFrameStream(const QVector<QByteArray>& yuvFrames, const EncoderParameters& parameters, QVector<QByteArray>& packets);
 
@@ -61,6 +63,7 @@ namespace avcodec {
 		void setPixelFormantAndColorRange(EncoderParameters& parameters) const;
 
 		Error openDecoder(const avformat::Context& formatContext);
+		Error openDecoder(const AVCodec* pCodec);
 		Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
 		Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
 

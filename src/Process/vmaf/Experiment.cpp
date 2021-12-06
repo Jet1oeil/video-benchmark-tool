@@ -1,7 +1,5 @@
 #include "Experiment.h"
 
-#include <QFile>
-
 #include "Process/helper/AVCodecHelper.h"
 
 namespace vmaf {
@@ -44,6 +42,14 @@ namespace vmaf {
 
 			if (encoder.encodeFrameStream(m_yuvFrames, m_encoderParameters, packets) != avcodec::Error::Success) {
 				qDebug("Encode error...");
+				continue;
+			}
+
+			// Decode the transcoded video
+			QVector<QByteArray> transcodedYUVFrames;
+			avcodec::Context decoder;
+			if (decoder.decodePacketStream(packets, encoder.getCodec(), transcodedYUVFrames) != avcodec::Error::Success) {
+				qDebug("Decode transcoded video error...");
 				continue;
 			}
 		}

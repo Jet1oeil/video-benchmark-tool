@@ -58,6 +58,15 @@ namespace avcodec {
 		return parameters;
 	}
 
+	const AVCodec* Context::getCodec() const
+	{
+		if (m_pContext == nullptr) {
+			return nullptr;
+		}
+
+		return m_pContext->codec;
+	}
+
 	void Context::setCodec(const AVCodec* pCodec)
 	{
 		m_pCodec = pCodec;
@@ -88,42 +97,49 @@ namespace avcodec {
 		return Error::Success;
 	}
 
-	Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const EncoderParameters& parameters, QVector<QByteArray>& packets)
+	Error Context::decodePacketStream(QVector<QByteArray>& packets, const AVCodec* pCodec, QVector<QByteArray>& yuvFrames)
 	{
-		avcodec::Context encoderContext;
-		if (encoderContext.openEncoder("libx265", parameters) != avcodec::Error::Success) {
+		Error error = Error::Success;
+
+		if (openDecoder(pCodec) != avcodec::Error::Success) {
 			return Error::OpenCodec;
 		}
 
-		for (const auto& yuvFrame: yuvFrames) {
-			if (encoderContext.encodeFrame(yuvFrame, packets) != avcodec::Error::Success) {
+		for (auto& packet: packets) {
+			m_pPacket->data = reinterpret_cast<uint8_t*>(packet.data());
+			m_pPacket->size = packet.size();
+
+			if (decodeVideoFrame(m_pPacket, yuvFrames) != avcodec::Error::Success) {
 				return Error::Unkown;
 			}
 		}
 
 		// Flush decoder
-		if (encoderContext.encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
+		if (decodeVideoFrame(nullptr, yuvFrames) != avcodec::Error::CodecFlushed) {
+			return Error::Unkown;
+		}
+
+		return error;
+	}
+
+	Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const EncoderParameters& parameters, QVector<QByteArray>& packets)
+	{
+		if (openEncoder("libx265", parameters) != avcodec::Error::Success) {
+			return Error::OpenCodec;
+		}
+
+		for (const auto& yuvFrame: yuvFrames) {
+			if (encodeFrame(yuvFrame, packets) != avcodec::Error::Success) {
+				return Error::Unkown;
+			}
+		}
+
+		// Flush decoder
+		if (encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
 			return Error::Unkown;
 		}
 
 		return Error::Success;
-	}
-
-	Error Context::encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets)
-	{
-		if (yuvFrame.isEmpty()) {
-			return encodeVideoFrame(nullptr, packets);
-		}
-
-		// Fill AVFrame
-		const char* pSrc = yuvFrame.data();
-		std::memcpy(m_pFrame->data[0], pSrc, m_pFrame->width * m_pFrame->height);
-		pSrc += m_pFrame->width * m_pFrame->height;
-		std::memcpy(m_pFrame->data[1], pSrc, m_pFrame->width * m_pFrame->height / 4);
-		pSrc += m_pFrame->width * m_pFrame->height / 4;
-		std::memcpy(m_pFrame->data[2], pSrc, m_pFrame->width * m_pFrame->height / 4);
-
-		return encodeVideoFrame(m_pFrame, packets);
 	}
 
 	Error Context::allocateContext()
@@ -188,6 +204,31 @@ namespace avcodec {
 		return Error::Success;
 	}
 
+	Error Context::openDecoder(const AVCodec* pCodec)
+	{
+		if (allocateContext() != Error::Success) {
+			return Error::NoMemory;
+		}
+
+		AVCodec* pTmpCodec = nullptr;
+
+		// TODO: Create enum to handle this
+		if (QString(pCodec->name) == "libx265") {
+			pTmpCodec = avcodec_find_decoder_by_name("hevc");
+		}
+
+		if (pTmpCodec == nullptr) {
+			return Error::NoCodecFound;
+		}
+		m_pCodec = pTmpCodec;
+
+		if (avcodec_open2(m_pContext, m_pCodec, nullptr) < 0) {
+			return Error::OpenCodec;
+		}
+
+		return Error::Success;
+	}
+
 	Error Context::decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames)
 	{
 		if (avcodec_send_packet(m_pContext, pPacket) < 0) {
@@ -217,11 +258,29 @@ namespace avcodec {
 		return Error::Success;
 	}
 
+	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
+	{
+		Error codecError = Error::Success;
+		auto formatError = formatContext.readVideoFrame(*m_pPacket);
+
+		if (formatError == avformat::Error::Success) {
+			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
+		} else if (formatError == avformat::Error::EndOfFile) {
+			codecError = decodeVideoFrame(nullptr, yuvFrames);
+		} else {
+			codecError = Error::Unkown;
+		}
+
+		av_packet_unref(m_pPacket);
+
+		return codecError;
+	}
+
 	Error Context::openEncoder(const char* szCodecName, const EncoderParameters& parameters)
 	{
 		const AVCodec* pCodec = avcodec_find_encoder_by_name(szCodecName);
 		if (pCodec == nullptr) {
-			return Error::NoEncoderFound;
+			return Error::NoCodecFound;
 		}
 		m_pCodec = pCodec;
 
@@ -289,21 +348,20 @@ namespace avcodec {
 		return Error::Success;
 	}
 
-	Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
+	Error Context::encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets)
 	{
-		Error codecError = Error::Success;
-		auto formatError = formatContext.readVideoFrame(*m_pPacket);
-
-		if (formatError == avformat::Error::Success) {
-			codecError = decodeVideoFrame(m_pPacket, yuvFrames);
-		} else if (formatError == avformat::Error::EndOfFile) {
-			codecError = decodeVideoFrame(nullptr, yuvFrames);
-		} else {
-			codecError = Error::Unkown;
+		if (yuvFrame.isEmpty()) {
+			return encodeVideoFrame(nullptr, packets);
 		}
 
-		av_packet_unref(m_pPacket);
+		// Fill AVFrame
+		const char* pSrc = yuvFrame.data();
+		std::memcpy(m_pFrame->data[0], pSrc, m_pFrame->width * m_pFrame->height);
+		pSrc += m_pFrame->width * m_pFrame->height;
+		std::memcpy(m_pFrame->data[1], pSrc, m_pFrame->width * m_pFrame->height / 4);
+		pSrc += m_pFrame->width * m_pFrame->height / 4;
+		std::memcpy(m_pFrame->data[2], pSrc, m_pFrame->width * m_pFrame->height / 4);
 
-		return codecError;
+		return encodeVideoFrame(m_pFrame, packets);
 	}
 }
