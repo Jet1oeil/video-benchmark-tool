@@ -1,0 +1,3 @@
+[submodule "vendor/vmaf/src"]
+	path = vendor/vmaf/repo/
+	url = https://github.com/Netflix/vmaf.git

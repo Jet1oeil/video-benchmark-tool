@@ -23,6 +23,8 @@ endif ()
 
 include_directories(${CMAKE_SOURCE_DIR}/src)
 
+add_subdirectory(vendor/vmaf)
+
 add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Process/helper/AVCodecHelper.cpp
@@ -40,6 +42,7 @@ target_link_libraries(video-benchmark-tool
 		FFMPEG::avcodec
 		FFMPEG::avformat
 		FFMPEG::avutil
+		vmaf
 )
 
 if (UNIX)
