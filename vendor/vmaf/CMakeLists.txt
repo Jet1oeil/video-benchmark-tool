@@ -5,8 +5,6 @@ project(VMAF VERSION 2.3.0 LANGUAGES C)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-include_directories(repo/libvmaf/include repo/libvmaf/src ${CMAKE_CURRENT_BINARY_DIR})
-
 execute_process(
 	COMMAND git log -1 --format=%h
 	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
@@ -65,4 +63,9 @@ add_library(vmaf
 	repo/libvmaf/src/read_json_model.c
 	repo/libvmaf/src/pdjson.c
 	repo/libvmaf/src/log.c
+)
+
+target_include_directories(vmaf
+	PUBLIC repo/libvmaf/include
+	PRIVATE repo/libvmaf/src ${CMAKE_CURRENT_BINARY_DIR}
 )
