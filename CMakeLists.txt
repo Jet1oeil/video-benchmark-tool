@@ -21,8 +21,6 @@ if (UNIX)
 	)
 endif ()
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-
 add_subdirectory(vendor/vmaf)
 
 add_executable(video-benchmark-tool
@@ -42,10 +40,21 @@ target_link_libraries(video-benchmark-tool
 		FFMPEG::avcodec
 		FFMPEG::avformat
 		FFMPEG::avutil
-		vmaf
+		vmaf::vmaf
+)
+
+target_include_directories(video-benchmark-tool
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 if (UNIX)
+	target_compile_options(video-benchmark-tool
+		PRIVATE
+			"-Wall" "-Wextra"
+			"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
+	)
+
 	target_link_libraries(video-benchmark-tool
 		PRIVATE
 			"$<$<CONFIG:DEBUG>:-fno-omit-frame-pointer;-fsanitize=address>"

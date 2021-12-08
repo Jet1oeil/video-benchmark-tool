@@ -1,71 +1,49 @@
-cmake_minimum_required(VERSION 3.13)
+# create custom task to build vmaf lib
 
-project(VMAF VERSION 2.3.0 LANGUAGES C)
-
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-
-execute_process(
-	COMMAND git log -1 --format=%h
-	WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-	OUTPUT_VARIABLE VCS_TAG
-	OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-
-# Set config variables
-# Detect arch family
-set(ARCH_X86 0)
-set(ARCH_X86_32 0)
-set(ARCH_X86_64 0)
-
-if (CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^x86")
-	set(ARCH_X86 1)
-
-	if (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86_64")
-		set (ARCH_X86_64 1)
-	elseif (CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "x86")
-		set (ARCH_X86_32 1)
-	endif ()
+find_program(MESON_EXE meson REQUIRED)
+if (NOT MESON_EXE)
+	message(FATAL_ERROR "meson not found")
+else ()
+	message(STATUS "meson found: ${MESON_EXE}")
 endif ()
 
-# Mandatory for 32 bits builds
-set(HAVE_ASM 0)
-set(HAVE_AVX512 0)
+find_program(NINJA_EXE ninja REQUIRED)
+if (NOT NINJA_EXE)
+	message(FATAL_ERROR "ninja not found")
+else ()
+	message(STATUS "ninja found: ${NINJA_EXE}")
+endif ()
 
-# Use built-in models
-set(VMAF_BUILT_IN_MODELS 1)
-set(VMAF_FLOAT_FEATURES 1)
+find_program(XXD_EXE xxd REQUIRED)
+if (NOT XXD_EXE)
+	message(FATAL_ERROR "xxd not found")
+else ()
+	message(STATUS "xxd found: ${XXD_EXE}")
+endif ()
 
-# Set version variables
-set(VMAF_API_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
-set(VMAF_API_VERSION_MINOR ${PROJECT_VERSION_MINOR})
-set(VMAF_API_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+find_package(Threads REQUIRED)
 
-configure_file(repo/libvmaf/include/vcs_version.h.in ${CMAKE_CURRENT_BINARY_DIR}/vcs_version.h)
-configure_file(repo/libvmaf/include/libvmaf/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/version.h)
-configure_file(config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
-
-add_library(vmaf
-	repo/libvmaf/src/libvmaf.c
-	repo/libvmaf/src/compute_vmaf.c
-	repo/libvmaf/src/predict.c
-	repo/libvmaf/src/model.c
-	repo/libvmaf/src/svm.cpp
-	repo/libvmaf/src/picture.c
-	repo/libvmaf/src/mem.c
-	repo/libvmaf/src/picture.c
-	repo/libvmaf/src/output.c
-	repo/libvmaf/src/fex_ctx_vector.c
-	repo/libvmaf/src/thread_pool.c
-	repo/libvmaf/src/dict.c
-	repo/libvmaf/src/opt.c
-	repo/libvmaf/src/ref.c
-	repo/libvmaf/src/read_json_model.c
-	repo/libvmaf/src/pdjson.c
-	repo/libvmaf/src/log.c
+# Add target to compile VMAF
+add_custom_target(vmaf-compile ALL
+	DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/vmaf-compiled
 )
 
-target_include_directories(vmaf
-	PUBLIC repo/libvmaf/include
-	PRIVATE repo/libvmaf/src ${CMAKE_CURRENT_BINARY_DIR}
+add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vmaf-compiled
+	COMMAND
+		${MESON_EXE}
+		--buildtype $<$<CONFIG:Debug>:debug>$<$<CONFIG:Release>:release>
+		-D enable_float=true
+		${CMAKE_CURRENT_BINARY_DIR}/meson-build
+	COMMAND ${NINJA_EXE} -vC ${CMAKE_CURRENT_BINARY_DIR}/meson-build
+	COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/vmaf-compiled
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/repo/libvmaf
+)
+
+# Export vmaf target
+add_library(vmaf::vmaf UNKNOWN IMPORTED GLOBAL)
+add_dependencies(vmaf::vmaf vmaf-compile)
+set_target_properties(vmaf::vmaf PROPERTIES
+	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/meson-build/src/libvmaf.a
+	INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/repo/libvmaf/include
+	INTERFACE_LINK_LIBRARIES Threads::Threads
 )
