@@ -65,7 +65,7 @@ namespace vmaf {
 			// Decode the transcoded video
 			QVector<QByteArray> transcodedYUVFrames;
 			helper::avcodec::Context decoder;
-			if (decoder.decodePacketStream(packets, encoder.getCodec(), transcodedYUVFrames) != helper::avcodec::Error::Success) {
+			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
 				qDebug("Decode transcoded video error...");
 				continue;
 			}

@@ -10,6 +10,7 @@ namespace helper {
 	namespace avformat {
 		Context::Context()
 		: m_pContext(nullptr)
+		, m_pCodec(nullptr)
 		{
 
 		}
@@ -26,7 +27,12 @@ namespace helper {
 			return m_videoStream;
 		}
 
-		Error Context::openFile(const char* szVideoFileName, avcodec::Context& codecContext)
+		const AVCodec* Context::getCodec() const
+		{
+			return m_pCodec;
+		}
+
+		Error Context::openFile(const char* szVideoFileName)
 		{
 			if (avformat_open_input(&m_pContext, szVideoFileName, nullptr, nullptr) != 0) {
 				return Error::InvalidInputFile;
@@ -41,7 +47,9 @@ namespace helper {
 			if (iRes < 0) {
 				return Error::NoVideoStream;
 			}
-			codecContext.setCodec(pCodec);
+
+			m_pCodec = pCodec;
+
 			m_videoStream.pStream = m_pContext->streams[iRes];
 			m_videoStream.iIndex = iRes;
 

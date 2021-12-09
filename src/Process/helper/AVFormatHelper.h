@@ -2,16 +2,13 @@
 #define HELPER_AVFORMAT_HELPER_H_
 
 extern "C" {
+	struct AVCodec;
 	struct AVFormatContext;
 	struct AVPacket;
 	struct AVStream;
 }
 
 namespace helper {
-	namespace avcodec {
-		class Context;
-	}
-
 	namespace avformat {
 		enum class Error {
 			Success,
@@ -39,13 +36,15 @@ namespace helper {
 			Context& operator=(Context&&) = delete;
 
 			const Stream& getVideoStream() const;
+			const AVCodec* getCodec() const;
 
-			Error openFile(const char* szVideoFileName, avcodec::Context& codecContext);
+			Error openFile(const char* szVideoFileName);
 			Error readVideoFrame(AVPacket& packet);
 
 		private:
 			AVFormatContext* m_pContext;
 			Stream m_videoStream;
+			const AVCodec* m_pCodec;
 		};
 	}
 }

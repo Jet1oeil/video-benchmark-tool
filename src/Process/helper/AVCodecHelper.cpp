@@ -101,16 +101,6 @@ namespace helper {
 				return AVCOL_RANGE_UNSPECIFIED;
 			}
 
-			const char* getEncoderName(CodecType codec)
-			{
-				switch (codec) {
-				case CodecType::H265:
-					return "libx265";
-				}
-
-				return "";
-			}
-
 			int getPixelDepth(AVPixelFormat pixelFormat)
 			{
 				switch (pixelFormat) {
@@ -157,11 +147,20 @@ namespace helper {
 
 				return -1;
 			}
+
+			AVCodecID getCodecID(CodecType codec)
+			{
+				switch (codec) {
+				case CodecType::H265:
+					return AV_CODEC_ID_HEVC;
+				}
+
+				return AV_CODEC_ID_NONE;
+			}
 		}
 
 		Context::Context()
 		: m_pContext(nullptr)
-		, m_pCodec(nullptr)
 		, m_pPacket(nullptr)
 		, m_pFrame(nullptr)
 		{
@@ -197,25 +196,11 @@ namespace helper {
 			return parameters;
 		}
 
-		const AVCodec* Context::getCodec() const
-		{
-			if (m_pContext == nullptr) {
-				return nullptr;
-			}
-
-			return m_pContext->codec;
-		}
-
-		void Context::setCodec(const AVCodec* pCodec)
-		{
-			m_pCodec = pCodec;
-		}
-
 		Error Context::decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames)
 		{
 			avformat::Context formatContext;
 
-			if (formatContext.openFile(szVideoFileName, *this) != avformat::Error::Success) {
+			if (formatContext.openFile(szVideoFileName) != avformat::Error::Success) {
 				return Error::OpenCodec;
 			}
 
@@ -236,11 +221,11 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodePacketStream(QVector<QByteArray>& packets, const AVCodec* pCodec, QVector<QByteArray>& yuvFrames)
+		Error Context::decodePacketStream(QVector<QByteArray>& packets, CodecType codecType, QVector<QByteArray>& yuvFrames)
 		{
 			Error error = Error::Success;
 
-			if (openDecoder(pCodec) != avcodec::Error::Success) {
+			if (openDecoder(codecType) != avcodec::Error::Success) {
 				return Error::OpenCodec;
 			}
 
@@ -286,7 +271,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::allocateContext()
+		Error Context::allocateContext(const AVCodec* pCodec)
 		{
 			m_pPacket = av_packet_alloc();
 			if (m_pPacket == nullptr) {
@@ -298,7 +283,7 @@ namespace helper {
 				return Error::NoMemory;
 			}
 
-			m_pContext = avcodec_alloc_context3(m_pCodec);
+			m_pContext = avcodec_alloc_context3(pCodec);
 			if (m_pContext == nullptr) {
 				return Error::NoMemory;
 			}
@@ -308,7 +293,9 @@ namespace helper {
 
 		Error Context::openDecoder(const avformat::Context& formatContext)
 		{
-			if (allocateContext() != Error::Success) {
+			const AVCodec* pCodec = formatContext.getCodec();
+
+			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
 			}
 
@@ -317,32 +304,26 @@ namespace helper {
 				return Error::CopyParameters;
 			}
 
-			if (avcodec_open2(m_pContext, m_pCodec, nullptr) < 0) {
+			if (avcodec_open2(m_pContext, pCodec, nullptr) < 0) {
 				return Error::OpenCodec;
 			}
 
 			return Error::Success;
 		}
 
-		Error Context::openDecoder(const AVCodec* pCodec)
+		Error Context::openDecoder(CodecType codecType)
 		{
-			if (allocateContext() != Error::Success) {
+			AVCodec* pCodec = avcodec_find_decoder(details::getCodecID(codecType));
+
+			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
 			}
 
-			AVCodec* pTmpCodec = nullptr;
-
-			// TODO: Create enum to handle this
-			if (QString(pCodec->name) == "libx265") {
-				pTmpCodec = avcodec_find_decoder_by_name("hevc");
-			}
-
-			if (pTmpCodec == nullptr) {
+			if (pCodec == nullptr) {
 				return Error::NoCodecFound;
 			}
-			m_pCodec = pTmpCodec;
 
-			if (avcodec_open2(m_pContext, m_pCodec, nullptr) < 0) {
+			if (avcodec_open2(m_pContext, pCodec, nullptr) < 0) {
 				return Error::OpenCodec;
 			}
 
@@ -401,13 +382,12 @@ namespace helper {
 			// Only support 8-bits
 			assert(parameters.iPixelDepth == 8);
 
-			const AVCodec* pCodec = avcodec_find_encoder_by_name(details::getEncoderName(encoderParameters.codecType));
+			const AVCodec* pCodec = avcodec_find_encoder(details::getCodecID(encoderParameters.codecType));
 			if (pCodec == nullptr) {
 				return Error::NoCodecFound;
 			}
-			m_pCodec = pCodec;
 
-			if (allocateContext() != Error::Success) {
+			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
 			}
 
@@ -427,7 +407,7 @@ namespace helper {
 			av_dict_set(&options, "preset", qPrintable(encoderParameters.szPreset), 0);
 			av_dict_set(&options, "frame-threads", "1", 0);
 
-			if (avcodec_open2(m_pContext, m_pCodec, &options) < 0) {
+			if (avcodec_open2(m_pContext, pCodec, &options) < 0) {
 				return Error::OpenCodec;
 			}
 

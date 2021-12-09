@@ -45,11 +45,8 @@ namespace helper {
 
 			CodecParameters getCodecParameters() const;
 
-			const AVCodec* getCodec() const;
-			void setCodec(const AVCodec* pCodec);
-
 			Error decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames);
-			Error decodePacketStream(QVector<QByteArray>& packets, const AVCodec* pCodec, QVector<QByteArray>& yuvFrames);
+			Error decodePacketStream(QVector<QByteArray>& packets, CodecType codecType, QVector<QByteArray>& yuvFrames);
 
 			Error encodeFrameStream(
 				const QVector<QByteArray>& yuvFrames,
@@ -59,10 +56,10 @@ namespace helper {
 			);
 
 		private:
-			Error allocateContext();
+			Error allocateContext(const AVCodec* pCodec);
 
 			Error openDecoder(const avformat::Context& formatContext);
-			Error openDecoder(const AVCodec* pCodec);
+			Error openDecoder(CodecType codecType);
 			Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
 			Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
 
@@ -72,7 +69,6 @@ namespace helper {
 
 		private:
 			AVCodecContext* m_pContext;
-			const AVCodec* m_pCodec;
 			AVPacket* m_pPacket;
 			AVFrame* m_pFrame;
 		};
