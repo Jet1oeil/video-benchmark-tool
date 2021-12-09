@@ -5,7 +5,7 @@
 
 #include <fstream>
 
-namespace vmaf {
+namespace helper {
 	VMAFWrapper::VMAFWrapper(VmafPixelFormat m_pixelFormat, int m_iPixelDepth, int m_iWidth, int m_iHeigh)
 	: m_pContext(nullptr)
 	, m_pModel(nullptr)

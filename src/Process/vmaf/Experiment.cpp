@@ -154,7 +154,7 @@ namespace vmaf {
 
 			// Call vmaf
 			AVPixelFormat pixelFormat = m_encoderParameters.pixelFormat;
-			VMAFWrapper vmaf(convertAVPixelFormat(pixelFormat), getPixelDepth(pixelFormat), m_encoderParameters.iWidth, m_encoderParameters.iHeight);
+			helper::VMAFWrapper vmaf(convertAVPixelFormat(pixelFormat), getPixelDepth(pixelFormat), m_encoderParameters.iWidth, m_encoderParameters.iHeight);
 
 			if (!vmaf.open()) {
 				qDebug("VMAF error...");

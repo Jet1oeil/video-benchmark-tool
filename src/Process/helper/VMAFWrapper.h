@@ -6,7 +6,7 @@
 
 #include "libvmaf/libvmaf.h"
 
-namespace vmaf {
+namespace helper {
 	class VMAFWrapper {
 	public:
 		VMAFWrapper(VmafPixelFormat m_pixelFormat, int m_iPixelDepth, int m_iWidth, int m_iHeigh);
