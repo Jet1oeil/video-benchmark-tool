@@ -261,9 +261,14 @@ namespace helper {
 			return error;
 		}
 
-		Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const CodecParameters& parameters, CodecType codecType, int iCRF, const QString& szPreset, QVector<QByteArray>& packets)
+		Error Context::encodeFrameStream(
+			const QVector<QByteArray>& yuvFrames,
+			const CodecParameters& parameters,
+			const EncoderParameters& encoderParameters,
+			QVector<QByteArray>& packets
+		)
 		{
-			if (openEncoder(parameters, codecType, iCRF, szPreset) != avcodec::Error::Success) {
+			if (openEncoder(parameters, encoderParameters) != avcodec::Error::Success) {
 				return Error::OpenCodec;
 			}
 
@@ -391,12 +396,12 @@ namespace helper {
 			return codecError;
 		}
 
-		Error Context::openEncoder(const CodecParameters& parameters, CodecType codecType, int iCRF, const QString& szPreset)
+		Error Context::openEncoder(const CodecParameters& parameters, const EncoderParameters& encoderParameters)
 		{
 			// Only support 8-bits
 			assert(parameters.iPixelDepth == 8);
 
-			const AVCodec* pCodec = avcodec_find_encoder_by_name(details::getEncoderName(codecType));
+			const AVCodec* pCodec = avcodec_find_encoder_by_name(details::getEncoderName(encoderParameters.codecType));
 			if (pCodec == nullptr) {
 				return Error::NoCodecFound;
 			}
@@ -418,8 +423,8 @@ namespace helper {
 			m_pContext->thread_count = 1;
 
 			AVDictionary* options = nullptr;
-			av_dict_set(&options, "crf", std::to_string(iCRF).c_str(), 0);
-			av_dict_set(&options, "preset", qPrintable(szPreset), 0);
+			av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
+			av_dict_set(&options, "preset", qPrintable(encoderParameters.szPreset), 0);
 			av_dict_set(&options, "frame-threads", "1", 0);
 
 			if (avcodec_open2(m_pContext, m_pCodec, &options) < 0) {

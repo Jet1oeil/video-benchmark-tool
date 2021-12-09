@@ -57,7 +57,7 @@ namespace vmaf {
 			helper::avcodec::Context encoder;
 			QVector<QByteArray> packets;
 
-			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, helper::avcodec::CodecType::H265, currentConfiguration.iCRF, currentConfiguration.szPreset, packets) != helper::avcodec::Error::Success) {
+			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
 				qDebug("Encode error...");
 				continue;
 			}

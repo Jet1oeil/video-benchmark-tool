@@ -73,7 +73,7 @@ namespace vmaf {
 		// Generate all configuration
 		for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
 			for (const auto& szPreset: m_listPreset) {
-				listConfigurations.append({ iCRF, szPreset });
+				listConfigurations.append({ helper::avcodec::CodecType::H265, iCRF, szPreset });
 			}
 		}
 

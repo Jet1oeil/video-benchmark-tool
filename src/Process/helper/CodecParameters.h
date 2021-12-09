@@ -30,6 +30,11 @@ namespace helper {
 			int iFPS;
 		};
 
+		struct EncoderParameters {
+			CodecType codecType;
+			int iCRF;
+			QString szPreset;
+		};
 	}
 }
 

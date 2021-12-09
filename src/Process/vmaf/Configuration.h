@@ -3,10 +3,11 @@
 
 #include <QString>
 
+#include "Process/helper/CodecParameters.h"
+
 namespace vmaf {
-	struct Configuration {
-		int iCRF;
-		QString szPreset;
+	struct Configuration : public helper::avcodec::EncoderParameters {
+
 	};
 }
 
