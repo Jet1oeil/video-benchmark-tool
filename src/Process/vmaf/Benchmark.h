@@ -46,7 +46,7 @@ namespace vmaf {
 		int m_iMaxCRF;
 		QStringList m_listPreset;
 
-		avcodec::EncoderParameters m_originalCodecParameters;
+		helper::avcodec::EncoderParameters m_originalCodecParameters;
 		// Need to use STL vector to have emplace_back method
 		std::vector<ExperimentThread> m_poolThreads;
 	};

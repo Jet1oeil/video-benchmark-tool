@@ -54,9 +54,9 @@ namespace vmaf {
 
 	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
 	{
-		avcodec::Context codecContex;
+		helper::avcodec::Context codecContex;
 
-		if (codecContex.decodeVideoFile(qPrintable(szVideoFileName), yuvFrames) != avcodec::Error::Success) {
+		if (codecContex.decodeVideoFile(qPrintable(szVideoFileName), yuvFrames) != helper::avcodec::Error::Success) {
 			qDebug("Error decode video...");
 			return false;
 		}

@@ -99,7 +99,7 @@ namespace {
 namespace vmaf {
 	ExperimentThread::ExperimentThread(
 		const QVector<QByteArray>& yuvFrames,
-		const avcodec::EncoderParameters& encoderParameters,
+		const helper::avcodec::EncoderParameters& encoderParameters,
 		QVector<Configuration>& listConfigurations,
 		QMutex& mutexExperiments
 	)
@@ -131,18 +131,18 @@ namespace vmaf {
 			m_encoderParameters.szPreset = currentConfiguration.szPreset;
 
 			// Encode the video
-			avcodec::Context encoder;
+			helper::avcodec::Context encoder;
 			QVector<QByteArray> packets;
 
-			if (encoder.encodeFrameStream(m_yuvFrames, m_encoderParameters, packets) != avcodec::Error::Success) {
+			if (encoder.encodeFrameStream(m_yuvFrames, m_encoderParameters, packets) != helper::avcodec::Error::Success) {
 				qDebug("Encode error...");
 				continue;
 			}
 
 			// Decode the transcoded video
 			QVector<QByteArray> transcodedYUVFrames;
-			avcodec::Context decoder;
-			if (decoder.decodePacketStream(packets, encoder.getCodec(), transcodedYUVFrames) != avcodec::Error::Success) {
+			helper::avcodec::Context decoder;
+			if (decoder.decodePacketStream(packets, encoder.getCodec(), transcodedYUVFrames) != helper::avcodec::Error::Success) {
 				qDebug("Decode transcoded video error...");
 				continue;
 			}

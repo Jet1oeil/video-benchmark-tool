@@ -17,7 +17,7 @@ namespace vmaf {
 	public:
 		ExperimentThread(
 			const QVector<QByteArray>& yuvFrames,
-			const avcodec::EncoderParameters& encoderParameters,
+			const helper::avcodec::EncoderParameters& encoderParameters,
 			QVector<Configuration>& listConfiguration,
 			QMutex& mutexExperiments
 		);
@@ -36,7 +36,7 @@ namespace vmaf {
 
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
-		avcodec::EncoderParameters m_encoderParameters;
+		helper::avcodec::EncoderParameters m_encoderParameters;
 		QVector<Configuration>& m_listConfiguration;
 		QMutex& m_mutexExperiments;
 	};
