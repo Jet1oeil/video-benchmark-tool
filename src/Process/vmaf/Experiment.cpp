@@ -3,6 +3,8 @@
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/VMAFWrapper.h"
 
+#include "Configuration.h"
+
 namespace {
 	// TODO: Add support for other format
 	VmafPixelFormat convertAVPixelFormat(AVPixelFormat pixelFormat)
@@ -98,12 +100,12 @@ namespace vmaf {
 	ExperimentThread::ExperimentThread(
 		const QVector<QByteArray>& yuvFrames,
 		const avcodec::EncoderParameters& encoderParameters,
-		QVector<Experiment>& listExperiments,
+		QVector<Configuration>& listConfigurations,
 		QMutex& mutexExperiments
 	)
 	: m_yuvFrames(yuvFrames)
 	, m_encoderParameters(encoderParameters)
-	, m_listExperiments(listExperiments)
+	, m_listConfiguration(listConfigurations)
 	, m_mutexExperiments(mutexExperiments)
 	{
 
@@ -112,7 +114,7 @@ namespace vmaf {
 	ExperimentThread::ExperimentThread(ExperimentThread&& other)
 	: m_yuvFrames(other.m_yuvFrames)
 	, m_encoderParameters(other.m_encoderParameters)
-	, m_listExperiments(other.m_listExperiments)
+	, m_listConfiguration(other.m_listConfiguration)
 	, m_mutexExperiments(other.m_mutexExperiments)
 	{
 
@@ -120,13 +122,13 @@ namespace vmaf {
 
 	void ExperimentThread::run()
 	{
-		Experiment currentExperiment;
+		Configuration currentConfiguration;
 
-		while (stoleTask(currentExperiment)) {
-			qDebug("TID: %p, CRF: %d, preset: %s", QThread::currentThreadId(), currentExperiment.iCRF, qPrintable(currentExperiment.szPreset));
+		while (stoleTask(currentConfiguration)) {
+			qDebug("TID: %p, CRF: %d, preset: %s", QThread::currentThreadId(), currentConfiguration.iCRF, qPrintable(currentConfiguration.szPreset));
 
-			m_encoderParameters.iCRF = currentExperiment.iCRF;
-			m_encoderParameters.szPreset = currentExperiment.szPreset;
+			m_encoderParameters.iCRF = currentConfiguration.iCRF;
+			m_encoderParameters.szPreset = currentConfiguration.szPreset;
 
 			// Encode the video
 			avcodec::Context encoder;
@@ -166,16 +168,16 @@ namespace vmaf {
 		}
 	}
 
-	bool ExperimentThread::stoleTask(Experiment& experiment)
+	bool ExperimentThread::stoleTask(Configuration& configuration)
 	{
 		QMutexLocker locker(&m_mutexExperiments);
 
 		// No last experiment
-		if (m_listExperiments.isEmpty()) {
+		if (m_listConfiguration.isEmpty()) {
 			return false;
 		}
 
-		experiment = m_listExperiments.takeLast();
+		configuration = m_listConfiguration.takeLast();
 
 		return true;
 	}

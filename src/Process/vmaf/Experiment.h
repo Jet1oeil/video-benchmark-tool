@@ -9,10 +9,7 @@
 #include "Process/helper/AVCodecHelper.h"
 
 namespace vmaf {
-	struct Experiment {
-		int iCRF;
-		QString szPreset;
-	};
+	struct Configuration;
 
 	class ExperimentThread: public QThread {
 	Q_OBJECT
@@ -21,7 +18,7 @@ namespace vmaf {
 		ExperimentThread(
 			const QVector<QByteArray>& yuvFrames,
 			const avcodec::EncoderParameters& encoderParameters,
-			QVector<Experiment>& listExperiments,
+			QVector<Configuration>& listConfiguration,
 			QMutex& mutexExperiments
 		);
 		~ExperimentThread() = default;
@@ -35,12 +32,12 @@ namespace vmaf {
 	private:
 		virtual void run() override;
 
-		bool stoleTask(Experiment& experiment);
+		bool stoleTask(Configuration& experiment);
 
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
 		avcodec::EncoderParameters m_encoderParameters;
-		QVector<Experiment>& m_listExperiments;
+		QVector<Configuration>& m_listConfiguration;
 		QMutex& m_mutexExperiments;
 	};
 }

@@ -5,6 +5,8 @@
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/AVFormatHelper.h"
 
+#include "Configuration.h"
+
 namespace vmaf {
 	void Benchmark::start(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
@@ -66,12 +68,12 @@ namespace vmaf {
 
 	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames)
 	{
-		QVector<Experiment> listExperiments;
+		QVector<Configuration> listConfigurations;
 
 		// Generate all configuration
 		for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
 			for (const auto& szPreset: m_listPreset) {
-				listExperiments.append({iCRF, szPreset });
+				listConfigurations.append({ iCRF, szPreset });
 			}
 		}
 
@@ -85,7 +87,7 @@ namespace vmaf {
 		// Alloc the thread pool
 		QMutex mutexExperiments;
 		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
-			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, m_originalCodecParameters, listExperiments, mutexExperiments));
+			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments));
 		}
 
 		// Start all threads
