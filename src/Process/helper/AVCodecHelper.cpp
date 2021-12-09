@@ -1,5 +1,11 @@
 #include "AVCodecHelper.h"
 
+extern "C" {
+	#include <libavcodec/avcodec.h>
+	#include <libavformat/avformat.h>
+}
+
+#include <cassert>
 #include <cstring>
 
 #include <QVector>
@@ -8,15 +14,149 @@
 
 namespace helper {
 	namespace avcodec {
-		EncoderParameters::EncoderParameters()
-		: iWidth(0)
-		, iHeight(0)
-		, timeBase({ 0, 0 })
-		, pixelFormat(AV_PIX_FMT_NONE)
-		, colorRange(AVCOL_RANGE_UNSPECIFIED)
-		, iCRF(0)
-		{
+		namespace details {
+			PixelFormat convertPixelFormat(AVPixelFormat pixelFormat)
+			{
+				switch (pixelFormat) {
+				// case AV_PIX_FMT_GRAY8:
+				// case AV_PIX_FMT_GRAY9:
+				// case AV_PIX_FMT_GRAY10:
+				// case AV_PIX_FMT_GRAY12:
+				// case AV_PIX_FMT_GRAY14:
+				// case AV_PIX_FMT_GRAY16:
 
+				case AV_PIX_FMT_YUV420P:
+				case AV_PIX_FMT_YUVJ420P:
+				case AV_PIX_FMT_YUV420P9:
+				case AV_PIX_FMT_YUV420P10:
+				case AV_PIX_FMT_YUV420P12:
+				case AV_PIX_FMT_YUV420P14:
+				case AV_PIX_FMT_YUV420P16:
+					return PixelFormat::YUV420P;
+
+				// case AV_PIX_FMT_YUV422P:
+				// case AV_PIX_FMT_YUV422P9:
+				// case AV_PIX_FMT_YUV422P10:
+				// case AV_PIX_FMT_YUV422P12:
+				// case AV_PIX_FMT_YUV422P14:
+				// case AV_PIX_FMT_YUV422P16:
+
+
+				// case AV_PIX_FMT_YUV444P:
+				// case AV_PIX_FMT_YUV444P9:
+				// case AV_PIX_FMT_YUV444P10:
+				// case AV_PIX_FMT_YUV444P12:
+				// case AV_PIX_FMT_YUV444P14:
+				// case AV_PIX_FMT_YUV444P16:
+
+				default:
+					return PixelFormat::Undefined;
+				}
+
+				return PixelFormat::Undefined;
+			}
+
+			AVPixelFormat convertPixelFormat(PixelFormat pixelFormat)
+			{
+				switch (pixelFormat) {
+				case PixelFormat::YUV420P:
+					return AV_PIX_FMT_YUV420P;
+
+				case PixelFormat::Undefined:
+					return AV_PIX_FMT_NONE;
+				}
+
+				return AV_PIX_FMT_NONE;
+			}
+
+			ColorRange convertColorRange(AVColorRange colorRange)
+			{
+				switch (colorRange) {
+				case AVCOL_RANGE_MPEG:
+					return ColorRange::MPEG;
+
+				case AVCOL_RANGE_JPEG:
+					return ColorRange::JPEG;
+
+				default:
+					return ColorRange::Undefined;
+				}
+
+				return ColorRange::Undefined;
+			}
+
+			AVColorRange convertColorRange(ColorRange colorRange)
+			{
+				switch (colorRange) {
+				case ColorRange::MPEG:
+					return AVCOL_RANGE_MPEG;
+
+				case ColorRange::JPEG:
+					return AVCOL_RANGE_JPEG;
+
+				case ColorRange::Undefined:
+					return AVCOL_RANGE_UNSPECIFIED;
+				}
+
+				return AVCOL_RANGE_UNSPECIFIED;
+			}
+
+			const char* getEncoderName(CodecType codec)
+			{
+				switch (codec) {
+				case CodecType::H265:
+					return "libx265";
+				}
+
+				return "";
+			}
+
+			int getPixelDepth(AVPixelFormat pixelFormat)
+			{
+				switch (pixelFormat) {
+				case AV_PIX_FMT_GRAY8:
+				case AV_PIX_FMT_YUV420P:
+				case AV_PIX_FMT_YUVJ420P:
+				case AV_PIX_FMT_YUV422P:
+				case AV_PIX_FMT_YUV444P:
+					return 8;
+
+				// case AV_PIX_FMT_GRAY9:
+				// case AV_PIX_FMT_YUV420P9:
+				// case AV_PIX_FMT_YUV422P9:
+				// case AV_PIX_FMT_YUV444P9:
+				// 	return 9;
+
+				// case AV_PIX_FMT_GRAY10:
+				// case AV_PIX_FMT_YUV420P10:
+				// case AV_PIX_FMT_YUV422P10:
+				// case AV_PIX_FMT_YUV444P10:
+				// 	return 10;
+
+				// case AV_PIX_FMT_GRAY12:
+				// case AV_PIX_FMT_YUV420P12:
+				// case AV_PIX_FMT_YUV422P12:
+				// case AV_PIX_FMT_YUV444P12:
+				// 	return 12;
+
+				// case AV_PIX_FMT_GRAY14:
+				// case AV_PIX_FMT_YUV420P14:
+				// case AV_PIX_FMT_YUV444P14:
+				// case AV_PIX_FMT_YUV422P14:
+				// 	return 14;
+
+				// case AV_PIX_FMT_GRAY16:
+				// case AV_PIX_FMT_YUV420P16:
+				// case AV_PIX_FMT_YUV422P16:
+				// case AV_PIX_FMT_YUV444P16:
+				// 	return 16;
+
+				default:
+					return -1;
+				}
+
+				return -1;
+			}
 		}
 
 		Context::Context()
@@ -43,18 +183,16 @@ namespace helper {
 			}
 		}
 
-		EncoderParameters Context::getCodecParameters() const
+		CodecParameters Context::getCodecParameters() const
 		{
-			EncoderParameters parameters;
+			CodecParameters parameters;
 
-			if (m_pContext == nullptr) {
-				return parameters;
-			}
+			parameters.videoSize = { m_pContext->width, m_pContext->height };
+			parameters.pixelFormat = details::convertPixelFormat(m_pContext->pix_fmt);
+			parameters.colorRange = details::convertColorRange(m_pContext->color_range);
+			parameters.iPixelDepth = details::getPixelDepth(m_pContext->pix_fmt);
 
-			parameters.iWidth = m_pContext->width;
-			parameters.iHeight = m_pContext->height;
-			setPixelFormantAndColorRange(parameters);
-			parameters.timeBase = m_pContext->time_base;
+			parameters.iFPS = m_pContext->time_base.den;
 
 			return parameters;
 		}
@@ -123,9 +261,9 @@ namespace helper {
 			return error;
 		}
 
-		Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const EncoderParameters& parameters, QVector<QByteArray>& packets)
+		Error Context::encodeFrameStream(const QVector<QByteArray>& yuvFrames, const CodecParameters& parameters, CodecType codecType, int iCRF, const QString& szPreset, QVector<QByteArray>& packets)
 		{
-			if (openEncoder("libx265", parameters) != avcodec::Error::Success) {
+			if (openEncoder(parameters, codecType, iCRF, szPreset) != avcodec::Error::Success) {
 				return Error::OpenCodec;
 			}
 
@@ -161,30 +299,6 @@ namespace helper {
 			}
 
 			return Error::Success;
-		}
-
-		void Context::setPixelFormantAndColorRange(EncoderParameters& parameters) const
-		{
-			switch (m_pContext->pix_fmt) {
-			case AV_PIX_FMT_YUVJ420P:
-				parameters.pixelFormat = AV_PIX_FMT_YUV420P;
-				parameters.colorRange = AVCOL_RANGE_JPEG;
-				break;
-
-			case AV_PIX_FMT_YUVJ422P:
-				parameters.pixelFormat = AV_PIX_FMT_YUV422P;
-				parameters.colorRange = AVCOL_RANGE_JPEG;
-				break;
-
-			case AV_PIX_FMT_YUVJ444P:
-				parameters.pixelFormat = AV_PIX_FMT_YUV444P;
-				parameters.colorRange = AVCOL_RANGE_JPEG;
-				break;
-
-			default:
-				parameters.pixelFormat = m_pContext->pix_fmt;
-				parameters.colorRange = m_pContext->color_range;
-			}
 		}
 
 		Error Context::openDecoder(const avformat::Context& formatContext)
@@ -277,9 +391,12 @@ namespace helper {
 			return codecError;
 		}
 
-		Error Context::openEncoder(const char* szCodecName, const EncoderParameters& parameters)
+		Error Context::openEncoder(const CodecParameters& parameters, CodecType codecType, int iCRF, const QString& szPreset)
 		{
-			const AVCodec* pCodec = avcodec_find_encoder_by_name(szCodecName);
+			// Only support 8-bits
+			assert(parameters.iPixelDepth == 8);
+
+			const AVCodec* pCodec = avcodec_find_encoder_by_name(details::getEncoderName(codecType));
 			if (pCodec == nullptr) {
 				return Error::NoCodecFound;
 			}
@@ -289,27 +406,30 @@ namespace helper {
 				return Error::NoMemory;
 			}
 
-			m_pContext->time_base = parameters.timeBase;
-			m_pContext->framerate = { parameters.timeBase.num, parameters.timeBase.den };
-			m_pContext->pix_fmt = parameters.pixelFormat;
-			m_pContext->color_range = parameters.colorRange;
-			m_pContext->width = parameters.iWidth;
-			m_pContext->height = parameters.iHeight;
+			m_pContext->time_base = { 1, parameters.iFPS };
+			m_pContext->framerate = { parameters.iFPS, 1 };
+
+			m_pContext->pix_fmt = details::convertPixelFormat(parameters.pixelFormat);
+			m_pContext->color_range = details::convertColorRange(parameters.colorRange);
+
+			m_pContext->width = parameters.videoSize.width;
+			m_pContext->height = parameters.videoSize.height;
+
 			m_pContext->thread_count = 1;
 
 			AVDictionary* options = nullptr;
-			av_dict_set(&options, "crf", std::to_string(parameters.iCRF).c_str(), 0);
-			av_dict_set(&options, "preset", qPrintable(parameters.szPreset), 0);
+			av_dict_set(&options, "crf", std::to_string(iCRF).c_str(), 0);
+			av_dict_set(&options, "preset", qPrintable(szPreset), 0);
 			av_dict_set(&options, "frame-threads", "1", 0);
 
 			if (avcodec_open2(m_pContext, m_pCodec, &options) < 0) {
 				return Error::OpenCodec;
 			}
 
-			m_pFrame->format = parameters.pixelFormat;
-			m_pFrame->color_range = parameters.colorRange;
-			m_pFrame->width = parameters.iWidth;
-			m_pFrame->height = parameters.iHeight;
+			m_pFrame->format = m_pContext->pix_fmt;
+			m_pFrame->color_range = m_pContext->color_range;
+			m_pFrame->width = parameters.videoSize.width;
+			m_pFrame->height = parameters.videoSize.height;
 
 			if (av_frame_get_buffer(m_pFrame, 0) < 0) {
 				return Error::NoMemory;

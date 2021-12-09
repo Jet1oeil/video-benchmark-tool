@@ -2,7 +2,9 @@
 #define HELPER_AVFORMAT_HELPER_H_
 
 extern "C" {
-	#include <libavformat/avformat.h>
+	struct AVFormatContext;
+	struct AVPacket;
+	struct AVStream;
 }
 
 namespace helper {

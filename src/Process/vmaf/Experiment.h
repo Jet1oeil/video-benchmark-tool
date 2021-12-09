@@ -6,7 +6,7 @@
 #include <QThread>
 #include <QVector>
 
-#include "Process/helper/AVCodecHelper.h"
+#include "Process/helper/CodecParameters.h"
 
 namespace vmaf {
 	struct Configuration;
@@ -17,7 +17,7 @@ namespace vmaf {
 	public:
 		ExperimentThread(
 			const QVector<QByteArray>& yuvFrames,
-			const helper::avcodec::EncoderParameters& encoderParameters,
+			const helper::avcodec::CodecParameters& codecParameters,
 			QVector<Configuration>& listConfiguration,
 			QMutex& mutexExperiments
 		);
@@ -36,7 +36,7 @@ namespace vmaf {
 
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
-		helper::avcodec::EncoderParameters m_encoderParameters;
+		helper::avcodec::CodecParameters m_codecParameters;
 		QVector<Configuration>& m_listConfiguration;
 		QMutex& m_mutexExperiments;
 	};

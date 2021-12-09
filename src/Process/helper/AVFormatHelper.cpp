@@ -1,5 +1,9 @@
 #include "AVFormatHelper.h"
 
+extern "C" {
+	#include <libavformat/avformat.h>
+}
+
 #include "AVCodecHelper.h"
 
 namespace helper {

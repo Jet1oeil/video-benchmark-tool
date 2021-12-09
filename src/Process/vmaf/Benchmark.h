@@ -8,11 +8,9 @@
 #include <QString>
 #include <QThread>
 
-#include "Experiment.h"
+#include "Process/helper/CodecParameters.h"
 
-namespace avcodec {
-	struct EncoderParameters;
-}
+#include "Experiment.h"
 
 namespace vmaf {
 	class Benchmark: public QObject {
@@ -46,7 +44,7 @@ namespace vmaf {
 		int m_iMaxCRF;
 		QStringList m_listPreset;
 
-		helper::avcodec::EncoderParameters m_originalCodecParameters;
+		helper::avcodec::CodecParameters m_originalCodecParameters;
 		// Need to use STL vector to have emplace_back method
 		std::vector<ExperimentThread> m_poolThreads;
 	};
