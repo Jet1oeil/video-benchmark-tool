@@ -1,5 +1,7 @@
 #include "Benchmark.h"
 
+#include <clocale>
+
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/AVFormatHelper.h"
 
@@ -73,6 +75,13 @@ namespace vmaf {
 			}
 		}
 
+		// Keep previous locale
+		std::string szCurrentLocale = std::setlocale(LC_NUMERIC, nullptr);
+
+		// Set locale to 'C' to avoid bug during vmaf model loading
+		// Must be done before threads launch since it's not thread-safe
+		std::setlocale(LC_NUMERIC, "C");
+
 		// Alloc the thread pool
 		QMutex mutexExperiments;
 		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
@@ -88,5 +97,8 @@ namespace vmaf {
 		for (auto& thread: m_poolThreads) {
 			thread.wait();
 		}
+
+		// Restore the previous locale
+		std::setlocale(LC_NUMERIC, szCurrentLocale.c_str());
 	}
 }
