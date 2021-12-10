@@ -27,6 +27,7 @@ namespace view {
 
 	private:
 		QGroupBox* createFileGroupBox();
+		QGroupBox* createCodecSelectionGroupBox();
 		QGroupBox* createEncoderOptionsGroupBox();
 		QLayout* createControlButtons();
 
@@ -38,6 +39,9 @@ namespace view {
 		// Options for file selection
 		QLineEdit* m_pFileLabel;
 		QPushButton* m_pFileButton;
+
+		// Option for codec selection
+		QVector<QCheckBox*> m_listCodecCheckbox;
 
 		// CRF options
 		QSpinBox* m_pMinCRFSpinBox;

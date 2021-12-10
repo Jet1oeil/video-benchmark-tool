@@ -16,6 +16,8 @@ namespace view {
 
 		pLayout->addWidget(createFileGroupBox());
 		pLayout->addStretch();
+		pLayout->addWidget(createCodecSelectionGroupBox());
+		pLayout->addStretch();
 		pLayout->addWidget(createEncoderOptionsGroupBox());
 		pLayout->addStretch();
 		pLayout->addLayout(createControlButtons());
@@ -68,6 +70,30 @@ namespace view {
 		QHBoxLayout* pLayout = new QHBoxLayout();
 		pLayout->addWidget(m_pFileLabel);
 		pLayout->addWidget(m_pFileButton);
+
+		pGroupBox->setLayout(pLayout);
+
+		return pGroupBox;
+	}
+
+	QGroupBox* QBenchmarkConfigView::createCodecSelectionGroupBox()
+	{
+		QGroupBox *pGroupBox = new QGroupBox(tr("Codec selection"));
+		QHBoxLayout* pLayout = new QHBoxLayout();
+
+		// Codec selection
+		m_listCodecCheckbox = {
+			// No tr needed since it's libx264/265 implementation names
+			new QCheckBox("x264 - baseline"),
+			new QCheckBox("x264 - main"),
+			new QCheckBox("x264 - high"),
+			new QCheckBox("x265 - main"),
+		};
+
+		for (auto codecCheckBox: m_listCodecCheckbox) {
+			codecCheckBox->setChecked(true);
+			pLayout->addWidget(codecCheckBox);
+		}
 
 		pGroupBox->setLayout(pLayout);
 
