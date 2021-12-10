@@ -20,7 +20,7 @@ namespace vmaf {
 	Q_OBJECT
 
 	public:
-		void start(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		void start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private slots:
 		void handleBenchmarkFinished();
@@ -30,7 +30,7 @@ namespace vmaf {
 	Q_OBJECT
 
 	public:
-		BenchmarkThread(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		BenchmarkThread(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	signals:
 		void benchmarkFinished();
@@ -43,6 +43,7 @@ namespace vmaf {
 
 	private:
 		QString m_szVideoFileName;
+		QCodecList m_listCodec;
 		int m_iMinCRF;
 		int m_iMaxCRF;
 		QStringList m_listPreset;

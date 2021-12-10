@@ -3,6 +3,23 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+namespace {
+	helper::avcodec::CodecType getCodecType(const QString& szCodec)
+	{
+		if (szCodec == "x264 - baseline") {
+			return helper::avcodec::CodecType::H264Baseline;
+		} else if (szCodec == "x264 - main") {
+			return helper::avcodec::CodecType::H264Main;
+		} else if (szCodec == "x264 - high") {
+			return helper::avcodec::CodecType::H264High;
+		} else if (szCodec == "x265 - main") {
+			return helper::avcodec::CodecType::H265Main;
+		}
+
+		return helper::avcodec::CodecType::Undefined;
+	}
+}
+
 namespace view {
 	QBenchmarkConfigView::QBenchmarkConfigView(QWidget* pParent)
 	: QWidget(pParent)
@@ -30,6 +47,19 @@ namespace view {
 	QString QBenchmarkConfigView::getSelectedFile() const
 	{
 		return m_pFileLabel->text();
+	}
+
+	QCodecList QBenchmarkConfigView::getSelectedCodec() const
+	{
+		QCodecList listCodec;
+
+		for (const auto& presetCodec: m_listCodecCheckbox) {
+			if (presetCodec->isChecked()) {
+				listCodec.append(getCodecType(presetCodec->text()));
+			}
+		}
+
+		return listCodec;
 	}
 
 	int QBenchmarkConfigView::getMinCRF() const

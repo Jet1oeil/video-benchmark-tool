@@ -37,6 +37,13 @@ namespace ctrl {
 			return;
 		}
 
+		auto listCodec = m_benchmarkConfigView.getSelectedCodec();
+
+		if (listCodec.isEmpty()) {
+			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Codec"), tr("At least one codec must be selected"));
+			return;
+		}
+
 		int iMinCRF = m_benchmarkConfigView.getMinCRF();
 		int iMaxCRF = m_benchmarkConfigView.getMaxCRF();
 
@@ -59,6 +66,6 @@ namespace ctrl {
 			return;
 		}
 
-		m_vmafBenchmark.start(szVideoFileName, iMinCRF, iMaxCRF, listPreset);
+		m_vmafBenchmark.start(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
 	}
 }

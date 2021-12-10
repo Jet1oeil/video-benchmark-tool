@@ -6,7 +6,11 @@
 namespace helper {
 	namespace avcodec {
 		enum class CodecType {
-			H265,
+			H264Baseline,
+			H264Main,
+			H264High,
+			H265Main,
+			Undefined,
 		};
 
 		// TODO: Only support yuv 420p
@@ -37,5 +41,7 @@ namespace helper {
 		};
 	}
 }
+
+using QCodecList = QVector<helper::avcodec::CodecType>;
 
 #endif // HELPER_CODEC_PARAMETER_H_

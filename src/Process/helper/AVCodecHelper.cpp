@@ -151,8 +151,16 @@ namespace helper {
 			AVCodecID getCodecID(CodecType codec)
 			{
 				switch (codec) {
-				case CodecType::H265:
+				case CodecType::H264Baseline:
+				case CodecType::H264Main:
+				case CodecType::H264High:
+					return AV_CODEC_ID_H264;
+
+				case CodecType::H265Main:
 					return AV_CODEC_ID_HEVC;
+
+				case CodecType::Undefined:
+					return AV_CODEC_ID_NONE;
 				}
 
 				return AV_CODEC_ID_NONE;

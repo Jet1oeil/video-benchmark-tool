@@ -57,7 +57,12 @@ namespace vmaf {
 		Configuration currentConfiguration;
 
 		while (stoleTask(currentConfiguration)) {
-			qDebug("TID: %p, CRF: %d, preset: %s", QThread::currentThreadId(), currentConfiguration.iCRF, qPrintable(currentConfiguration.szPreset));
+			qDebug("TID: %p, codec: %d, CRF: %d, preset: %s",
+				QThread::currentThreadId(),
+				static_cast<int>(currentConfiguration.codecType),
+				currentConfiguration.iCRF,
+				qPrintable(currentConfiguration.szPreset)
+			);
 
 			// Encode the video
 			helper::avcodec::Context encoder;

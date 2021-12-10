@@ -10,6 +10,8 @@
 #include <QVector>
 #include <QWidget>
 
+#include "Process/helper/CodecParameters.h"
+
 namespace view {
 
 	class QBenchmarkConfigView: public QWidget {
@@ -19,6 +21,7 @@ namespace view {
 		QBenchmarkConfigView(QWidget* pParent);
 
 		QString getSelectedFile() const;
+		QCodecList getSelectedCodec() const;
 		int getMinCRF() const;
 		int getMaxCRF() const;
 		QStringList getPresetList() const;

@@ -8,9 +8,9 @@
 #include "Configuration.h"
 
 namespace vmaf {
-	void Benchmark::start(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
+	void Benchmark::start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
-		BenchmarkThread *pMainThread = new BenchmarkThread(szVideoFileName, iMinCRF, iMaxCRF, listPreset);
+		BenchmarkThread *pMainThread = new BenchmarkThread(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
 		pMainThread->setParent(this);
 
 		connect(pMainThread, &BenchmarkThread::benchmarkFinished, this, &Benchmark::handleBenchmarkFinished);
@@ -24,8 +24,9 @@ namespace vmaf {
 	}
 
 
-	BenchmarkThread::BenchmarkThread(const QString& szVideoFileName, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
+	BenchmarkThread::BenchmarkThread(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	: m_szVideoFileName(szVideoFileName)
+	, m_listCodec(listCodec)
 	, m_iMinCRF(iMinCRF)
 	, m_iMaxCRF(iMaxCRF)
 	, m_listPreset(listPreset)
@@ -36,6 +37,10 @@ namespace vmaf {
 	void BenchmarkThread::run()
 	{
 		qDebug("selected video: %s", qPrintable(m_szVideoFileName));
+		qDebug("selected codec:");
+		for (const auto& codecID: m_listCodec) {
+			qDebug("\t%d", static_cast<int>(codecID));
+		}
 		qDebug("CRF: [%d - %d]", m_iMinCRF, m_iMaxCRF);
 		qDebug("selected preset:");
 		for (const auto& szPreset: m_listPreset) {
@@ -71,9 +76,11 @@ namespace vmaf {
 		QVector<Configuration> listConfigurations;
 
 		// Generate all configuration
-		for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
-			for (const auto& szPreset: m_listPreset) {
-				listConfigurations.append({ helper::avcodec::CodecType::H265, iCRF, szPreset });
+		for (const auto& codecID: m_listCodec) {
+			for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
+				for (const auto& szPreset: m_listPreset) {
+					listConfigurations.append({ codecID, iCRF, szPreset });
+				}
 			}
 		}
 
@@ -107,7 +114,7 @@ namespace vmaf {
 
 		// Print results
 		for (const auto& [key, value]: m_results) {
-			qDebug("[CRF=%d, preset=%s]: VMAF=%f", key.iCRF, qPrintable(key.szPreset), value.dVMAFScore);
+			qDebug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, qPrintable(key.szPreset), value.dVMAFScore);
 		}
 	}
 }
