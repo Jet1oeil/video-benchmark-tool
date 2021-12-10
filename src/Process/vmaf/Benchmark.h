@@ -2,6 +2,7 @@
 #define VMAF_BENCHMARK_H_
 
 #include <vector>
+#include <map>
 
 #include <QObject>
 #include <QStringList>
@@ -10,7 +11,9 @@
 
 #include "Process/helper/CodecParameters.h"
 
+#include "Configuration.h"
 #include "Experiment.h"
+#include "Results.h"
 
 namespace vmaf {
 	class Benchmark: public QObject {
@@ -47,6 +50,8 @@ namespace vmaf {
 		helper::avcodec::CodecParameters m_originalCodecParameters;
 		// Need to use STL vector to have emplace_back method
 		std::vector<ExperimentThread> m_poolThreads;
+
+		std::map<Configuration, Results> m_results;
 	};
 }
 

@@ -13,6 +13,7 @@ namespace helper {
 	, m_iPixelDepth(m_iPixelDepth)
 	, m_iWidth(m_iWidth)
 	, m_iHeight(m_iHeigh)
+	, m_dVMAFScore(0.0)
 	{
 
 	}
@@ -110,13 +111,16 @@ namespace helper {
 			return false;
 		}
 
-		double dScore = 0.0;
-		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MEAN, &dScore, 0, originalVideo.size() - 1) != 0) {
+		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MEAN, &m_dVMAFScore, 0, originalVideo.size() - 1) != 0) {
 			qDebug("Error to get VMAF score...");
 			return false;
 		}
 
-		qDebug("Score: %f", dScore);
 		return true;
+	}
+
+	double VMAFWrapper::getVMAFScore() const
+	{
+		return m_dVMAFScore;
 	}
 }

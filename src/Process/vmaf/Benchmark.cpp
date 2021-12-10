@@ -98,9 +98,16 @@ namespace vmaf {
 		// Join all thread
 		for (auto& thread: m_poolThreads) {
 			thread.wait();
+			auto threadResults = thread.getResults();
+			m_results.insert(threadResults.begin(), threadResults.end());
 		}
 
 		// Restore the previous locale
 		std::setlocale(LC_NUMERIC, szCurrentLocale.c_str());
+
+		// Print results
+		for (const auto& [key, value]: m_results) {
+			qDebug("[CRF=%d, preset=%s]: VMAF=%f", key.iCRF, qPrintable(key.szPreset), value.dVMAFScore);
+		}
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace vmaf {
 	struct Configuration : public helper::avcodec::EncoderParameters {
-
+		bool operator<(const Configuration& other) const;
 	};
 }
 

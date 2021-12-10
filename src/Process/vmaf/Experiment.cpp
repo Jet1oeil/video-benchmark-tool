@@ -5,6 +5,7 @@
 #include "Process/helper/VMAFWrapper.h"
 
 #include "Configuration.h"
+#include "Results.h"
 
 namespace {
 	// TODO: Add support for other format
@@ -44,6 +45,11 @@ namespace vmaf {
 	, m_mutexExperiments(other.m_mutexExperiments)
 	{
 
+	}
+
+	const std::map<Configuration, Results>& ExperimentThread::getResults() const
+	{
+		return m_results;
 	}
 
 	void ExperimentThread::run()
@@ -88,6 +94,11 @@ namespace vmaf {
 				qDebug("Compute VMAF error...");
 				continue;
 			}
+
+			Results results;
+			results.dVMAFScore = vmaf.getVMAFScore();
+
+			m_results.insert({ currentConfiguration, results });
 		}
 	}
 

@@ -10,6 +10,7 @@
 
 namespace vmaf {
 	struct Configuration;
+	struct Results;
 
 	class ExperimentThread: public QThread {
 	Q_OBJECT
@@ -29,6 +30,8 @@ namespace vmaf {
 		ExperimentThread& operator=(const ExperimentThread&) = delete;
 		ExperimentThread& operator=(ExperimentThread&& other) = delete;
 
+		const std::map<Configuration, Results>& getResults() const;
+
 	private:
 		virtual void run() override;
 
@@ -39,6 +42,8 @@ namespace vmaf {
 		helper::avcodec::CodecParameters m_codecParameters;
 		QVector<Configuration>& m_listConfiguration;
 		QMutex& m_mutexExperiments;
+
+		std::map<Configuration, Results> m_results;
 	};
 }
 

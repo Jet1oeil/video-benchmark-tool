@@ -21,6 +21,8 @@ namespace helper {
 		bool open();
 		bool computeMetrics(const QVector<QByteArray>& originalVideo, QVector<QByteArray> transcodedVideo);
 
+		double getVMAFScore() const;
+
 	private:
 		VmafContext* m_pContext;
 		VmafModel* m_pModel;
@@ -28,6 +30,7 @@ namespace helper {
 		int m_iPixelDepth;
 		int m_iWidth;
 		int m_iHeight;
+		double m_dVMAFScore;
 	};
 }
 
