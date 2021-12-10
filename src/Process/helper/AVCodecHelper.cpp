@@ -165,6 +165,28 @@ namespace helper {
 
 				return AV_CODEC_ID_NONE;
 			}
+
+			int getProfileID(CodecType codec)
+			{
+				switch (codec) {
+				case CodecType::H264Baseline:
+					return FF_PROFILE_H264_BASELINE;
+
+				case CodecType::H264Main:
+					return FF_PROFILE_H264_MAIN;
+
+				case CodecType::H264High:
+					return FF_PROFILE_H264_HIGH;
+
+				case CodecType::H265Main:
+					return FF_PROFILE_HEVC_MAIN;
+
+				case CodecType::Undefined:
+					return FF_PROFILE_UNKNOWN;
+				}
+
+				return FF_PROFILE_UNKNOWN;
+			}
 		}
 
 		Context::Context()
@@ -398,6 +420,8 @@ namespace helper {
 			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
 			}
+
+			m_pContext->profile = details::getProfileID(encoderParameters.codecType);
 
 			m_pContext->time_base = { 1, parameters.iFPS };
 			m_pContext->framerate = { parameters.iFPS, 1 };
