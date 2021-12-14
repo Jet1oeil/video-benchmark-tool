@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.13)
 
 project(VideoBenchmarkTool VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -13,13 +10,6 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(FFMPEG COMPONENTS avcodec avformat avutil REQUIRED)
-
-if (UNIX)
-	add_compile_options(
-		"-Wall" "-Wextra"
-		"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
-	)
-endif ()
 
 add_subdirectory(vendor/vmaf)
 
@@ -48,6 +38,12 @@ target_link_libraries(video-benchmark-tool
 target_include_directories(video-benchmark-tool
 	PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+set_target_properties(video-benchmark-tool
+	PROPERTIES
+		CXX_STANDARD 17
+		CXX_STANDARD_REQUIRED ON
 )
 
 if (UNIX)
