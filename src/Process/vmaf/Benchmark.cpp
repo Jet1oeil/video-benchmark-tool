@@ -1,11 +1,19 @@
 #include "Benchmark.h"
 
 #include <clocale>
+#include <fstream>
+
+#include <QDateTime>
+#include <QLocale>
+
+#include <json.hpp>
 
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/AVFormatHelper.h"
 
 #include "Configuration.h"
+
+using json = nlohmann::json;
 
 namespace vmaf {
 	void Benchmark::start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
@@ -113,8 +121,39 @@ namespace vmaf {
 		std::setlocale(LC_NUMERIC, szCurrentLocale.c_str());
 
 		// Print results
+		json jsonDocument;
 		for (const auto& [key, value]: m_results) {
 			qDebug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, qPrintable(key.szPreset), value.dVMAFScore);
+			json jKey = {
+				"key", {
+					{ "codec_id", static_cast<int>(key.codecType) },
+					{ "codec_name", helper::avcodec::getCodecName(key.codecType) },
+					{ "crf", key.iCRF },
+					{ "preset", qPrintable(key.szPreset) }
+				}
+			};
+
+			json jResult = {
+				"results", {
+					{ "vmaf", value.dVMAFScore }
+				}
+			};
+			jsonDocument["experiments"].push_back(
+				{ jKey, jResult }
+			);
 		}
+
+		std::ofstream jsonFile;
+
+		QLocale enLocale = QLocale(QLocale::English, QLocale::UnitedStates);
+		QString dateTimeText = enLocale.toString(QDateTime::currentDateTime(), "yyyy-MM-dd-HHmmss");
+		jsonFile.open(dateTimeText.toStdString() + "-results.json");
+
+		if (!jsonFile.good()) {
+			qCritical("Unable to store results :\n%s", jsonDocument.dump(4).c_str());
+			return;
+		}
+
+		jsonFile << jsonDocument;
 	}
 }

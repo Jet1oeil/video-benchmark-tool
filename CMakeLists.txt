@@ -17,6 +17,7 @@ add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Process/helper/AVCodecHelper.cpp
 	src/Process/helper/AVFormatHelper.cpp
+	src/Process/helper/CodecParameters.cpp
 	src/Process/helper/VMAFWrapper.cpp
 	src/Process/vmaf/Benchmark.cpp
 	src/Process/vmaf/Configuration.cpp
@@ -38,6 +39,7 @@ target_link_libraries(video-benchmark-tool
 target_include_directories(video-benchmark-tool
 	PRIVATE
 		${CMAKE_CURRENT_SOURCE_DIR}/src
+		vendor/json/single_include/nlohmann/
 )
 
 set_target_properties(video-benchmark-tool

@@ -1,6 +1,8 @@
 #ifndef HELPER_CODEC_PARAMETER_H_
 #define HELPER_CODEC_PARAMETER_H_
 
+#include <QVector>
+
 #include "Types/Vector.h"
 
 namespace helper {
@@ -39,6 +41,8 @@ namespace helper {
 			int iCRF;
 			QString szPreset;
 		};
+
+		const char* getCodecName(CodecType codec);
 	}
 }
 
