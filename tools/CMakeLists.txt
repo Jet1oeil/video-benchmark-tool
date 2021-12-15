@@ -3,7 +3,7 @@ add_executable(generate-graph
 )
 target_include_directories(generate-graph
 	PRIVATE
-		vendor/json/single_include/nlohmann/
+		${CMAKE_SOURCE_DIR}/vendor/json/single_include/nlohmann/
 )
 
 set_target_properties(generate-graph
