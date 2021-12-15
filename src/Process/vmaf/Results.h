@@ -3,6 +3,9 @@
 
 namespace vmaf {
 	struct Results {
+		int iBitstreamSize;
+		int dEncodingTime;
+		int dDecdodingTime;
 		double dVMAFScore;
 	};
 }

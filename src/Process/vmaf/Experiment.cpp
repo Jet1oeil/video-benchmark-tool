@@ -4,6 +4,8 @@
 #include "Process/helper/CodecParameters.h"
 #include "Process/helper/VMAFWrapper.h"
 
+#include "Types/Clock.h"
+
 #include "Configuration.h"
 #include "Results.h"
 
@@ -64,22 +66,34 @@ namespace vmaf {
 				qPrintable(currentConfiguration.szPreset)
 			);
 
+			Results results;
+
 			// Encode the video
 			helper::avcodec::Context encoder;
 			QVector<QByteArray> packets;
 
+			Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
 				qDebug("Encode error...");
 				continue;
+			}
+			results.dEncodingTime = clock.getDuration().count();
+
+			results.iBitstreamSize = 0;
+			for (const auto& packet: packets) {
+				results.iBitstreamSize += packet.count();
 			}
 
 			// Decode the transcoded video
 			QVector<QByteArray> transcodedYUVFrames;
 			helper::avcodec::Context decoder;
+
+			clock.restart();
 			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
 				qDebug("Decode transcoded video error...");
 				continue;
 			}
+			results.dDecdodingTime = clock.getDuration().count();
 
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
 				qDebug("Frame count mismatch...");
@@ -100,7 +114,6 @@ namespace vmaf {
 				continue;
 			}
 
-			Results results;
 			results.dVMAFScore = vmaf.getVMAFScore();
 
 			m_results.insert({ currentConfiguration, results });

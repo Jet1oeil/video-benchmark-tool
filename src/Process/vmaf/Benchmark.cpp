@@ -135,7 +135,10 @@ namespace vmaf {
 
 			json jResult = {
 				"results", {
-					{ "vmaf", value.dVMAFScore }
+					{ "vmaf", value.dVMAFScore },
+					{ "bitstream_size", value.iBitstreamSize },
+					{ "encoding_time", value.dEncodingTime },
+					{ "decoding_time", value.dDecdodingTime },
 				}
 			};
 			jsonDocument["experiments"].push_back(
