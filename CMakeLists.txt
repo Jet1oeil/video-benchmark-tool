@@ -2,10 +2,6 @@ cmake_minimum_required(VERSION 3.13)
 
 project(VideoBenchmarkTool VERSION 1.0.0 LANGUAGES CXX)
 
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
-
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
@@ -46,6 +42,9 @@ set_target_properties(video-benchmark-tool
 	PROPERTIES
 		CXX_STANDARD 17
 		CXX_STANDARD_REQUIRED ON
+		AUTOMOC ON
+		AUTORCC ON
+		AUTOUIC ON
 )
 
 if (UNIX)
