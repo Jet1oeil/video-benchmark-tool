@@ -59,3 +59,5 @@ if (UNIX)
 			"$<$<CONFIG:DEBUG>:-fno-omit-frame-pointer;-fsanitize=address>"
 	)
 endif ()
+
+add_subdirectory("tools/")
