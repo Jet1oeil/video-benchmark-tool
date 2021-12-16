@@ -22,6 +22,11 @@ struct EncodingTimeResult {
 	int encodingTime;
 };
 
+struct DecodingTimeResult {
+	std::string preset;
+	int decodingTime;
+};
+
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
 		std::cerr << "Missing parameters" << std::endl;
@@ -42,6 +47,7 @@ int main(int argc, char* argv[]) {
 		std::map<int, std::vector<VMAFResult>> vmafResults;
 		std::map<int, std::vector<BitstreamSizeResult>> bitstreamSizeResults;
 		std::map<int, std::vector<EncodingTimeResult>> encodingTimeResults;
+		std::map<int, std::vector<DecodingTimeResult>> decodingTimeResults;
 		std::string codecName;
 		for (const auto& experiment: j["experiments"] ) {
 			if (experiment["key"]["codec_id"] == codecID) {
@@ -49,6 +55,7 @@ int main(int argc, char* argv[]) {
 				vmafResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["vmaf"] });
 				bitstreamSizeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["bitstream_size"] });
 				encodingTimeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["encoding_time"] });
+				decodingTimeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["decoding_time"] });
 			}
 		}
 
@@ -206,6 +213,50 @@ int main(int argc, char* argv[]) {
 				}
 
 				encodingFile << std::endl;
+			}
+		}
+		{
+			std::ofstream decodingFile("decoding-" + shortCodecName + ".dat", std::ios::out);
+			std::ofstream decodingPlotFile("decoding-" + shortCodecName + "-plot.gpi", std::ios::out);
+
+			assert(decodingFile.good());
+			assert(decodingPlotFile.good());
+
+			bool generatePlotFile = true;
+			int index = 2;
+			for (auto& [key, results]: decodingTimeResults) {
+				decodingFile << key;
+
+				std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.preset < rhs.preset;
+				});
+
+				if (generatePlotFile) {
+					decodingPlotFile << "set terminal pdf" << std::endl;
+					decodingPlotFile << "set output \"decoding-" + shortCodecName + ".pdf\"" << std::endl;
+					decodingPlotFile << "set title \"Decoding time for " + codecName + " encoding in function of CRF\"" << std::endl;
+					decodingPlotFile << "set xlabel \"CRF\"" << std::endl;
+					decodingPlotFile << "set ylabel \"Decoding time\"" << std::endl;
+					decodingPlotFile << "set key top right title \"Preset\" enhanced" << std::endl;
+					decodingPlotFile << "plot ";
+				}
+
+				for (const auto& result: results) {
+					if (generatePlotFile) {
+						if (index != 2) {
+							decodingPlotFile << ", ";
+						}
+						decodingPlotFile << "'decoding-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
+					}
+					decodingFile << "\t" << result.decodingTime;
+				}
+
+				if (generatePlotFile) {
+					decodingPlotFile << std::endl;
+					generatePlotFile = false;
+				}
+
+				decodingFile << std::endl;
 			}
 		}
 	}
