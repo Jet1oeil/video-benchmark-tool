@@ -17,6 +17,11 @@ struct BitstreamSizeResult {
 	int bitstreamSize;
 };
 
+struct EncodingTimeResult {
+	std::string preset;
+	int encodingTime;
+};
+
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
 		std::cerr << "Missing parameters" << std::endl;
@@ -36,12 +41,14 @@ int main(int argc, char* argv[]) {
 	for (int codecID = 0; codecID < 4; ++codecID) {
 		std::map<int, std::vector<VMAFResult>> vmafResults;
 		std::map<int, std::vector<BitstreamSizeResult>> bitstreamSizeResults;
+		std::map<int, std::vector<EncodingTimeResult>> encodingTimeResults;
 		std::string codecName;
 		for (const auto& experiment: j["experiments"] ) {
 			if (experiment["key"]["codec_id"] == codecID) {
 				codecName = experiment["key"]["codec_name"];
 				vmafResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["vmaf"] });
 				bitstreamSizeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["bitstream_size"] });
+				encodingTimeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["encoding_time"] });
 			}
 		}
 
@@ -154,6 +161,51 @@ int main(int argc, char* argv[]) {
 				}
 
 				bitstreamSizeFile << std::endl;
+			}
+		}
+
+		{
+			std::ofstream encodingFile("encoding-" + shortCodecName + ".dat", std::ios::out);
+			std::ofstream encodingPlotFile("encoding-" + shortCodecName + "-plot.gpi", std::ios::out);
+
+			assert(encodingFile.good());
+			assert(encodingPlotFile.good());
+
+			bool generatePlotFile = true;
+			int index = 2;
+			for (auto& [key, results]: encodingTimeResults) {
+				encodingFile << key;
+
+				std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.preset < rhs.preset;
+				});
+
+				if (generatePlotFile) {
+					encodingPlotFile << "set terminal pdf" << std::endl;
+					encodingPlotFile << "set output \"encoding-" + shortCodecName + ".pdf\"" << std::endl;
+					encodingPlotFile << "set title \"Encoding time for " + codecName + " encoding in function of CRF\"" << std::endl;
+					encodingPlotFile << "set xlabel \"CRF\"" << std::endl;
+					encodingPlotFile << "set ylabel \"Encoding time\"" << std::endl;
+					encodingPlotFile << "set key top right title \"Preset\" enhanced" << std::endl;
+					encodingPlotFile << "plot ";
+				}
+
+				for (const auto& result: results) {
+					if (generatePlotFile) {
+						if (index != 2) {
+							encodingPlotFile << ", ";
+						}
+						encodingPlotFile << "'encoding-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
+					}
+					encodingFile << "\t" << result.encodingTime;
+				}
+
+				if (generatePlotFile) {
+					encodingPlotFile << std::endl;
+					generatePlotFile = false;
+				}
+
+				encodingFile << std::endl;
 			}
 		}
 	}
