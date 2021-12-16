@@ -12,6 +12,11 @@ struct VMAFResult {
 	double vmaf;
 };
 
+struct BitstreamSizeResult {
+	std::string preset;
+	int bitstreamSize;
+};
+
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
 		std::cerr << "Missing parameters" << std::endl;
@@ -30,11 +35,13 @@ int main(int argc, char* argv[]) {
 	// Plot VMAF graph
 	for (int codecID = 0; codecID < 4; ++codecID) {
 		std::map<int, std::vector<VMAFResult>> vmafResults;
+		std::map<int, std::vector<BitstreamSizeResult>> bitstreamSizeResults;
 		std::string codecName;
 		for (const auto& experiment: j["experiments"] ) {
 			if (experiment["key"]["codec_id"] == codecID) {
 				codecName = experiment["key"]["codec_name"];
 				vmafResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["vmaf"] });
+				bitstreamSizeResults[experiment["key"]["crf"]].push_back({ experiment["key"]["preset"], experiment["results"]["bitstream_size"] });
 			}
 		}
 
@@ -60,47 +67,94 @@ int main(int argc, char* argv[]) {
 			shortCodecName = "unknown";
 		}
 
-		std::ofstream vmafFile("vmaf-" + shortCodecName + ".dat", std::ios::out);
-		std::ofstream vmafPlotFile("vmaf-" + shortCodecName + "-plot.gpi", std::ios::out);
+		{
+			std::ofstream vmafFile("vmaf-" + shortCodecName + ".dat", std::ios::out);
+			std::ofstream vmafPlotFile("vmaf-" + shortCodecName + "-plot.gpi", std::ios::out);
 
-		assert(vmafFile.good());
-		assert(vmafPlotFile.good());
+			assert(vmafFile.good());
+			assert(vmafPlotFile.good());
 
-		bool generatePlotFile = true;
-		int index = 2;
-		for (auto& [key, results]: vmafResults) {
-			vmafFile << key;
+			bool generatePlotFile = true;
+			int index = 2;
+			for (auto& [key, results]: vmafResults) {
+				vmafFile << key;
 
-			std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
-				return lhs.preset < rhs.preset;
-			});
+				std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.preset < rhs.preset;
+				});
 
-			if (generatePlotFile) {
-				vmafPlotFile << "set terminal pdf" << std::endl;
-				vmafPlotFile << "set output \"vmaf-" + shortCodecName + ".pdf\"" << std::endl;
-				vmafPlotFile << "set title \"VMAF Score for " + codecName + " encoding in function of CRF\"" << std::endl;
-				vmafPlotFile << "set xlabel \"CRF\"" << std::endl;
-				vmafPlotFile << "set ylabel \"VMAF Score\"" << std::endl;
-				vmafPlotFile << "set key left bottom title \"Preset\" enhanced" << std::endl;
-				vmafPlotFile << "plot ";
-			}
-
-			for (const auto& result: results) {
 				if (generatePlotFile) {
-					if (index != 2) {
-						vmafPlotFile << ", ";
-					}
-					vmafPlotFile << "'vmaf-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
+					vmafPlotFile << "set terminal pdf" << std::endl;
+					vmafPlotFile << "set output \"vmaf-" + shortCodecName + ".pdf\"" << std::endl;
+					vmafPlotFile << "set title \"VMAF Score for " + codecName + " encoding in function of CRF\"" << std::endl;
+					vmafPlotFile << "set xlabel \"CRF\"" << std::endl;
+					vmafPlotFile << "set ylabel \"VMAF Score\"" << std::endl;
+					vmafPlotFile << "set key left bottom title \"Preset\" enhanced" << std::endl;
+					vmafPlotFile << "plot ";
 				}
-				vmafFile << "\t" << result.vmaf;
-			}
 
-			if (generatePlotFile) {
-				vmafPlotFile << std::endl;
-				generatePlotFile = false;
-			}
+				for (const auto& result: results) {
+					if (generatePlotFile) {
+						if (index != 2) {
+							vmafPlotFile << ", ";
+						}
+						vmafPlotFile << "'vmaf-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
+					}
+					vmafFile << "\t" << result.vmaf;
+				}
 
-			vmafFile << std::endl;
+				if (generatePlotFile) {
+					vmafPlotFile << std::endl;
+					generatePlotFile = false;
+				}
+
+				vmafFile << std::endl;
+			}
+		}
+
+		{
+			std::ofstream bitstreamSizeFile("bitstream-" + shortCodecName + ".dat", std::ios::out);
+			std::ofstream bitstreamPlotFile("bitstream-" + shortCodecName + "-plot.gpi", std::ios::out);
+
+			assert(bitstreamSizeFile.good());
+			assert(bitstreamPlotFile.good());
+
+			bool generatePlotFile = true;
+			int index = 2;
+			for (auto& [key, results]: bitstreamSizeResults) {
+				bitstreamSizeFile << key;
+
+				std::sort(results.begin(), results.end(), [](const auto& lhs, const auto& rhs) {
+					return lhs.preset < rhs.preset;
+				});
+
+				if (generatePlotFile) {
+					bitstreamPlotFile << "set terminal pdf" << std::endl;
+					bitstreamPlotFile << "set output \"bitstream-" + shortCodecName + ".pdf\"" << std::endl;
+					bitstreamPlotFile << "set title \"Bitstream size for " + codecName + " encoding in function of CRF\"" << std::endl;
+					bitstreamPlotFile << "set xlabel \"CRF\"" << std::endl;
+					bitstreamPlotFile << "set ylabel \"Bitstream Size\"" << std::endl;
+					bitstreamPlotFile << "set key right top title \"Preset\" enhanced" << std::endl;
+					bitstreamPlotFile << "plot ";
+				}
+
+				for (const auto& result: results) {
+					if (generatePlotFile) {
+						if (index != 2) {
+							bitstreamPlotFile << ", ";
+						}
+						bitstreamPlotFile << "'bitstream-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
+					}
+					bitstreamSizeFile << "\t" << result.bitstreamSize;
+				}
+
+				if (generatePlotFile) {
+					bitstreamPlotFile << std::endl;
+					generatePlotFile = false;
+				}
+
+				bitstreamSizeFile << std::endl;
+			}
 		}
 	}
 
