@@ -200,7 +200,7 @@ int main(int argc, char* argv[]) {
 				for (const auto& result: results) {
 					if (generatePlotFile) {
 						if (index != 2) {
-							encodingPlotFile << ", ";
+							encodingPlotFile << ", \\" << std::endl;
 						}
 						encodingPlotFile << "'encoding-" + shortCodecName + ".dat' using 1:" + std::to_string(index++) + " with linespoints linewidth 1 title \"" + result.preset + "\"";
 					}
