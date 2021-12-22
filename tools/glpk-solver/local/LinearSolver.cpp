@@ -29,12 +29,12 @@ namespace local {
 		// VMAF score over 90
 		++iRow;
 		glp_set_row_name(m_pProgram, iRow, "vmaf");
-		glp_set_row_bnds(m_pProgram, iRow, GLP_UP, 0.0, 90.0);
+		glp_set_row_bnds(m_pProgram, iRow, GLP_LO, 90.0, 0.0);
 
 		// Encoding time less than video duration
 		++iRow;
 		glp_set_row_name(m_pProgram, iRow, "encoding-time");
-		glp_set_row_bnds(m_pProgram, iRow, GLP_UP, 0.0, dVideoDuration); // sum - Tmax >= 0
+		glp_set_row_bnds(m_pProgram, iRow, GLP_LO, dVideoDuration * 1000.0, 0.0); // sum - Tmax >= 0
 
 		// Bitstream size
 		++iRow;
@@ -68,7 +68,7 @@ namespace local {
 		iIndexCol = glp_add_cols(m_pProgram, 1);
 		glp_set_col_name(m_pProgram, iIndexCol, "B_max");
 		glp_set_col_bnds(m_pProgram, iIndexCol, GLP_LO, 0.0, 0.0);
-		glp_set_obj_coef(m_pProgram, iIndexCol, -1.0);
+		glp_set_obj_coef(m_pProgram, iIndexCol, 1.0);
 
 		std::vector<int> indexRowArray;
 		std::vector<int> indexColArray;
