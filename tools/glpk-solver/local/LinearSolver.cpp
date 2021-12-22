@@ -36,7 +36,7 @@ namespace local {
 		// Encoding time less than video duration
 		++iRow;
 		glp_set_row_name(m_pProgram, iRow, "encoding-time");
-		glp_set_row_bnds(m_pProgram, iRow, GLP_LO, dVideoDuration * 1000.0, 0.0); // sum - Tmax >= 0
+		glp_set_row_bnds(m_pProgram, iRow, GLP_UP, 0.0, dVideoDuration * 1000.0);
 
 		// Bitstream size
 		++iRow;

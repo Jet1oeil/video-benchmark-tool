@@ -36,8 +36,8 @@ namespace local {
 
 			Result result = {
 				experiment["results"]["vmaf"],
-				experiment["results"]["bitstream_size"],
-				experiment["results"]["encoding_time"]
+				experiment["results"]["encoding_time"],
+				experiment["results"]["bitstream_size"]
 			};
 
 			results.push_back({ config, result });
