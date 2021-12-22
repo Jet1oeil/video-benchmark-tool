@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
 
 	auto results = local::loadResults(argv[1]);
 	assert(results.size() > 0);
-	std::cout << results.size() << std::endl;
 
 	local::LinearSolver solver(std::stod(argv[2]));
+	solver.fillContraints(results);
 
 	return 0;
 }
