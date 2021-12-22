@@ -2,6 +2,7 @@
 
 #include <clocale>
 #include <fstream>
+#include <mutex>
 
 #include <QDateTime>
 #include <QLocale>
@@ -81,13 +82,13 @@ namespace vmaf {
 
 	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames)
 	{
-		QVector<Configuration> listConfigurations;
+		std::vector<Configuration> listConfigurations;
 
 		// Generate all configuration
 		for (const auto& codecID: m_listCodec) {
 			for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
 				for (const auto& szPreset: m_listPreset) {
-					listConfigurations.append({ codecID, iCRF, szPreset });
+					listConfigurations.push_back({ codecID, iCRF, szPreset });
 				}
 			}
 		}
@@ -100,9 +101,9 @@ namespace vmaf {
 		std::setlocale(LC_NUMERIC, "C");
 
 		// Alloc the thread pool
-		QMutex mutexExperiments;
+		std::mutex mutexExperiments;
 		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
-			m_poolThreads.emplace_back(ExperimentThread(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments));
+			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments);
 		}
 
 		// Start all threads

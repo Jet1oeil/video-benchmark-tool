@@ -1,5 +1,7 @@
 #include "Experiment.h"
 
+#include <sstream>
+
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/CodecParameters.h"
 #include "Process/helper/VMAFWrapper.h"
@@ -23,14 +25,21 @@ namespace {
 
 		return VMAF_PIX_FMT_UNKNOWN;
 	}
+
+	inline std::string getThreadID()
+	{
+		std::ostringstream oss;
+		oss << std::this_thread::get_id();
+		return oss.str();
+	}
 }
 
 namespace vmaf {
-	ExperimentThread::ExperimentThread(
+	Experiment::Experiment(
 		const QVector<QByteArray>& yuvFrames,
 		const helper::avcodec::CodecParameters& codecParameters,
-		QVector<Configuration>& listConfigurations,
-		QMutex& mutexExperiments
+		std::vector<Configuration>& listConfigurations,
+		std::mutex& mutexExperiments
 	)
 	: m_yuvFrames(yuvFrames)
 	, m_codecParameters(codecParameters)
@@ -40,7 +49,7 @@ namespace vmaf {
 
 	}
 
-	ExperimentThread::ExperimentThread(ExperimentThread&& other)
+	Experiment::Experiment(Experiment&& other)
 	: m_yuvFrames(other.m_yuvFrames)
 	, m_codecParameters(other.m_codecParameters)
 	, m_listConfiguration(other.m_listConfiguration)
@@ -49,18 +58,28 @@ namespace vmaf {
 
 	}
 
-	const std::map<Configuration, Results>& ExperimentThread::getResults() const
+	const std::map<Configuration, Results>& Experiment::getResults() const
 	{
 		return m_results;
 	}
 
-	void ExperimentThread::run()
+	void Experiment::start()
+	{
+		m_thread = std::move(std::thread(&Experiment::doStart, this));
+	}
+
+	void Experiment::wait()
+	{
+		m_thread.join();
+	}
+
+	void Experiment::doStart()
 	{
 		Configuration currentConfiguration;
 
 		while (stoleTask(currentConfiguration)) {
-			qDebug("TID: %p, codec: %d, CRF: %d, preset: %s",
-				QThread::currentThreadId(),
+			qDebug("TID: %s, codec: %d, CRF: %d, preset: %s",
+				getThreadID().c_str(),
 				static_cast<int>(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
 				qPrintable(currentConfiguration.szPreset)
@@ -120,16 +139,18 @@ namespace vmaf {
 		}
 	}
 
-	bool ExperimentThread::stoleTask(Configuration& configuration)
+	bool Experiment::stoleTask(Configuration& configuration)
 	{
-		QMutexLocker locker(&m_mutexExperiments);
+		std::lock_guard<std::mutex> locker(m_mutexExperiments);
 
 		// No last experiment
-		if (m_listConfiguration.isEmpty()) {
+		if (m_listConfiguration.empty()) {
 			return false;
 		}
 
-		configuration = m_listConfiguration.takeLast();
+		// We take the last to avoid data shift
+		configuration = m_listConfiguration.back();
+		m_listConfiguration.pop_back();
 
 		return true;
 	}

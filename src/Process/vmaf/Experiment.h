@@ -1,9 +1,12 @@
 #ifndef VMAF_EXPERIMENT_H_
 #define VMAF_EXPERIMENT_H_
 
-#include <QMutex>
-#include <QString>
-#include <QThread>
+#include <map>
+#include <mutex>
+#include <thread>
+#include <vector>
+
+#include <QByteArray>
 #include <QVector>
 
 #include "Process/helper/CodecParameters.h"
@@ -12,36 +15,39 @@ namespace vmaf {
 	struct Configuration;
 	struct Results;
 
-	class ExperimentThread: public QThread {
-	Q_OBJECT
-
+	class Experiment {
 	public:
-		ExperimentThread(
+		Experiment(
 			const QVector<QByteArray>& yuvFrames,
 			const helper::avcodec::CodecParameters& codecParameters,
-			QVector<Configuration>& listConfiguration,
-			QMutex& mutexExperiments
+			std::vector<Configuration>& listConfiguration,
+			std::mutex& mutexExperiments
 		);
-		~ExperimentThread() = default;
+		~Experiment() = default;
 
-		ExperimentThread(const ExperimentThread&) = delete;
-		ExperimentThread(ExperimentThread&& other);
+		Experiment(const Experiment&) = delete;
+		Experiment(Experiment&& other);
 
-		ExperimentThread& operator=(const ExperimentThread&) = delete;
-		ExperimentThread& operator=(ExperimentThread&& other) = delete;
+		Experiment& operator=(const Experiment&) = delete;
+		Experiment& operator=(Experiment&&) = delete;
 
 		const std::map<Configuration, Results>& getResults() const;
 
+		void start();
+		void wait();
+
 	private:
-		virtual void run() override;
+		void doStart();
 
 		bool stoleTask(Configuration& experiment);
 
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
 		helper::avcodec::CodecParameters m_codecParameters;
-		QVector<Configuration>& m_listConfiguration;
-		QMutex& m_mutexExperiments;
+		std::vector<Configuration>& m_listConfiguration;
+
+		std::thread m_thread;
+		std::mutex& m_mutexExperiments;
 
 		std::map<Configuration, Results> m_results;
 	};

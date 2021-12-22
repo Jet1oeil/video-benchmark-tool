@@ -1,8 +1,8 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
-#include <vector>
 #include <map>
+#include <vector>
 
 #include <QObject>
 #include <QStringList>
@@ -49,9 +49,8 @@ namespace vmaf {
 		QStringList m_listPreset;
 
 		helper::avcodec::CodecParameters m_originalCodecParameters;
-		// Need to use STL vector to have emplace_back method
-		std::vector<ExperimentThread> m_poolThreads;
 
+		std::vector<Experiment> m_poolThreads;
 		std::map<Configuration, Results> m_results;
 	};
 }
