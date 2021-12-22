@@ -1,9 +1,12 @@
 #include "LinearSolver.h"
 
 #include <cassert>
+#include <filesystem>
 #include <iostream>
 
 #include <glpk.h>
+
+namespace fs = std::filesystem;
 
 namespace local {
 	LinearSolver::LinearSolver(double dVideoDuration)
@@ -117,5 +120,12 @@ namespace local {
 		assert(indexRowArray.size() == coeffArray.size());
 
 		glp_load_matrix(m_pProgram, indexRowArray.size() - 1, &indexRowArray[0], &indexColArray[0], &coeffArray[0]);
+
+#ifdef GLPK_DEBUG
+		auto tmpDir = fs::temp_directory_path();
+
+		std::string filename = tmpDir / "lp.txt";
+		glp_write_lp(m_pProgram, 0, filename.c_str());
+#endif
 	}
 }

@@ -27,7 +27,7 @@ if (UNIX)
 	target_compile_options(glpk-solver
 		PRIVATE
 			"-Wall" "-Wextra"
-			"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
+			"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>;-DGLPK_DEBUG"
 	)
 
 	target_link_libraries(glpk-solver
