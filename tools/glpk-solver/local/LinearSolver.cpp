@@ -1,5 +1,6 @@
 #include "LinearSolver.h"
 
+#include <algorithm>
 #include <cassert>
 #include <filesystem>
 #include <iostream>
@@ -11,6 +12,7 @@ namespace fs = std::filesystem;
 namespace local {
 	LinearSolver::LinearSolver(double dVideoDuration)
 	: m_pProgram(glp_create_prob())
+	, m_iTotalVariables(0)
 	{
 		// Define linear program
 		glp_set_prob_name(m_pProgram, "best-bitstream-size");
@@ -53,6 +55,7 @@ namespace local {
 		std::array<char, 128> buffer;
 
 		// Define variables
+		m_iTotalVariables = results.size();
 		int iIndexCol = glp_add_cols(m_pProgram, results.size());
 
 		for (std::size_t i = iIndexCol; i <= results.size(); ++i) {
@@ -127,5 +130,34 @@ namespace local {
 		std::string filename = tmpDir / "lp.txt";
 		glp_write_lp(m_pProgram, 0, filename.c_str());
 #endif
+	}
+
+	std::pair<int, int> LinearSolver::solve()
+	{
+		glp_iocp parm;
+		glp_init_iocp(&parm);
+		parm.presolve = GLP_ON;
+		if (glp_intopt(m_pProgram, &parm) != 0) {
+			std::cerr << "MIP program failed" << std::endl;
+			return { -1, -1 };
+		}
+
+		// Print result
+		double dMinSize = glp_mip_obj_val(m_pProgram);
+		std::cout << "min bitstream size: " << dMinSize << std::endl;
+
+		// Selected variable
+		int iSelectedConfig = -1;
+		for (std::size_t i = 1; i <= m_iTotalVariables; ++i) {
+			double val = glp_mip_col_val(m_pProgram, i);
+			if (val != 0.0) {
+				assert(iSelectedConfig == -1);
+				iSelectedConfig = i - 1;
+			}
+		}
+
+		assert(iSelectedConfig != -1);
+
+		return { dMinSize, iSelectedConfig };
 	}
 }

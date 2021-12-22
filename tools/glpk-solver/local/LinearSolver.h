@@ -1,6 +1,8 @@
 #ifndef LOCAL_LINEAR_SOLVER_H_
 #define LOCAL_LINEAR_SOLVER_H_
 
+#include <utility>
+
 #include "Data.h"
 
 extern "C" {
@@ -20,9 +22,11 @@ namespace local {
 		LinearSolver& operator=(LinearSolver&&) = delete;
 
 		void fillContraints(const ResultsMap& results);
+		std::pair<int, int> solve();
 
 	private:
 		glp_prob* m_pProgram;
+		std::size_t m_iTotalVariables;
 	};
 }
 
