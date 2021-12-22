@@ -6,7 +6,7 @@ namespace helper {
 		{
 			switch (codec) {
 				case CodecType::H264Baseline:
-					return "H.264 basline";
+					return "H.264 baseline";
 
 				case CodecType::H264Main:
 					return "H.264 main";
