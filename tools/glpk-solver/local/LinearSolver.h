@@ -21,8 +21,8 @@ namespace local {
 		LinearSolver& operator=(const LinearSolver&) = delete;
 		LinearSolver& operator=(LinearSolver&&) = delete;
 
-		void fillContraints(const ResultsMap& results);
-		std::pair<int, int> solve();
+		void fillContraints(const Results& results);
+		int solve();
 
 	private:
 		glp_prob* m_pProgram;

@@ -2,8 +2,9 @@
 #define LOCAL_DATA_H_
 
 #include <filesystem>
-#include <map>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace local {
 	struct Configuration {
@@ -14,15 +15,20 @@ namespace local {
 		bool operator<(const Configuration& other) const;
 	};
 
-	struct Results {
+	struct Result {
 		double dVMAF;
 		int iEncodingTime;
 		int iBitstreamSize;
 	};
 
-	using ResultsMap = std::map<Configuration, Results>;
+	struct ResultEntry {
+		Configuration config;
+		Result result;
+	};
 
-	ResultsMap loadResults(const std::filesystem::path& filePath);
+	using Results = std::vector<ResultEntry>;
+
+	Results loadResults(const std::filesystem::path& filePath);
 }
 
 #endif // LOCAL_DATA_H_

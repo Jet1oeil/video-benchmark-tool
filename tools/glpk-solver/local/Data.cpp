@@ -16,9 +16,9 @@ namespace local {
 		return lhs < rhs;
 	}
 
-	ResultsMap loadResults(const std::filesystem::path& filePath)
+	Results loadResults(const std::filesystem::path& filePath)
 	{
-		ResultsMap map;
+		Results results;
 
 		// Open json file
 		std::ifstream file(filePath, std::ios::in);
@@ -34,16 +34,15 @@ namespace local {
 				experiment["key"]["crf"]
 			};
 
-			Results results = {
+			Result result = {
 				experiment["results"]["vmaf"],
 				experiment["results"]["bitstream_size"],
 				experiment["results"]["encoding_time"]
 			};
 
-			auto [it, ack] = map.insert({ config, results});
-			assert(ack);
+			results.push_back({ config, result });
 		}
 
-		return map;
+		return results;
 	}
 }

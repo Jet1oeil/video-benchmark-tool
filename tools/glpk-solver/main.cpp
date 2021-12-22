@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 
 	local::LinearSolver solver(std::stod(argv[2]));
 	solver.fillContraints(results);
-	solver.solve();
+	int iResultIndex = solver.solve();
 
 	return 0;
 }

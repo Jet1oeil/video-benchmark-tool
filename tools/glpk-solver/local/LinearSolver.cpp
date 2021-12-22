@@ -50,7 +50,7 @@ namespace local {
 		glp_free_env();
 	}
 
-	void LinearSolver::fillContraints(const ResultsMap& results)
+	void LinearSolver::fillContraints(const Results& results)
 	{
 		std::array<char, 128> buffer;
 
@@ -95,7 +95,7 @@ namespace local {
 		for (const auto& result: results) {
 			indexRowArray.push_back(2);
 			indexColArray.push_back(iCol++);
-			coeffArray.push_back(result.second.dVMAF);
+			coeffArray.push_back(result.result.dVMAF);
 		}
 
 		// Encoding coeffcients
@@ -103,7 +103,7 @@ namespace local {
 		for (const auto& result: results) {
 			indexRowArray.push_back(3);
 			indexColArray.push_back(iCol++);
-			coeffArray.push_back(result.second.iEncodingTime);
+			coeffArray.push_back(result.result.iEncodingTime);
 		}
 
 		// Bitstreams size coeffcients
@@ -111,7 +111,7 @@ namespace local {
 		for (const auto& result: results) {
 			indexRowArray.push_back(4);
 			indexColArray.push_back(iCol++);
-			coeffArray.push_back(result.second.iBitstreamSize);
+			coeffArray.push_back(result.result.iBitstreamSize);
 		}
 
 		// Define total size variable
@@ -132,14 +132,14 @@ namespace local {
 #endif
 	}
 
-	std::pair<int, int> LinearSolver::solve()
+	int LinearSolver::solve()
 	{
 		glp_iocp parm;
 		glp_init_iocp(&parm);
 		parm.presolve = GLP_ON;
 		if (glp_intopt(m_pProgram, &parm) != 0) {
 			std::cerr << "MIP program failed" << std::endl;
-			return { -1, -1 };
+			return -1;
 		}
 
 		// Print result
@@ -158,6 +158,6 @@ namespace local {
 
 		assert(iSelectedConfig != -1);
 
-		return { dMinSize, iSelectedConfig };
+		return iSelectedConfig;
 	}
 }
