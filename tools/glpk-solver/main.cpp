@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	std::cout << "\t- preset: " << results[iResultIndex].config.szPreset << std::endl;
 	std::cout << "\t- crf: " << results[iResultIndex].config.iCRF << std::endl;
 	std::cout << "\t- vmaf: " << results[iResultIndex].result.dVMAF << std::endl;
-	std::cout << "\t- encoding time: " << results[iResultIndex].result.iEncodingTime << std::endl;
+	std::cout << "\t- encoding time: " << results[iResultIndex].result.iEncodingTime << " ms" << std::endl;
 
 	return 0;
 }

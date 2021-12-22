@@ -144,7 +144,7 @@ namespace local {
 
 		// Print result
 		double dMinSize = glp_mip_obj_val(m_pProgram);
-		std::cout << "min bitstream size: " << dMinSize << std::endl;
+		std::cout << "bitstream size: " << dMinSize << " o" << std::endl;
 
 		// Selected variable
 		int iSelectedConfig = -1;
