@@ -21,10 +21,16 @@ int main(int argc, char* argv[])
 	solver.fillContraints(results);
 	int iResultIndex = solver.solve();
 
+	if (iResultIndex == -1) {
+		return 1;
+	}
+
 	std::cout << "Selected config: " << std::endl;
 	std::cout << "\t- codec: " << results[iResultIndex].config.szCodecName << std::endl;
 	std::cout << "\t- preset: " << results[iResultIndex].config.szPreset << std::endl;
 	std::cout << "\t- crf: " << results[iResultIndex].config.iCRF << std::endl;
+	std::cout << "\t- vmaf: " << results[iResultIndex].result.dVMAF << std::endl;
+	std::cout << "\t- encoding time: " << results[iResultIndex].result.iEncodingTime << std::endl;
 
 	return 0;
 }
