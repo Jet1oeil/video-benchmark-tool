@@ -226,7 +226,7 @@ namespace helper {
 			return parameters;
 		}
 
-		Error Context::decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames)
+		Error Context::decodeVideoFile(const char* szVideoFileName, types::PacketList& yuvFrames)
 		{
 			avformat::Context formatContext;
 
@@ -251,7 +251,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodePacketStream(QVector<QByteArray>& packets, types::CodecType codecType, QVector<QByteArray>& yuvFrames)
+		Error Context::decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::PacketList& yuvFrames)
 		{
 			Error error = Error::Success;
 
@@ -277,10 +277,10 @@ namespace helper {
 		}
 
 		Error Context::encodeFrameStream(
-			const QVector<QByteArray>& yuvFrames,
+			const types::PacketList& yuvFrames,
 			const types::CodecParameters& parameters,
 			const types::EncoderParameters& encoderParameters,
-			QVector<QByteArray>& packets
+			types::PacketList& packets
 		)
 		{
 			if (openEncoder(parameters, encoderParameters) != avcodec::Error::Success) {
@@ -294,7 +294,7 @@ namespace helper {
 			}
 
 			// Flush decoder
-			if (encodeFrame(QByteArray(), packets) != avcodec::Error::CodecFlushed) {
+			if (encodeFrame(types::Packet(), packets) != avcodec::Error::CodecFlushed) {
 				return Error::Unkown;
 			}
 
@@ -360,7 +360,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames)
+		Error Context::decodeVideoFrame(const AVPacket* pPacket, types::PacketList& yuvFrames)
 		{
 			if (avcodec_send_packet(m_pContext, pPacket) < 0) {
 				return Error::SendPacket;
@@ -378,18 +378,18 @@ namespace helper {
 				}
 
 				// Dump yuv
-				QByteArray yuvBytes;
-				yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[0]), m_pFrame->width * m_pFrame->height);
-				yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[1]), m_pFrame->width * m_pFrame->height / 4);
-				yuvBytes.append(reinterpret_cast<const char*>(m_pFrame->data[2]), m_pFrame->width * m_pFrame->height / 4);
+				types::Packet yuvBytes;
+				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[0], m_pFrame->data[0] + m_pFrame->width * m_pFrame->height);
+				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[1], m_pFrame->data[1] + m_pFrame->width * m_pFrame->height / 4);
+				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[2], m_pFrame->data[2] + m_pFrame->width * m_pFrame->height / 4);
 
-				yuvFrames.append(yuvBytes);
+				yuvFrames.push_back(yuvBytes);
 			}
 
 			return Error::Success;
 		}
 
-		Error Context::decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames)
+		Error Context::decodePacket(avformat::Context& formatContext, types::PacketList& yuvFrames)
 		{
 			Error codecError = Error::Success;
 			auto formatError = formatContext.readVideoFrame(*m_pPacket);
@@ -460,7 +460,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::encodeVideoFrame(const AVFrame* pFrame, QVector<QByteArray>& packets)
+		Error Context::encodeVideoFrame(const AVFrame* pFrame, types::PacketList& packets)
 		{
 			if (avcodec_send_frame(m_pContext, pFrame) < 0) {
 				return Error::SendFrame;
@@ -478,10 +478,8 @@ namespace helper {
 				}
 
 				// Dump yuv
-				QByteArray packetBytes;
-				packetBytes.append(reinterpret_cast<const char*>(m_pPacket->data), m_pPacket->size);
-
-				packets.append(packetBytes);
+				types::Packet packetBytes(m_pPacket->data, m_pPacket->data + m_pPacket->size);
+				packets.push_back(packetBytes);
 
 				av_packet_unref(m_pPacket);
 			}
@@ -489,14 +487,14 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets)
+		Error Context::encodeFrame(const types::Packet& yuvFrame, types::PacketList& packets)
 		{
-			if (yuvFrame.isEmpty()) {
+			if (yuvFrame.empty()) {
 				return encodeVideoFrame(nullptr, packets);
 			}
 
 			// Fill AVFrame
-			const char* pSrc = yuvFrame.data();
+			const std::uint8_t* pSrc = yuvFrame.data();
 			std::memcpy(m_pFrame->data[0], pSrc, m_pFrame->width * m_pFrame->height);
 			pSrc += m_pFrame->width * m_pFrame->height;
 			std::memcpy(m_pFrame->data[1], pSrc, m_pFrame->width * m_pFrame->height / 4);

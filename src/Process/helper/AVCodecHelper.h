@@ -1,10 +1,10 @@
 #ifndef HELPER_AVCODEC_HELPER_H_
 #define HELPER_AVCODEC_HELPER_H_
 
-#include <QByteArray>
 #include <QString>
 
 #include "Types/Codec.h"
+#include "Types/Packet.h"
 
 extern "C" {
 	struct AVCodecContext;
@@ -45,14 +45,14 @@ namespace helper {
 
 			types::CodecParameters getCodecParameters() const;
 
-			Error decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames);
-			Error decodePacketStream(QVector<QByteArray>& packets, types::CodecType codecType, QVector<QByteArray>& yuvFrames);
+			Error decodeVideoFile(const char* szVideoFileName, types::PacketList& yuvFrames);
+			Error decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::PacketList& yuvFrames);
 
 			Error encodeFrameStream(
-				const QVector<QByteArray>& yuvFrames,
+				const types::PacketList& yuvFrames,
 				const types::CodecParameters& parameters,
 				const types::EncoderParameters& encoderParameters,
-				QVector<QByteArray>& packets
+				types::PacketList& packets
 			);
 
 		private:
@@ -60,12 +60,12 @@ namespace helper {
 
 			Error openDecoder(const avformat::Context& formatContext);
 			Error openDecoder(types::CodecType codecType);
-			Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
-			Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
+			Error decodeVideoFrame(const AVPacket* pPacket, types::PacketList& yuvFrames);
+			Error decodePacket(avformat::Context& formatContext, types::PacketList& yuvFrames);
 
 			Error openEncoder(const types::CodecParameters& parameters, const types::EncoderParameters& encoderParameters);
-			Error encodeVideoFrame(const AVFrame* pFrame, QVector<QByteArray>& packets);
-			Error encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets);
+			Error encodeVideoFrame(const AVFrame* pFrame, types::PacketList& packets);
+			Error encodeFrame(const types::Packet& yuvFrame, types::PacketList& packets);
 
 		private:
 			AVCodecContext* m_pContext;

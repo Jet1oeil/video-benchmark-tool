@@ -8,6 +8,7 @@
 #include <QString>
 
 #include "Types/Codec.h"
+#include "Types/Packet.h"
 
 #include "Configuration.h"
 #include "Experiment.h"
@@ -19,8 +20,8 @@ namespace vmaf {
 		void start(const QString& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
-		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames);
-		void runExperiments(const QVector<QByteArray>& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		bool decodeOriginalVideoFile(const QString& szVideoFileName, types::PacketList& yuvFrames);
+		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
 		types::CodecParameters m_originalCodecParameters;

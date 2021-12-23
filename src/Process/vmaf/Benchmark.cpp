@@ -30,7 +30,7 @@ namespace vmaf {
 			qDebug("\t%s", qPrintable(szPreset));
 		}
 
-		QVector<QByteArray> yuvFrames;
+		types::PacketList yuvFrames;
 		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
 			qDebug("Error decoding...");
 		}
@@ -38,7 +38,7 @@ namespace vmaf {
 		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset);
 	}
 
-	bool Benchmark::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
+	bool Benchmark::decodeOriginalVideoFile(const QString& szVideoFileName, types::PacketList& yuvFrames)
 	{
 		helper::avcodec::Context codecContex;
 
@@ -52,7 +52,7 @@ namespace vmaf {
 		return true;
 	}
 
-	void Benchmark::runExperiments(const QVector<QByteArray>& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
+	void Benchmark::runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
 		std::vector<Configuration> listConfigurations;
 

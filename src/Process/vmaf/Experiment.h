@@ -6,10 +6,8 @@
 #include <thread>
 #include <vector>
 
-#include <QByteArray>
-#include <QVector>
-
 #include "Types/Codec.h"
+#include "Types/Packet.h"
 
 namespace vmaf {
 	struct Configuration;
@@ -18,7 +16,7 @@ namespace vmaf {
 	class Experiment {
 	public:
 		Experiment(
-			const QVector<QByteArray>& yuvFrames,
+			const types::PacketList& yuvFrames,
 			const types::CodecParameters& codecParameters,
 			std::vector<Configuration>& listConfiguration,
 			std::mutex& mutexExperiments
@@ -42,7 +40,7 @@ namespace vmaf {
 		bool stoleTask(Configuration& experiment);
 
 	private:
-		const QVector<QByteArray>& m_yuvFrames;
+		const types::PacketList& m_yuvFrames;
 		types::CodecParameters m_codecParameters;
 		std::vector<Configuration>& m_listConfiguration;
 

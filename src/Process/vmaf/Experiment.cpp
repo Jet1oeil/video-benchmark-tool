@@ -35,7 +35,7 @@ namespace {
 
 namespace vmaf {
 	Experiment::Experiment(
-		const QVector<QByteArray>& yuvFrames,
+		const types::PacketList& yuvFrames,
 		const types::CodecParameters& codecParameters,
 		std::vector<Configuration>& listConfigurations,
 		std::mutex& mutexExperiments
@@ -88,7 +88,7 @@ namespace vmaf {
 
 			// Encode the video
 			helper::avcodec::Context encoder;
-			QVector<QByteArray> packets;
+			types::PacketList packets;
 
 			types::Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
@@ -99,11 +99,11 @@ namespace vmaf {
 
 			results.iBitstreamSize = 0;
 			for (const auto& packet: packets) {
-				results.iBitstreamSize += packet.count();
+				results.iBitstreamSize += packet.size();
 			}
 
 			// Decode the transcoded video
-			QVector<QByteArray> transcodedYUVFrames;
+			types::PacketList transcodedYUVFrames;
 			helper::avcodec::Context decoder;
 
 			clock.restart();

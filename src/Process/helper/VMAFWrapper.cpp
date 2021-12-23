@@ -2,8 +2,9 @@
 
 #include <cassert>
 #include <cstring>
-
 #include <fstream>
+
+#include <QDebug>
 
 namespace helper {
 	VMAFWrapper::VMAFWrapper(VmafPixelFormat m_pixelFormat, int m_iPixelDepth, int m_iWidth, int m_iHeigh)
@@ -57,14 +58,14 @@ namespace helper {
 		return true;
 	}
 
-	bool VMAFWrapper::computeMetrics(const QVector<QByteArray>& originalVideo, QVector<QByteArray> transcodedVideo)
+	bool VMAFWrapper::computeMetrics(const types::PacketList& originalVideo, types::PacketList transcodedVideo)
 	{
 		// FIXME: We only support 420P 8 bits format
 		assert(m_pixelFormat == VMAF_PIX_FMT_YUV420P);
 		assert(m_iPixelDepth == 8);
 		assert(originalVideo.size() == transcodedVideo.size());
 
-		auto loadPicture = [&](const QByteArray& yuvFrame, VmafPicture* pPicture) {
+		auto loadPicture = [&](const types::Packet& yuvFrame, VmafPicture* pPicture) {
 			if (vmaf_picture_alloc(pPicture, m_pixelFormat, m_iPixelDepth, m_iWidth, m_iHeight) != 0) {
 				return false;
 			}
@@ -86,14 +87,14 @@ namespace helper {
 		for (int i = 0; i < originalVideo.size(); ++i) {
 			qDebug("read frame #%d", i);
 
-			const QByteArray& originalYUV = originalVideo[i];
+			const types::Packet& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
 			if (!loadPicture(originalYUV, &referencePicture)){
 				qDebug("Error to load reference picture...");
 				return false;
 			}
 
-			const QByteArray& transcodedYUV = transcodedVideo[i];
+			const types::Packet& transcodedYUV = transcodedVideo[i];
 			VmafPicture transcodedPicture;
 			if (!loadPicture(transcodedYUV, &transcodedPicture)){
 				qDebug("Error to load reference picture...");

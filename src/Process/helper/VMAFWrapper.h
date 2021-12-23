@@ -1,10 +1,9 @@
 #ifndef HELPER_VMAF_WRAPPER_H_
 #define HELPER_VMAF_WRAPPER_H_
 
-#include <QByteArray>
-#include <QVector>
+#include <libvmaf/libvmaf.h>
 
-#include "libvmaf/libvmaf.h"
+#include "Types/Packet.h"
 
 namespace helper {
 	class VMAFWrapper {
@@ -19,7 +18,7 @@ namespace helper {
 		VMAFWrapper& operator=(VMAFWrapper&&) = delete;
 
 		bool open();
-		bool computeMetrics(const QVector<QByteArray>& originalVideo, QVector<QByteArray> transcodedVideo);
+		bool computeMetrics(const types::PacketList& originalVideo, types::PacketList transcodedVideo);
 
 		double getVMAFScore() const;
 
