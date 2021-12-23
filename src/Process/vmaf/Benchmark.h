@@ -16,11 +16,11 @@
 namespace vmaf {
 	class Benchmark {
 	public:
-		void start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		void start(const QString& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
 		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames);
-		void runExperiments(const QVector<QByteArray>& yuvFrames, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		void runExperiments(const QVector<QByteArray>& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
 		types::CodecParameters m_originalCodecParameters;

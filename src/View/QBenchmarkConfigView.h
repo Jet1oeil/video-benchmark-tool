@@ -21,7 +21,7 @@ namespace view {
 		QBenchmarkConfigView(QWidget* pParent);
 
 		QString getSelectedFile() const;
-		QCodecList getSelectedCodec() const;
+		CodecList getSelectedCodec() const;
 		int getMinCRF() const;
 		int getMaxCRF() const;
 		QStringList getPresetList() const;

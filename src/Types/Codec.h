@@ -2,8 +2,7 @@
 #define TYPE_CODEC_H_
 
 #include <string>
-
-#include <QVector>
+#include <vector>
 
 #include "Vector.h"
 
@@ -46,6 +45,6 @@ namespace types {
 	};
 }
 
-using QCodecList = QVector<types::CodecType>;
+using CodecList = std::vector<types::CodecType>;
 
 #endif // TYPE_CODEC_H_

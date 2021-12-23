@@ -41,7 +41,7 @@ namespace ctrl {
 
 		auto listCodec = m_benchmarkConfigView.getSelectedCodec();
 
-		if (listCodec.isEmpty()) {
+		if (listCodec.empty()) {
 			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Codec"), tr("At least one codec must be selected"));
 			return;
 		}

@@ -17,7 +17,7 @@
 using json = nlohmann::json;
 
 namespace vmaf {
-	void Benchmark::start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
+	void Benchmark::start(const QString& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
 		qDebug("selected video: %s", qPrintable(szVideoFileName));
 		qDebug("selected codec:");
@@ -52,7 +52,7 @@ namespace vmaf {
 		return true;
 	}
 
-	void Benchmark::runExperiments(const QVector<QByteArray>& yuvFrames, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
+	void Benchmark::runExperiments(const QVector<QByteArray>& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
 		std::vector<Configuration> listConfigurations;
 

@@ -49,13 +49,13 @@ namespace view {
 		return m_pFileLabel->text();
 	}
 
-	QCodecList QBenchmarkConfigView::getSelectedCodec() const
+	CodecList QBenchmarkConfigView::getSelectedCodec() const
 	{
-		QCodecList listCodec;
+		CodecList listCodec;
 
 		for (const auto& presetCodec: m_listCodecCheckbox) {
 			if (presetCodec->isChecked()) {
-				listCodec.append(getCodecType(presetCodec->text()));
+				listCodec.push_back(getCodecType(presetCodec->text()));
 			}
 		}
 
