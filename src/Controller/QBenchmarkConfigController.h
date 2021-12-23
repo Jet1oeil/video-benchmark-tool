@@ -23,7 +23,6 @@ namespace ctrl {
 
 	private:
 		view::QBenchmarkConfigView& m_benchmarkConfigView;
-		vmaf::Benchmark m_vmafBenchmark;
 	};
 }
 

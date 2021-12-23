@@ -4,10 +4,8 @@
 #include <map>
 #include <vector>
 
-#include <QObject>
 #include <QStringList>
 #include <QString>
-#include <QThread>
 
 #include "Process/helper/CodecParameters.h"
 
@@ -16,38 +14,15 @@
 #include "Results.h"
 
 namespace vmaf {
-	class Benchmark: public QObject {
-	Q_OBJECT
-
+	class Benchmark {
 	public:
 		void start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
-	private slots:
-		void handleBenchmarkFinished();
-	};
-
-	class BenchmarkThread : public QThread {
-	Q_OBJECT
-
-	public:
-		BenchmarkThread(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
-
-	signals:
-		void benchmarkFinished();
-
 	private:
-		virtual void run() override;
-
 		bool decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames);
-		void runExperiments(const QVector<QByteArray>& yuvFrames);
+		void runExperiments(const QVector<QByteArray>& yuvFrames, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
-		QString m_szVideoFileName;
-		QCodecList m_listCodec;
-		int m_iMinCRF;
-		int m_iMaxCRF;
-		QStringList m_listPreset;
-
 		helper::avcodec::CodecParameters m_originalCodecParameters;
 
 		std::vector<Experiment> m_poolThreads;

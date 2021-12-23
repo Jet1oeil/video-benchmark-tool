@@ -19,54 +19,26 @@ using json = nlohmann::json;
 namespace vmaf {
 	void Benchmark::start(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
-		BenchmarkThread *pMainThread = new BenchmarkThread(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
-		pMainThread->setParent(this);
-
-		connect(pMainThread, &BenchmarkThread::benchmarkFinished, this, &Benchmark::handleBenchmarkFinished);
-		connect(pMainThread, &BenchmarkThread::finished, pMainThread, &QObject::deleteLater);
-		pMainThread->start();
-	}
-
-	void Benchmark::handleBenchmarkFinished()
-	{
-		qDebug("Benchmark finished");
-	}
-
-
-	BenchmarkThread::BenchmarkThread(const QString& szVideoFileName, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
-	: m_szVideoFileName(szVideoFileName)
-	, m_listCodec(listCodec)
-	, m_iMinCRF(iMinCRF)
-	, m_iMaxCRF(iMaxCRF)
-	, m_listPreset(listPreset)
-	{
-
-	}
-
-	void BenchmarkThread::run()
-	{
-		qDebug("selected video: %s", qPrintable(m_szVideoFileName));
+		qDebug("selected video: %s", qPrintable(szVideoFileName));
 		qDebug("selected codec:");
-		for (const auto& codecID: m_listCodec) {
+		for (const auto& codecID: listCodec) {
 			qDebug("\t%d", static_cast<int>(codecID));
 		}
-		qDebug("CRF: [%d - %d]", m_iMinCRF, m_iMaxCRF);
+		qDebug("CRF: [%d - %d]", iMinCRF, iMaxCRF);
 		qDebug("selected preset:");
-		for (const auto& szPreset: m_listPreset) {
+		for (const auto& szPreset: listPreset) {
 			qDebug("\t%s", qPrintable(szPreset));
 		}
 
 		QVector<QByteArray> yuvFrames;
-		if (!decodeOriginalVideoFile(m_szVideoFileName, yuvFrames)) {
+		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
 			qDebug("Error decoding...");
 		}
 
-		runExperiments(yuvFrames);
-
-		emit benchmarkFinished();
+		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset);
 	}
 
-	bool BenchmarkThread::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
+	bool Benchmark::decodeOriginalVideoFile(const QString& szVideoFileName, QVector<QByteArray>& yuvFrames)
 	{
 		helper::avcodec::Context codecContex;
 
@@ -80,14 +52,14 @@ namespace vmaf {
 		return true;
 	}
 
-	void BenchmarkThread::runExperiments(const QVector<QByteArray>& yuvFrames)
+	void Benchmark::runExperiments(const QVector<QByteArray>& yuvFrames, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset)
 	{
 		std::vector<Configuration> listConfigurations;
 
 		// Generate all configuration
-		for (const auto& codecID: m_listCodec) {
-			for (int iCRF = m_iMinCRF; iCRF <= m_iMaxCRF; ++iCRF) {
-				for (const auto& szPreset: m_listPreset) {
+		for (const auto& codecID: listCodec) {
+			for (int iCRF = iMinCRF; iCRF <= iMaxCRF; ++iCRF) {
+				for (const auto& szPreset: listPreset) {
 					listConfigurations.push_back({ codecID, iCRF, szPreset });
 				}
 			}
@@ -102,7 +74,7 @@ namespace vmaf {
 
 		// Alloc the thread pool
 		std::mutex mutexExperiments;
-		for (int i = 0; i < QThread::idealThreadCount(); ++i) {
+		for (int i = 0; i < static_cast<int>(std::thread::hardware_concurrency()); ++i) {
 			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments);
 		}
 

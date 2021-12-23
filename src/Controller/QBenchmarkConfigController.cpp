@@ -1,5 +1,7 @@
 #include "QBenchmarkConfigController.h"
 
+#include <thread>
+
 #include <QFileDialog>
 #include <QMessageBox>
 
@@ -66,6 +68,10 @@ namespace ctrl {
 			return;
 		}
 
-		m_vmafBenchmark.start(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
+		std::thread([szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset]{
+			vmaf::Benchmark vmafBenchmark;
+
+			vmafBenchmark.start(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
+		}).detach();
 	}
 }
