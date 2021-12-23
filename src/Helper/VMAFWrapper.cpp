@@ -4,7 +4,7 @@
 #include <cstring>
 #include <fstream>
 
-#include <QDebug>
+#include "Helper/Log.h"
 
 namespace helper {
 	VMAFWrapper::VMAFWrapper(VmafPixelFormat m_pixelFormat, int m_iPixelDepth, int m_iWidth, int m_iHeigh)
@@ -85,35 +85,35 @@ namespace helper {
 		};
 
 		for (std::size_t i = 0; i < originalVideo.size(); ++i) {
-			qDebug("read frame #%lu", i);
+			helper::Log::debug("read frame #%lu", i);
 
 			const types::Packet& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
 			if (!loadPicture(originalYUV, &referencePicture)){
-				qDebug("Error to load reference picture...");
+				helper::Log::debug("Error to load reference picture...");
 				return false;
 			}
 
 			const types::Packet& transcodedYUV = transcodedVideo[i];
 			VmafPicture transcodedPicture;
 			if (!loadPicture(transcodedYUV, &transcodedPicture)){
-				qDebug("Error to load reference picture...");
+				helper::Log::debug("Error to load reference picture...");
 				return false;
 			}
 
 			if (vmaf_read_pictures(m_pContext, &referencePicture, &transcodedPicture, i) != 0) {
-				qDebug("Error to read pictures...");
+				helper::Log::debug("Error to read pictures...");
 				return false;
 			}
 		}
 
 		if (vmaf_read_pictures(m_pContext, nullptr, nullptr, 0) != 0) {
-			qDebug("Error to flush context...");
+			helper::Log::debug("Error to flush context...");
 			return false;
 		}
 
 		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MEAN, &m_dVMAFScore, 0, originalVideo.size() - 1) != 0) {
-			qDebug("Error to get VMAF score...");
+			helper::Log::debug("Error to get VMAF score...");
 			return false;
 		}
 

@@ -2,10 +2,10 @@
 
 #include <sstream>
 
-#include <QDebug>
-
 #include "Helper/AVCodecHelper.h"
 #include "Helper/VMAFWrapper.h"
+
+#include "Helper/Log.h"
 
 #include "Types/Clock.h"
 
@@ -25,13 +25,6 @@ namespace {
 		}
 
 		return VMAF_PIX_FMT_UNKNOWN;
-	}
-
-	inline std::string getThreadID()
-	{
-		std::ostringstream oss;
-		oss << std::this_thread::get_id();
-		return oss.str();
 	}
 }
 
@@ -79,8 +72,7 @@ namespace vmaf {
 		Configuration currentConfiguration;
 
 		while (stoleTask(currentConfiguration)) {
-			qDebug("TID: %s, codec: %d, CRF: %d, preset: %s",
-				getThreadID().c_str(),
+			helper::Log::debug("codec: %d, CRF: %d, preset: %s",
 				static_cast<int>(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
 				currentConfiguration.szPreset.c_str()
@@ -94,7 +86,7 @@ namespace vmaf {
 
 			types::Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
-				qDebug("Encode error...");
+				helper::Log::debug("Encode error...");
 				continue;
 			}
 			results.dEncodingTime = clock.getDuration().count();
@@ -110,13 +102,13 @@ namespace vmaf {
 
 			clock.restart();
 			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
-				qDebug("Decode transcoded video error...");
+				helper::Log::debug("Decode transcoded video error...");
 				continue;
 			}
 			results.dDecdodingTime = clock.getDuration().count();
 
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
-				qDebug("Frame count mismatch...");
+				helper::Log::debug("Frame count mismatch...");
 				continue;
 			}
 
@@ -125,12 +117,12 @@ namespace vmaf {
 			helper::VMAFWrapper vmaf(convertAVPixelFormat(pixelFormat), m_codecParameters.iPixelDepth, m_codecParameters.videoSize.width, m_codecParameters.videoSize.height);
 
 			if (!vmaf.open()) {
-				qDebug("VMAF error...");
+				helper::Log::debug("VMAF error...");
 				continue;
 			}
 
 			if (!vmaf.computeMetrics(m_yuvFrames, transcodedYUVFrames)) {
-				qDebug("Compute VMAF error...");
+				helper::Log::debug("Compute VMAF error...");
 				continue;
 			}
 

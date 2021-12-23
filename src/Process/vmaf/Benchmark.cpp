@@ -7,10 +7,9 @@
 
 #include <json.hpp>
 
-#include <QDebug>
-
 #include "Helper/AVCodecHelper.h"
 #include "Helper/AVFormatHelper.h"
+#include "Helper/Log.h"
 
 #include "Configuration.h"
 
@@ -19,20 +18,20 @@ using json = nlohmann::json;
 namespace vmaf {
 	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset)
 	{
-		qDebug("selected video: %s", szVideoFileName.c_str());
-		qDebug("selected codec:");
+		helper::Log::debug("selected video: %s", szVideoFileName.c_str());
+		helper::Log::debug("selected codec:");
 		for (const auto& codecID: listCodec) {
-			qDebug("\t%d", static_cast<int>(codecID));
+			helper::Log::debug("\t%d", static_cast<int>(codecID));
 		}
-		qDebug("CRF: [%d - %d]", iMinCRF, iMaxCRF);
-		qDebug("selected preset:");
+		helper::Log::debug("CRF: [%d - %d]", iMinCRF, iMaxCRF);
+		helper::Log::debug("selected preset:");
 		for (const auto& szPreset: listPreset) {
-			qDebug("\t%s", szPreset.c_str());
+			helper::Log::debug("\t%s", szPreset.c_str());
 		}
 
 		types::PacketList yuvFrames;
 		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
-			qDebug("Error decoding...");
+			helper::Log::debug("Error decoding...");
 		}
 
 		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset);
@@ -43,7 +42,7 @@ namespace vmaf {
 		helper::avcodec::Context codecContex;
 
 		if (codecContex.decodeVideoFile(szVideoFileName.c_str(), yuvFrames) != helper::avcodec::Error::Success) {
-			qDebug("Error decode video...");
+			helper::Log::debug("Error decode video...");
 			return false;
 		}
 
@@ -95,7 +94,7 @@ namespace vmaf {
 		// Print results
 		json jsonDocument;
 		for (const auto& [key, value]: m_results) {
-			qDebug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), value.dVMAFScore);
+			helper::Log::debug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), value.dVMAFScore);
 			json jKey = {
 				"key", {
 					{ "codec_id", static_cast<int>(key.codecType) },
@@ -127,7 +126,7 @@ namespace vmaf {
 		jsonFile.open(dateTimeText.data());
 
 		if (!jsonFile.good()) {
-			qCritical("Unable to store results :\n%s", jsonDocument.dump(4).c_str());
+			helper::Log::error("Unable to store results :\n%s", jsonDocument.dump(4).c_str());
 			return;
 		}
 

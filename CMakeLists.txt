@@ -13,6 +13,7 @@ add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Helper/AVCodecHelper.cpp
 	src/Helper/AVFormatHelper.cpp
+	src/Helper/Log.cpp
 	src/Helper/VMAFWrapper.cpp
 	src/Process/vmaf/Benchmark.cpp
 	src/Process/vmaf/Configuration.cpp
@@ -51,7 +52,7 @@ if (UNIX)
 	target_compile_options(video-benchmark-tool
 		PRIVATE
 			"-Wall" "-Wextra"
-			"$<$<CONFIG:DEBUG>:-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
+			"$<$<CONFIG:DEBUG>:-DDEBUG;-O0;-g;-fno-omit-frame-pointer;-fsanitize=address>"
 	)
 
 	target_link_libraries(video-benchmark-tool
