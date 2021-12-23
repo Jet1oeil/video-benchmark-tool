@@ -61,9 +61,9 @@ namespace ctrl {
 			iMinCRF = iTmp;
 		}
 
-		QStringList listPreset = m_benchmarkConfigView.getPresetList();
+		std::list<std::string> listPreset = m_benchmarkConfigView.getPresetList();
 
-		if (listPreset.isEmpty()) {
+		if (listPreset.empty()) {
 			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Preset"), tr("At least one preset must be selected"));
 			return;
 		}
@@ -71,7 +71,7 @@ namespace ctrl {
 		std::thread([szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset]{
 			vmaf::Benchmark vmafBenchmark;
 
-			vmafBenchmark.start(szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset);
+			vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, iMinCRF, iMaxCRF, listPreset);
 		}).detach();
 	}
 }

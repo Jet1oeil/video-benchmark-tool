@@ -1,11 +1,10 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
+#include <list>
 #include <map>
+#include <string>
 #include <vector>
-
-#include <QStringList>
-#include <QString>
 
 #include "Types/Codec.h"
 #include "Types/Packet.h"
@@ -17,11 +16,11 @@
 namespace vmaf {
 	class Benchmark {
 	public:
-		void start(const QString& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		void start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset);
 
 	private:
-		bool decodeOriginalVideoFile(const QString& szVideoFileName, types::PacketList& yuvFrames);
-		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
+		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
+		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset);
 
 	private:
 		types::CodecParameters m_originalCodecParameters;

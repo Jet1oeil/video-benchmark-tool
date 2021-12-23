@@ -72,13 +72,13 @@ namespace view {
 		return m_pMaxCRFSpinBox->value();
 	}
 
-	QStringList QBenchmarkConfigView::getPresetList() const
+	std::list<std::string> QBenchmarkConfigView::getPresetList() const
 	{
-		QStringList listPreset;
+		std::list<std::string> listPreset;
 
 		for (const auto& presetCheckbox: m_listPresetCheckbox) {
 			if (presetCheckbox->isChecked()) {
-				listPreset.append(presetCheckbox->text());
+				listPreset.push_back(presetCheckbox->text().toStdString());
 			}
 		}
 

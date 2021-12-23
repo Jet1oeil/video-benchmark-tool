@@ -24,7 +24,7 @@ namespace view {
 		CodecList getSelectedCodec() const;
 		int getMinCRF() const;
 		int getMaxCRF() const;
-		QStringList getPresetList() const;
+		std::list<std::string> getPresetList() const;
 
 		void setSelectedFile(const QString& szFileName);
 

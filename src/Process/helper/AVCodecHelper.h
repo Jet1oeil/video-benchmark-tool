@@ -1,8 +1,6 @@
 #ifndef HELPER_AVCODEC_HELPER_H_
 #define HELPER_AVCODEC_HELPER_H_
 
-#include <QString>
-
 #include "Types/Codec.h"
 #include "Types/Packet.h"
 
