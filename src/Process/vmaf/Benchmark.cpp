@@ -7,6 +7,8 @@
 
 #include <json.hpp>
 
+#include <QDebug>
+
 #include "Process/helper/AVCodecHelper.h"
 #include "Process/helper/AVFormatHelper.h"
 
