@@ -84,8 +84,8 @@ namespace helper {
 			return true;
 		};
 
-		for (int i = 0; i < originalVideo.size(); ++i) {
-			qDebug("read frame #%d", i);
+		for (std::size_t i = 0; i < originalVideo.size(); ++i) {
+			qDebug("read frame #%lu", i);
 
 			const types::Packet& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
