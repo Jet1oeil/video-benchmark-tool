@@ -9,7 +9,7 @@
 #include <QByteArray>
 #include <QVector>
 
-#include "Process/helper/CodecParameters.h"
+#include "Types/Codec.h"
 
 namespace vmaf {
 	struct Configuration;
@@ -19,7 +19,7 @@ namespace vmaf {
 	public:
 		Experiment(
 			const QVector<QByteArray>& yuvFrames,
-			const helper::avcodec::CodecParameters& codecParameters,
+			const types::CodecParameters& codecParameters,
 			std::vector<Configuration>& listConfiguration,
 			std::mutex& mutexExperiments
 		);
@@ -43,7 +43,7 @@ namespace vmaf {
 
 	private:
 		const QVector<QByteArray>& m_yuvFrames;
-		helper::avcodec::CodecParameters m_codecParameters;
+		types::CodecParameters m_codecParameters;
 		std::vector<Configuration>& m_listConfiguration;
 
 		std::thread m_thread;

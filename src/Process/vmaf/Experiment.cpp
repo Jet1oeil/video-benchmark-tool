@@ -3,7 +3,6 @@
 #include <sstream>
 
 #include "Process/helper/AVCodecHelper.h"
-#include "Process/helper/CodecParameters.h"
 #include "Process/helper/VMAFWrapper.h"
 
 #include "Types/Clock.h"
@@ -13,13 +12,13 @@
 
 namespace {
 	// TODO: Add support for other format
-	VmafPixelFormat convertAVPixelFormat(helper::avcodec::PixelFormat pixelFormat)
+	VmafPixelFormat convertAVPixelFormat(types::PixelFormat pixelFormat)
 	{
 		switch (pixelFormat) {
-		case helper::avcodec::PixelFormat::YUV420P:
+		case types::PixelFormat::YUV420P:
 			return VMAF_PIX_FMT_YUV420P;
 
-		case helper::avcodec::PixelFormat::Undefined:
+		case types::PixelFormat::Undefined:
 			return VMAF_PIX_FMT_UNKNOWN;
 		}
 
@@ -37,7 +36,7 @@ namespace {
 namespace vmaf {
 	Experiment::Experiment(
 		const QVector<QByteArray>& yuvFrames,
-		const helper::avcodec::CodecParameters& codecParameters,
+		const types::CodecParameters& codecParameters,
 		std::vector<Configuration>& listConfigurations,
 		std::mutex& mutexExperiments
 	)
@@ -82,7 +81,7 @@ namespace vmaf {
 				getThreadID().c_str(),
 				static_cast<int>(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
-				qPrintable(currentConfiguration.szPreset)
+				currentConfiguration.szPreset.c_str()
 			);
 
 			Results results;

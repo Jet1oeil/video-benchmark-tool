@@ -7,7 +7,7 @@
 #include <QStringList>
 #include <QString>
 
-#include "Process/helper/CodecParameters.h"
+#include "Types/Codec.h"
 
 #include "Configuration.h"
 #include "Experiment.h"
@@ -23,7 +23,7 @@ namespace vmaf {
 		void runExperiments(const QVector<QByteArray>& yuvFrames, const QCodecList& listCodec, int iMinCRF, int iMaxCRF, const QStringList& listPreset);
 
 	private:
-		helper::avcodec::CodecParameters m_originalCodecParameters;
+		types::CodecParameters m_originalCodecParameters;
 
 		std::vector<Experiment> m_poolThreads;
 		std::map<Configuration, Results> m_results;

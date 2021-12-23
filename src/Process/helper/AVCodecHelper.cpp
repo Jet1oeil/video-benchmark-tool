@@ -15,7 +15,7 @@ extern "C" {
 namespace helper {
 	namespace avcodec {
 		namespace details {
-			PixelFormat convertPixelFormat(AVPixelFormat pixelFormat)
+			types::PixelFormat convertPixelFormat(AVPixelFormat pixelFormat)
 			{
 				switch (pixelFormat) {
 				// case AV_PIX_FMT_GRAY8:
@@ -32,7 +32,7 @@ namespace helper {
 				case AV_PIX_FMT_YUV420P12:
 				case AV_PIX_FMT_YUV420P14:
 				case AV_PIX_FMT_YUV420P16:
-					return PixelFormat::YUV420P;
+					return types::PixelFormat::YUV420P;
 
 				// case AV_PIX_FMT_YUV422P:
 				// case AV_PIX_FMT_YUV422P9:
@@ -50,51 +50,51 @@ namespace helper {
 				// case AV_PIX_FMT_YUV444P16:
 
 				default:
-					return PixelFormat::Undefined;
+					return types::PixelFormat::Undefined;
 				}
 
-				return PixelFormat::Undefined;
+				return types::PixelFormat::Undefined;
 			}
 
-			AVPixelFormat convertPixelFormat(PixelFormat pixelFormat)
+			AVPixelFormat convertPixelFormat(types::PixelFormat pixelFormat)
 			{
 				switch (pixelFormat) {
-				case PixelFormat::YUV420P:
+				case types::PixelFormat::YUV420P:
 					return AV_PIX_FMT_YUV420P;
 
-				case PixelFormat::Undefined:
+				case types::PixelFormat::Undefined:
 					return AV_PIX_FMT_NONE;
 				}
 
 				return AV_PIX_FMT_NONE;
 			}
 
-			ColorRange convertColorRange(AVColorRange colorRange)
+			types::ColorRange convertColorRange(AVColorRange colorRange)
 			{
 				switch (colorRange) {
 				case AVCOL_RANGE_MPEG:
-					return ColorRange::MPEG;
+					return types::ColorRange::MPEG;
 
 				case AVCOL_RANGE_JPEG:
-					return ColorRange::JPEG;
+					return types::ColorRange::JPEG;
 
 				default:
-					return ColorRange::Undefined;
+					return types::ColorRange::Undefined;
 				}
 
-				return ColorRange::Undefined;
+				return types::ColorRange::Undefined;
 			}
 
-			AVColorRange convertColorRange(ColorRange colorRange)
+			AVColorRange convertColorRange(types::ColorRange colorRange)
 			{
 				switch (colorRange) {
-				case ColorRange::MPEG:
+				case types::ColorRange::MPEG:
 					return AVCOL_RANGE_MPEG;
 
-				case ColorRange::JPEG:
+				case types::ColorRange::JPEG:
 					return AVCOL_RANGE_JPEG;
 
-				case ColorRange::Undefined:
+				case types::ColorRange::Undefined:
 					return AVCOL_RANGE_UNSPECIFIED;
 				}
 
@@ -148,40 +148,40 @@ namespace helper {
 				return -1;
 			}
 
-			AVCodecID getCodecID(CodecType codec)
+			AVCodecID getCodecID(types::CodecType codec)
 			{
 				switch (codec) {
-				case CodecType::H264Baseline:
-				case CodecType::H264Main:
-				case CodecType::H264High:
+				case types::CodecType::H264Baseline:
+				case types::CodecType::H264Main:
+				case types::CodecType::H264High:
 					return AV_CODEC_ID_H264;
 
-				case CodecType::H265Main:
+				case types::CodecType::H265Main:
 					return AV_CODEC_ID_HEVC;
 
-				case CodecType::Undefined:
+				case types::CodecType::Undefined:
 					return AV_CODEC_ID_NONE;
 				}
 
 				return AV_CODEC_ID_NONE;
 			}
 
-			int getProfileID(CodecType codec)
+			int getProfileID(types::CodecType codec)
 			{
 				switch (codec) {
-				case CodecType::H264Baseline:
+				case types::CodecType::H264Baseline:
 					return FF_PROFILE_H264_BASELINE;
 
-				case CodecType::H264Main:
+				case types::CodecType::H264Main:
 					return FF_PROFILE_H264_MAIN;
 
-				case CodecType::H264High:
+				case types::CodecType::H264High:
 					return FF_PROFILE_H264_HIGH;
 
-				case CodecType::H265Main:
+				case types::CodecType::H265Main:
 					return FF_PROFILE_HEVC_MAIN;
 
-				case CodecType::Undefined:
+				case types::CodecType::Undefined:
 					return FF_PROFILE_UNKNOWN;
 				}
 
@@ -212,9 +212,9 @@ namespace helper {
 			}
 		}
 
-		CodecParameters Context::getCodecParameters() const
+		types::CodecParameters Context::getCodecParameters() const
 		{
-			CodecParameters parameters;
+			types::CodecParameters parameters;
 
 			parameters.videoSize = { m_pContext->width, m_pContext->height };
 			parameters.pixelFormat = details::convertPixelFormat(m_pContext->pix_fmt);
@@ -251,7 +251,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodePacketStream(QVector<QByteArray>& packets, CodecType codecType, QVector<QByteArray>& yuvFrames)
+		Error Context::decodePacketStream(QVector<QByteArray>& packets, types::CodecType codecType, QVector<QByteArray>& yuvFrames)
 		{
 			Error error = Error::Success;
 
@@ -278,8 +278,8 @@ namespace helper {
 
 		Error Context::encodeFrameStream(
 			const QVector<QByteArray>& yuvFrames,
-			const CodecParameters& parameters,
-			const EncoderParameters& encoderParameters,
+			const types::CodecParameters& parameters,
+			const types::EncoderParameters& encoderParameters,
 			QVector<QByteArray>& packets
 		)
 		{
@@ -341,7 +341,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::openDecoder(CodecType codecType)
+		Error Context::openDecoder(types::CodecType codecType)
 		{
 			AVCodec* pCodec = avcodec_find_decoder(details::getCodecID(codecType));
 
@@ -407,7 +407,7 @@ namespace helper {
 			return codecError;
 		}
 
-		Error Context::openEncoder(const CodecParameters& parameters, const EncoderParameters& encoderParameters)
+		Error Context::openEncoder(const types::CodecParameters& parameters, const types::EncoderParameters& encoderParameters)
 		{
 			// Only support 8-bits
 			assert(parameters.iPixelDepth == 8);
@@ -436,9 +436,9 @@ namespace helper {
 
 			AVDictionary* options = nullptr;
 			av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
-			av_dict_set(&options, "preset", qPrintable(encoderParameters.szPreset), 0);
+			av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
 
-			if (encoderParameters.codecType == CodecType::H265Main) {
+			if (encoderParameters.codecType == types::CodecType::H265Main) {
 				av_dict_set(&options, "x265-params", "--pools=none, --numa-pools=none", 0);
 			}
 

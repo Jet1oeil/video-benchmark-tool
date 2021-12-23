@@ -13,13 +13,13 @@ add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Process/helper/AVCodecHelper.cpp
 	src/Process/helper/AVFormatHelper.cpp
-	src/Process/helper/CodecParameters.cpp
 	src/Process/helper/VMAFWrapper.cpp
 	src/Process/vmaf/Benchmark.cpp
 	src/Process/vmaf/Configuration.cpp
 	src/Process/vmaf/Experiment.cpp
 	src/View/QBenchmarkConfigView.cpp
 	src/View/QMainView.cpp
+	src/Types/Codec.cpp
 	src/main.cpp
 )
 

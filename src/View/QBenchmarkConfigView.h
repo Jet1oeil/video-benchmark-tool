@@ -10,7 +10,7 @@
 #include <QVector>
 #include <QWidget>
 
-#include "Process/helper/CodecParameters.h"
+#include "Types/Codec.h"
 
 namespace view {
 

@@ -4,7 +4,7 @@
 #include <QByteArray>
 #include <QString>
 
-#include "CodecParameters.h"
+#include "Types/Codec.h"
 
 extern "C" {
 	struct AVCodecContext;
@@ -43,15 +43,15 @@ namespace helper {
 			Context& operator=(const Context&) = delete;
 			Context& operator=(Context&&) = delete;
 
-			CodecParameters getCodecParameters() const;
+			types::CodecParameters getCodecParameters() const;
 
 			Error decodeVideoFile(const char* szVideoFileName, QVector<QByteArray>& yuvFrames);
-			Error decodePacketStream(QVector<QByteArray>& packets, CodecType codecType, QVector<QByteArray>& yuvFrames);
+			Error decodePacketStream(QVector<QByteArray>& packets, types::CodecType codecType, QVector<QByteArray>& yuvFrames);
 
 			Error encodeFrameStream(
 				const QVector<QByteArray>& yuvFrames,
-				const CodecParameters& parameters,
-				const EncoderParameters& encoderParameters,
+				const types::CodecParameters& parameters,
+				const types::EncoderParameters& encoderParameters,
 				QVector<QByteArray>& packets
 			);
 
@@ -59,11 +59,11 @@ namespace helper {
 			Error allocateContext(const AVCodec* pCodec);
 
 			Error openDecoder(const avformat::Context& formatContext);
-			Error openDecoder(CodecType codecType);
+			Error openDecoder(types::CodecType codecType);
 			Error decodeVideoFrame(const AVPacket* pPacket, QVector<QByteArray>& yuvFrames);
 			Error decodePacket(avformat::Context& formatContext, QVector<QByteArray>& yuvFrames);
 
-			Error openEncoder(const CodecParameters& parameters, const EncoderParameters& encoderParameters);
+			Error openEncoder(const types::CodecParameters& parameters, const types::EncoderParameters& encoderParameters);
 			Error encodeVideoFrame(const AVFrame* pFrame, QVector<QByteArray>& packets);
 			Error encodeFrame(const QByteArray& yuvFrame, QVector<QByteArray>& packets);
 

@@ -60,7 +60,7 @@ namespace vmaf {
 		for (const auto& codecID: listCodec) {
 			for (int iCRF = iMinCRF; iCRF <= iMaxCRF; ++iCRF) {
 				for (const auto& szPreset: listPreset) {
-					listConfigurations.push_back({ codecID, iCRF, szPreset });
+					listConfigurations.push_back({ codecID, iCRF, szPreset.toStdString() });
 				}
 			}
 		}
@@ -96,13 +96,13 @@ namespace vmaf {
 		// Print results
 		json jsonDocument;
 		for (const auto& [key, value]: m_results) {
-			qDebug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, qPrintable(key.szPreset), value.dVMAFScore);
+			qDebug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), value.dVMAFScore);
 			json jKey = {
 				"key", {
 					{ "codec_id", static_cast<int>(key.codecType) },
-					{ "codec_name", helper::avcodec::getCodecName(key.codecType) },
+					{ "codec_name", types::getCodecName(key.codecType) },
 					{ "crf", key.iCRF },
-					{ "preset", qPrintable(key.szPreset) }
+					{ "preset", key.szPreset.c_str() }
 				}
 			};
 

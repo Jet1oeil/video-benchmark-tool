@@ -3,10 +3,10 @@
 
 #include <QString>
 
-#include "Process/helper/CodecParameters.h"
+#include "Types/Codec.h"
 
 namespace vmaf {
-	struct Configuration : public helper::avcodec::EncoderParameters {
+	struct Configuration : public types::EncoderParameters {
 		bool operator<(const Configuration& other) const;
 	};
 }
