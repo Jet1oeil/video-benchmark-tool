@@ -4,8 +4,8 @@
 
 #include <QDebug>
 
-#include "Process/helper/AVCodecHelper.h"
-#include "Process/helper/VMAFWrapper.h"
+#include "Helper/AVCodecHelper.h"
+#include "Helper/VMAFWrapper.h"
 
 #include "Types/Clock.h"
 

@@ -9,8 +9,8 @@
 
 #include <QDebug>
 
-#include "Process/helper/AVCodecHelper.h"
-#include "Process/helper/AVFormatHelper.h"
+#include "Helper/AVCodecHelper.h"
+#include "Helper/AVFormatHelper.h"
 
 #include "Configuration.h"
 

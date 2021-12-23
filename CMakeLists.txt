@@ -11,9 +11,9 @@ add_subdirectory(vendor/vmaf)
 
 add_executable(video-benchmark-tool
 	src/Controller/QBenchmarkConfigController.cpp
-	src/Process/helper/AVCodecHelper.cpp
-	src/Process/helper/AVFormatHelper.cpp
-	src/Process/helper/VMAFWrapper.cpp
+	src/Helper/AVCodecHelper.cpp
+	src/Helper/AVFormatHelper.cpp
+	src/Helper/VMAFWrapper.cpp
 	src/Process/vmaf/Benchmark.cpp
 	src/Process/vmaf/Configuration.cpp
 	src/Process/vmaf/Experiment.cpp
