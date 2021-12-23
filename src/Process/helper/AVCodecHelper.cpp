@@ -438,6 +438,7 @@ namespace helper {
 			av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
 			av_dict_set(&options, "preset", qPrintable(encoderParameters.szPreset), 0);
 			av_dict_set(&options, "frame-threads", "1", 0);
+			av_dict_set(&options, "x265-params", "--pools=none, --numa-pools=none", 0);
 
 			if (avcodec_open2(m_pContext, pCodec, &options) < 0) {
 				return Error::OpenCodec;
