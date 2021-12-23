@@ -3,37 +3,38 @@
 
 #include <chrono>
 
-template <typename DefaultDurationType = std::chrono::milliseconds,
-		  typename ClockType = std::chrono::high_resolution_clock>
-class Clock {
-	using TimePoint = typename ClockType::time_point;
+namespace types {
+	template <typename DefaultDurationType = std::chrono::milliseconds,
+			typename ClockType = std::chrono::high_resolution_clock>
+	class Clock {
+		using TimePoint = typename ClockType::time_point;
 
-public:
-	Clock()
-	: m_start(ClockType::now())
-	{
+	public:
+		Clock()
+		: m_start(ClockType::now())
+		{
 
-	}
+		}
 
-	template <typename DurationType = DefaultDurationType>
-	DurationType restart()
-	{
-		auto duration = getDuration();
+		template <typename DurationType = DefaultDurationType>
+		DurationType restart()
+		{
+			auto duration = getDuration();
 
-		m_start = ClockType::now();
+			m_start = ClockType::now();
 
-		return duration;
-	}
+			return duration;
+		}
 
-	template <typename DurationType = DefaultDurationType>
-	DurationType getDuration()
-	{
-		return std::chrono::duration_cast<DurationType>(ClockType::now() - m_start);
-	}
+		template <typename DurationType = DefaultDurationType>
+		DurationType getDuration()
+		{
+			return std::chrono::duration_cast<DurationType>(ClockType::now() - m_start);
+		}
 
-private:
-	TimePoint m_start;
-};
-
+	private:
+		TimePoint m_start;
+	};
+}
 
 #endif // TYPES_CLOCK_H_

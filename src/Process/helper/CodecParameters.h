@@ -28,7 +28,7 @@ namespace helper {
 		};
 
 		struct CodecParameters {
-			Vector2i videoSize;
+			types::Vector2i videoSize;
 			PixelFormat pixelFormat;
 			ColorRange colorRange;
 			int iPixelDepth;

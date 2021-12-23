@@ -91,7 +91,7 @@ namespace vmaf {
 			helper::avcodec::Context encoder;
 			QVector<QByteArray> packets;
 
-			Clock clock;
+			types::Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
 				qDebug("Encode error...");
 				continue;
