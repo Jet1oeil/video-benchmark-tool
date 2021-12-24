@@ -8,8 +8,6 @@ extern "C" {
 #include <cassert>
 #include <cstring>
 
-#include <QVector>
-
 #include "AVFormatHelper.h"
 #include "Log.h"
 
