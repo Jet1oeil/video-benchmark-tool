@@ -6,6 +6,8 @@
 
 #include "Controller/QBenchmarkConfigController.h"
 
+#include "Types/Codec.h"
+
 #include "View/QMainView.h"
 
 int run_cli(int argc, char *argv[]);
@@ -53,23 +55,15 @@ int run_cli(int argc, char *argv[])
 		std::cerr << "    --codec-list LIST: set selected codecs separated by comma (default: all)" << std::endl;
 		std::cerr << "        Available codec:" << std::endl;
 		std::cerr << "            - all" << std::endl;
-		std::cerr << "            - x264 - baseline" << std::endl;
-		std::cerr << "            - x264 - main" << std::endl;
-		std::cerr << "            - x264 - high" << std::endl;
-		std::cerr << "            - x265 - main" << std::endl;
+		for (auto& codec: types::CodecList) {
+			std::cerr << "            - " << codec << std::endl;
+		}
 		std::cerr << "    --preset-list LIST: set selected presets separated by comma (default: all)" << std::endl;
 		std::cerr << "        Available codec:" << std::endl;
 		std::cerr << "            - all" << std::endl;
-		std::cerr << "            - ultrafast" << std::endl;
-		std::cerr << "            - superfast" << std::endl;
-		std::cerr << "            - veryfast" << std::endl;
-		std::cerr << "            - faster" << std::endl;
-		std::cerr << "            - fast" << std::endl;
-		std::cerr << "            - medium" << std::endl;
-		std::cerr << "            - slow" << std::endl;
-		std::cerr << "            - slower" << std::endl;
-		std::cerr << "            - veryslow" << std::endl;
-		std::cerr << "            - placebo" << std::endl;
+		for (auto& preset: types::PresetList) {
+			std::cerr << "            - " << preset << std::endl;
+		}
 	};
 
 	if (!parser["video-source"]) {

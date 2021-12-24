@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
+#include "Types/Codec.h"
+
 namespace {
 	types::CodecType getCodecType(const QString& szCodec)
 	{
@@ -112,13 +114,10 @@ namespace view {
 		QHBoxLayout* pLayout = new QHBoxLayout();
 
 		// Codec selection
-		m_listCodecCheckbox = {
+		for (auto& codec: types::CodecList) {
 			// No tr needed since it's libx264/265 implementation names
-			new QCheckBox("x264 - baseline"),
-			new QCheckBox("x264 - main"),
-			new QCheckBox("x264 - high"),
-			new QCheckBox("x265 - main"),
-		};
+			m_listCodecCheckbox.append(new QCheckBox(codec, this));
+		}
 
 		for (auto codecCheckBox: m_listCodecCheckbox) {
 			codecCheckBox->setChecked(true);
@@ -154,19 +153,10 @@ namespace view {
 		pCRFGroupBox->setLayout(pCRFLayout);
 
 		// Preset selection
-		m_listPresetCheckbox = {
+		for (auto& preset: types::PresetList) {
 			// No tr needed since it's libx264/265 implementation names
-			new QCheckBox("ultrafast"),
-			new QCheckBox("superfast"),
-			new QCheckBox("veryfast"),
-			new QCheckBox("faster"),
-			new QCheckBox("fast"),
-			new QCheckBox("medium"),
-			new QCheckBox("slow"),
-			new QCheckBox("slower"),
-			new QCheckBox("veryslow"),
-			new QCheckBox("placebo")
-		};
+			m_listPresetCheckbox.append(new QCheckBox(preset, this));
+		}
 
 		QGroupBox *pPresetGroupBox = new QGroupBox(tr("Preset selection"));
 		QHBoxLayout* pPresetLayout = new QHBoxLayout();

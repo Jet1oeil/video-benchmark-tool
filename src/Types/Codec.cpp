@@ -5,16 +5,16 @@ namespace types {
 	{
 		switch (codec) {
 			case CodecType::H264Baseline:
-				return "H.264 baseline";
+				return CodecList[0];
 
 			case CodecType::H264Main:
-				return "H.264 main";
+				return CodecList[1];
 
 			case CodecType::H264High:
-				return "H.264 high";
+				return CodecList[2];
 
 			case CodecType::H265Main:
-				return "H.265 main";
+				return CodecList[3];
 
 			case CodecType::Undefined:
 				return "undefined";

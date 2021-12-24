@@ -1,6 +1,7 @@
 #ifndef TYPE_CODEC_H_
 #define TYPE_CODEC_H_
 
+#include <array>
 #include <string>
 #include <vector>
 
@@ -27,6 +28,26 @@ namespace types {
 		Undefined,
 		MPEG,       ///< the normal 219*2^(n-8) "MPEG" YUV ranges
 		JPEG,       ///< the normal     2^n-1   "JPEG" YUV ranges,
+	};
+
+	constexpr std::array<const char*, 4> CodecList = {
+		"x264 - baseline",
+		"x264 - main",
+		"x264 - high",
+		"x265 - main",
+	};
+
+	constexpr std::array<const char*, 10> PresetList = {
+		"ultrafast",
+		"superfast",
+		"veryfast",
+		"faster",
+		"fast",
+		"medium",
+		"slow",
+		"slower",
+		"veryslow",
+		"placebo",
 	};
 
 	struct CodecParameters {
