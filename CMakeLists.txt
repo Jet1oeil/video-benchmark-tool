@@ -10,6 +10,7 @@ find_package(FFMPEG COMPONENTS avcodec avformat avutil REQUIRED)
 add_subdirectory(vendor/vmaf)
 
 add_executable(video-benchmark-tool
+	src/CLI/OptionParser.cpp
 	src/Controller/QBenchmarkConfigController.cpp
 	src/Helper/AVCodecHelper.cpp
 	src/Helper/AVFormatHelper.cpp
