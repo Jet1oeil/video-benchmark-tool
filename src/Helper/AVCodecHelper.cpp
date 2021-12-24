@@ -11,9 +11,13 @@ extern "C" {
 #include <QVector>
 
 #include "AVFormatHelper.h"
+#include "Log.h"
 
 namespace helper {
 	namespace avcodec {
+		bool Context::s_bCallbackDefined = false;
+		std::mutex Context::s_logMutext;
+
 		namespace details {
 			types::PixelFormat convertPixelFormat(AVPixelFormat pixelFormat)
 			{
@@ -187,6 +191,61 @@ namespace helper {
 
 				return FF_PROFILE_UNKNOWN;
 			}
+
+			void customAVLogger([[ maybe_unused ]] void* avcl, int level, const char *fmt, va_list vl)
+			{
+				int iCurrentLevel = av_log_get_level();
+				if (level > iCurrentLevel) {
+					return;
+				}
+
+				// Remove last end line
+				std::string strFmt(fmt);
+				strFmt.pop_back();
+
+				// Get the class name
+				AVClass* avPtr = (avcl ? *(static_cast<AVClass**>(avcl)) : nullptr);
+				if (avPtr != nullptr) {
+					std::string avClassName(avPtr->item_name(avcl));
+					strFmt = avClassName + " " + strFmt;
+				}
+
+				static std::mutex mutex;
+				std::lock_guard<std::mutex> lock(mutex);
+
+				switch (level) {
+				case AV_LOG_QUIET:
+					// Nothing to do
+					break;
+
+				case AV_LOG_VERBOSE:
+				case AV_LOG_DEBUG:
+				case AV_LOG_TRACE:
+					Log::debug(strFmt.c_str(), vl);
+					break;
+
+				case AV_LOG_INFO:
+					Log::info(strFmt.c_str(), vl);
+					break;
+
+				case AV_LOG_WARNING:
+					Log::warning(strFmt.c_str(), vl);
+					break;
+
+				case AV_LOG_ERROR:
+					Log::error(strFmt.c_str(), vl);
+					break;
+
+				case AV_LOG_PANIC:
+				case AV_LOG_FATAL:
+					Log::fatal(strFmt.c_str(), vl);
+					break;
+
+				default:
+					assert(false);
+					break;
+				}
+			}
 		}
 
 		Context::Context()
@@ -194,7 +253,20 @@ namespace helper {
 		, m_pPacket(nullptr)
 		, m_pFrame(nullptr)
 		{
+			{
+				std::lock_guard<std::mutex> locker(s_logMutext);
 
+				if (!s_bCallbackDefined) {
+#if DEBUG
+					av_log_set_level(AV_LOG_INFO);
+#else
+					av_log_set_level(AV_LOG_WARNING);
+#endif
+					av_log_set_callback(details::customAVLogger);
+
+					s_bCallbackDefined = true;
+				}
+			}
 		}
 
 		Context::~Context()

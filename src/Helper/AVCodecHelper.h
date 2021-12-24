@@ -1,6 +1,8 @@
 #ifndef HELPER_AVCODEC_HELPER_H_
 #define HELPER_AVCODEC_HELPER_H_
 
+#include <mutex>
+
 #include "Types/Codec.h"
 #include "Types/Packet.h"
 
@@ -69,6 +71,10 @@ namespace helper {
 			AVCodecContext* m_pContext;
 			AVPacket* m_pPacket;
 			AVFrame* m_pFrame;
+
+		private:
+			static bool s_bCallbackDefined;
+			static std::mutex s_logMutext;
 		};
 	}
 }
