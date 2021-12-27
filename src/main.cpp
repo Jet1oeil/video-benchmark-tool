@@ -72,6 +72,108 @@ int run_cli(int argc, char *argv[])
 		return 1;
 	}
 
+	// Store video source
+	const auto& video = parser["video-source"].value;
+
+	// Split string function
+	auto splitString = [](std::string str, const std::string& delimiter = ",") {
+		std::vector<std::string> list;
+		size_t pos = 0;
+		std::string token;
+
+		while ((pos = str.find(delimiter)) != std::string::npos) {
+			token = str.substr(0, pos);
+			list.push_back(token);
+			str.erase(0, pos + delimiter.length());
+		}
+		list.push_back(str);
+
+		return list;
+	};
+
+	// Get CRF bounds
+	int minCRF = -1;
+	int maxCRF = -1;
+	const auto& crfArg = parser["crf"].value;
+	auto itDelimiter = std::find_if(crfArg.begin(), crfArg.end(), [](auto c){
+		return c == '-';
+	});
+	if (itDelimiter == crfArg.end()) {
+		minCRF = std::stoi(crfArg);
+		maxCRF = minCRF;
+	} else {
+		auto listCRF = splitString(crfArg, "-");
+
+		if (listCRF.size() != 2) {
+			printUsage("Invalid CRF bounds");
+			return 1;
+		}
+
+		minCRF = std::stoi(listCRF[0]);
+		maxCRF = std::stoi(listCRF[1]);
+
+		if (minCRF > maxCRF) {
+			std::swap(minCRF, maxCRF);
+		}
+	}
+
+	if ((minCRF < 0 || minCRF > 51) || (maxCRF < 0 || maxCRF > 51) || (minCRF > maxCRF)) {
+		printUsage("Invalid CRF bounds");
+		return 1;
+	}
+
+	// Create codec list
+	std::vector<std::string> listCodec;
+
+	if (parser["codec-list"].value == "all") {
+		listCodec.insert(listCodec.end(), types::CodecList.begin(), types::CodecList.end());
+	} else {
+		const auto& argCodecList = parser["codec-list"].value;
+
+		listCodec = splitString(argCodecList);
+
+		// Check if all codec are valid
+		for (auto selectedCodec: listCodec) {
+			auto it = std::find(types::CodecList.begin(), types::CodecList.end(), selectedCodec);
+			if (it == types::CodecList.end()) {
+				printUsage("Invalid codec '" + selectedCodec + "'");
+				return 1;
+			}
+		}
+	}
+
+	// Create preset list
+	std::vector<std::string> listPreset;
+
+	if (parser["preset-list"].value == "all") {
+		listPreset.insert(listPreset.end(), types::PresetList.begin(), types::PresetList.end());
+	} else {
+		const auto& argPrestList = parser["preset-list"].value;
+
+		listPreset = splitString(argPrestList);
+
+		// Check if all preset are valid
+		for (auto selectedPreset: listPreset) {
+			auto it = std::find(types::PresetList.begin(), types::PresetList.end(), selectedPreset);
+			if (it == types::PresetList.end()) {
+				printUsage("Invalid preset '" + selectedPreset + "'");
+				return 1;
+			}
+		}
+	}
+
+	// Debug print
+	std::cout << "video: " << video << std::endl;
+	std::cout << "CRF: " << minCRF << "-" << maxCRF << std::endl;
+	std::cout << "codec: " << std::endl;
+	for (const auto& codec: listCodec) {
+		std::cout << "  " << codec << std::endl;
+	}
+	std::cout << "preset: " << std::endl;
+	for (const auto& preset: listPreset) {
+		std::cout << "  " << preset << std::endl;
+	}
+
 	return 0;
 }
 
