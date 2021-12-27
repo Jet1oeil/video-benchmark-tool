@@ -13,7 +13,7 @@ namespace helper {
 #if DEBUG
 	Log::Level Log::s_level = Log::Debug;
 #else
-	Log::Level Log::s_level = Log::Warn;
+	Log::Level Log::s_level = Log::Info;
 #endif
 
 	namespace {

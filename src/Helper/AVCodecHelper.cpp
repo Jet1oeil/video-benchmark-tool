@@ -512,7 +512,7 @@ namespace helper {
 #if DEBUG
 				av_dict_set(&options, "x265-params", "--log-level=info:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
 #else
-				av_dict_set(&options, "x265-params", "--log-level=waring:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
+				av_dict_set(&options, "x265-params", "--log-level=warning:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
 #endif
 			}
 
