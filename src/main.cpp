@@ -169,17 +169,6 @@ int run_cli(int argc, char *argv[])
 			}
 		}
 	}
-	// Debug print
-	std::cout << "video: " << video << std::endl;
-	std::cout << "CRF: " << minCRF << "-" << maxCRF << std::endl;
-	std::cout << "codec: " << std::endl;
-	for (const auto& codec: listCodec) {
-		std::cout << "  " << static_cast<int>(codec) << std::endl;
-	}
-	std::cout << "preset: " << std::endl;
-	for (const auto& preset: listPreset) {
-		std::cout << "  " << preset << std::endl;
-	}
 
 	// Run VMAF benchmark
 	vmaf::Benchmark benchmark;

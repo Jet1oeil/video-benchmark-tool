@@ -29,20 +29,20 @@ namespace vmaf {
 
 	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
 	{
-		helper::Log::debug("selected video: %s", szVideoFileName.c_str());
-		helper::Log::debug("selected codec:");
+		helper::Log::info("selected video: %s", szVideoFileName.c_str());
+		helper::Log::info("selected codec:");
 		for (const auto& codecID: listCodec) {
-			helper::Log::debug("\t%d", static_cast<int>(codecID));
+			helper::Log::info("\t%s", types::getCodecName(codecID));
 		}
-		helper::Log::debug("CRF: [%d - %d]", iMinCRF, iMaxCRF);
-		helper::Log::debug("selected preset:");
+		helper::Log::info("CRF: [%d - %d]", iMinCRF, iMaxCRF);
+		helper::Log::info("selected preset:");
 		for (const auto& szPreset: listPreset) {
-			helper::Log::debug("\t%s", szPreset.c_str());
+			helper::Log::info("\t%s", szPreset.c_str());
 		}
 
 		types::PacketList yuvFrames;
 		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
-			helper::Log::debug("Error decoding...");
+			helper::Log::error("Error decoding...");
 		}
 
 		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset);
