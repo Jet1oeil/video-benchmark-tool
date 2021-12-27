@@ -16,6 +16,17 @@
 using json = nlohmann::json;
 
 namespace vmaf {
+	Benchmark::Benchmark()
+	: m_iThreadCount(std::thread::hardware_concurrency())
+	{
+
+	}
+
+	void Benchmark::setThreadCount(unsigned iCount)
+	{
+		m_iThreadCount = iCount;
+	}
+
 	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
 	{
 		helper::Log::debug("selected video: %s", szVideoFileName.c_str());
@@ -75,7 +86,7 @@ namespace vmaf {
 
 		// Alloc the thread pool
 		std::mutex mutexExperiments;
-		for (int i = 0; i < static_cast<int>(std::thread::hardware_concurrency()); ++i) {
+		for (int i = 0; i < static_cast<int>(m_iThreadCount); ++i) {
 			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments);
 		}
 

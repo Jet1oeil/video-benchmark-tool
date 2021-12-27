@@ -15,6 +15,10 @@
 namespace vmaf {
 	class Benchmark {
 	public:
+		Benchmark();
+
+		void setThreadCount(unsigned iCount);
+
 		void start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset);
 
 	private:
@@ -23,6 +27,7 @@ namespace vmaf {
 
 	private:
 		types::CodecParameters m_originalCodecParameters;
+		unsigned m_iThreadCount;
 
 		std::vector<Experiment> m_poolThreads;
 		std::map<Configuration, Results> m_results;
