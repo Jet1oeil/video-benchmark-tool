@@ -22,4 +22,20 @@ namespace types {
 
 		return "undefined";
 	}
+
+
+	CodecType getCodecID(const std::string& codec)
+	{
+		if (codec == CodecList[0]) {
+			return CodecType::H264Baseline;
+		} else if (codec == CodecList[1]) {
+			return CodecType::H264Main;
+		} else if (codec == CodecList[2]) {
+			return CodecType::H264High;
+		} else if (codec == CodecList[3]) {
+			return CodecType::H265Main;
+		}
+
+		return CodecType::Undefined;
+	}
 }

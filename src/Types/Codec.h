@@ -17,6 +17,7 @@ namespace types {
 	};
 
 	const char* getCodecName(CodecType codec);
+	CodecType getCodecID(const std::string& codec);
 
 	// TODO: Only support yuv 420p
 	enum class PixelFormat {

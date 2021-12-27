@@ -6,6 +6,8 @@
 
 #include "Controller/QBenchmarkConfigController.h"
 
+#include "Process/vmaf/Benchmark.h"
+
 #include "Types/Codec.h"
 
 #include "View/QMainView.h"
@@ -123,22 +125,26 @@ int run_cli(int argc, char *argv[])
 	}
 
 	// Create codec list
-	std::vector<std::string> listCodec;
+	CodecList listCodec;
 
 	if (parser["codec-list"].value == "all") {
-		listCodec.insert(listCodec.end(), types::CodecList.begin(), types::CodecList.end());
+		for (const auto& codec: types::CodecList) {
+			listCodec.push_back(types::getCodecID(codec));
+		}
 	} else {
 		const auto& argCodecList = parser["codec-list"].value;
 
-		listCodec = splitString(argCodecList);
+		auto listCodecString = splitString(argCodecList);
 
 		// Check if all codec are valid
-		for (auto selectedCodec: listCodec) {
+		for (auto selectedCodec: listCodecString) {
 			auto it = std::find(types::CodecList.begin(), types::CodecList.end(), selectedCodec);
 			if (it == types::CodecList.end()) {
 				printUsage("Invalid codec '" + selectedCodec + "'");
 				return 1;
 			}
+
+			listCodec.push_back(types::getCodecID(selectedCodec));
 		}
 	}
 
@@ -167,12 +173,16 @@ int run_cli(int argc, char *argv[])
 	std::cout << "CRF: " << minCRF << "-" << maxCRF << std::endl;
 	std::cout << "codec: " << std::endl;
 	for (const auto& codec: listCodec) {
-		std::cout << "  " << codec << std::endl;
+		std::cout << "  " << static_cast<int>(codec) << std::endl;
 	}
 	std::cout << "preset: " << std::endl;
 	for (const auto& preset: listPreset) {
 		std::cout << "  " << preset << std::endl;
 	}
+
+	// Run VMAF benchmark
+	vmaf::Benchmark benchmark;
+	benchmark.start(video, listCodec, minCRF, maxCRF, listPreset);
 
 	return 0;
 }

@@ -16,7 +16,7 @@
 using json = nlohmann::json;
 
 namespace vmaf {
-	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset)
+	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
 	{
 		helper::Log::debug("selected video: %s", szVideoFileName.c_str());
 		helper::Log::debug("selected codec:");
@@ -51,7 +51,7 @@ namespace vmaf {
 		return true;
 	}
 
-	void Benchmark::runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset)
+	void Benchmark::runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
 	{
 		std::vector<Configuration> listConfigurations;
 

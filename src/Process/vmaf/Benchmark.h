@@ -1,7 +1,6 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
-#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -16,11 +15,11 @@
 namespace vmaf {
 	class Benchmark {
 	public:
-		void start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset);
+		void start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset);
 
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
-		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::list<std::string>& listPreset);
+		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset);
 
 	private:
 		types::CodecParameters m_originalCodecParameters;

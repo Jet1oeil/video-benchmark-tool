@@ -61,7 +61,7 @@ namespace ctrl {
 			iMinCRF = iTmp;
 		}
 
-		std::list<std::string> listPreset = m_benchmarkConfigView.getPresetList();
+		std::vector<std::string> listPreset = m_benchmarkConfigView.getPresetList();
 
 		if (listPreset.empty()) {
 			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Preset"), tr("At least one preset must be selected"));
