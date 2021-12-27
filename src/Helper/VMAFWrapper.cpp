@@ -85,35 +85,33 @@ namespace helper {
 		};
 
 		for (std::size_t i = 0; i < originalVideo.size(); ++i) {
-			helper::Log::debug("read frame #%lu", i);
-
 			const types::Packet& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
 			if (!loadPicture(originalYUV, &referencePicture)){
-				helper::Log::debug("Error to load reference picture...");
+				helper::Log::error("Error to load reference picture...");
 				return false;
 			}
 
 			const types::Packet& transcodedYUV = transcodedVideo[i];
 			VmafPicture transcodedPicture;
 			if (!loadPicture(transcodedYUV, &transcodedPicture)){
-				helper::Log::debug("Error to load reference picture...");
+				helper::Log::error("Error to load reference picture...");
 				return false;
 			}
 
 			if (vmaf_read_pictures(m_pContext, &referencePicture, &transcodedPicture, i) != 0) {
-				helper::Log::debug("Error to read pictures...");
+				helper::Log::error("Error to read pictures...");
 				return false;
 			}
 		}
 
 		if (vmaf_read_pictures(m_pContext, nullptr, nullptr, 0) != 0) {
-			helper::Log::debug("Error to flush context...");
+			helper::Log::error("Error to flush context...");
 			return false;
 		}
 
 		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MEAN, &m_dVMAFScore, 0, originalVideo.size() - 1) != 0) {
-			helper::Log::debug("Error to get VMAF score...");
+			helper::Log::error("Error to get VMAF score...");
 			return false;
 		}
 

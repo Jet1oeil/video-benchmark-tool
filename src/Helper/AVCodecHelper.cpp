@@ -509,7 +509,11 @@ namespace helper {
 			av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
 
 			if (encoderParameters.codecType == types::CodecType::H265Main) {
-				av_dict_set(&options, "x265-params", "--pools=none, --numa-pools=none", 0);
+#if DEBUG
+				av_dict_set(&options, "x265-params", "--log-level=info:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
+#else
+				av_dict_set(&options, "x265-params", "--log-level=waring:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
+#endif
 			}
 
 			if (avcodec_open2(m_pContext, pCodec, &options) < 0) {

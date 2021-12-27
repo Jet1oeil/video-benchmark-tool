@@ -86,7 +86,7 @@ namespace vmaf {
 
 			types::Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
-				helper::Log::debug("Encode error...");
+				helper::Log::error("Encode error...");
 				continue;
 			}
 			results.dEncodingTime = clock.getDuration().count();
@@ -102,13 +102,13 @@ namespace vmaf {
 
 			clock.restart();
 			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
-				helper::Log::debug("Decode transcoded video error...");
+				helper::Log::error("Decode transcoded video error...");
 				continue;
 			}
 			results.dDecdodingTime = clock.getDuration().count();
 
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
-				helper::Log::debug("Frame count mismatch...");
+				helper::Log::error("Frame count mismatch...");
 				continue;
 			}
 
@@ -117,14 +117,20 @@ namespace vmaf {
 			helper::VMAFWrapper vmaf(convertAVPixelFormat(pixelFormat), m_codecParameters.iPixelDepth, m_codecParameters.videoSize.width, m_codecParameters.videoSize.height);
 
 			if (!vmaf.open()) {
-				helper::Log::debug("VMAF error...");
+				helper::Log::error("VMAF error...");
 				continue;
 			}
 
 			if (!vmaf.computeMetrics(m_yuvFrames, transcodedYUVFrames)) {
-				helper::Log::debug("Compute VMAF error...");
+				helper::Log::error("Compute VMAF error...");
 				continue;
 			}
+
+			helper::Log::info("End of experiment {Codec: %d, CRF: %d, preset: %s}",
+				static_cast<int>(currentConfiguration.codecType),
+				currentConfiguration.iCRF,
+				currentConfiguration.szPreset.c_str()
+			);
 
 			results.dVMAFScore = vmaf.getVMAFScore();
 

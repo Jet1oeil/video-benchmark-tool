@@ -53,7 +53,7 @@ namespace vmaf {
 		helper::avcodec::Context codecContex;
 
 		if (codecContex.decodeVideoFile(szVideoFileName.c_str(), yuvFrames) != helper::avcodec::Error::Success) {
-			helper::Log::debug("Error decode video...");
+			helper::Log::error("Error decode video...");
 			return false;
 		}
 
