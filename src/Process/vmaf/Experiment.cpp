@@ -126,8 +126,8 @@ namespace vmaf {
 				continue;
 			}
 
-			helper::Log::info("End of experiment {Codec: %d, CRF: %d, preset: %s}",
-				static_cast<int>(currentConfiguration.codecType),
+			helper::Log::info("End of experiment {Codec: %s, CRF: %d, preset: %s}",
+				types::getCodecName(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
 				currentConfiguration.szPreset.c_str()
 			);
