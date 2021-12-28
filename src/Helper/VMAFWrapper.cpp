@@ -110,7 +110,7 @@ namespace helper {
 			return false;
 		}
 
-		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MEAN, &m_dVMAFScore, 0, originalVideo.size() - 1) != 0) {
+		if (vmaf_score_pooled(m_pContext, m_pModel, VMAF_POOL_METHOD_MIN, &m_dVMAFScore, 0, originalVideo.size() - 1) != 0) {
 			helper::Log::error("Error to get VMAF score...");
 			return false;
 		}
