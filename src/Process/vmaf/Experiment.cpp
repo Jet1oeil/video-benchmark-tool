@@ -89,7 +89,7 @@ namespace vmaf {
 
 			types::Clock clock;
 			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
-				helper::Log::error("Encode error...");
+				logAndProgress("Encode error...");
 				continue;
 			}
 			results.dEncodingTime = clock.getDuration().count();
@@ -105,13 +105,13 @@ namespace vmaf {
 
 			clock.restart();
 			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
-				helper::Log::error("Decode transcoded video error...");
+				logAndProgress("Decode transcoded video error...");
 				continue;
 			}
 			results.dDecdodingTime = clock.getDuration().count();
 
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
-				helper::Log::error("Frame count mismatch...");
+				logAndProgress("Frame count mismatch...");
 				continue;
 			}
 
@@ -120,12 +120,12 @@ namespace vmaf {
 			helper::VMAFWrapper vmaf(convertAVPixelFormat(pixelFormat), m_codecParameters.iPixelDepth, m_codecParameters.videoSize.width, m_codecParameters.videoSize.height);
 
 			if (!vmaf.open()) {
-				helper::Log::error("VMAF error...");
+				logAndProgress("VMAF error...");
 				continue;
 			}
 
 			if (!vmaf.computeMetrics(m_yuvFrames, transcodedYUVFrames)) {
-				helper::Log::error("Compute VMAF error...");
+				logAndProgress("Compute VMAF error...");
 				continue;
 			}
 
@@ -160,5 +160,13 @@ namespace vmaf {
 		m_listConfiguration.pop_back();
 
 		return true;
+	}
+
+	void Experiment::logAndProgress(const char* message)
+	{
+		helper::Log::error(message);
+		if (m_progressCallback) {
+			m_progressCallback();
+		}
 	}
 }
