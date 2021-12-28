@@ -41,6 +41,8 @@ namespace vmaf {
 
 		bool stoleTask(Configuration& experiment);
 
+		void logAndProgress(const char* message);
+
 	private:
 		const types::PacketList& m_yuvFrames;
 		types::CodecParameters m_codecParameters;

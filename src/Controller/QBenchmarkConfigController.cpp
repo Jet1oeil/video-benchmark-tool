@@ -10,47 +10,51 @@
 
 namespace ctrl {
 	QBenchmarkConfigController::QBenchmarkConfigController(view::QMainView& mainView)
-	: m_benchmarkConfigView(mainView.getBenchmarkConfigView())
+	: m_mainView(mainView)
 	{
-		connect(&m_benchmarkConfigView, &view::QBenchmarkConfigView::browseFileTriggered, this, &QBenchmarkConfigController::onBrowseFile);
-		connect(&m_benchmarkConfigView, &view::QBenchmarkConfigView::startBenchmarkTriggered, this, &QBenchmarkConfigController::onStartBenchmark);
+		// Connect config signals
+		auto& configView = mainView.getBenchmarkConfigView();
+		connect(&configView, &view::QBenchmarkConfigView::browseFileTriggered, this, &QBenchmarkConfigController::onBrowseFile);
+		connect(&configView, &view::QBenchmarkConfigView::startBenchmarkTriggered, this, &QBenchmarkConfigController::onStartBenchmark);
 	}
 
 	void QBenchmarkConfigController::onBrowseFile()
 	{
-		QString szFileName = QFileDialog::getOpenFileName(&m_benchmarkConfigView, tr("Open Original Video"), QString(), tr("Video Files (*.avi *.mp4 *.mkv)"));
+		auto& configView = m_mainView.getBenchmarkConfigView();
+		QString szFileName = QFileDialog::getOpenFileName(&configView, tr("Open Original Video"), QString(), tr("Video Files (*.avi *.mp4 *.mkv)"));
 
 		if (!szFileName.isEmpty()) {
-			m_benchmarkConfigView.setSelectedFile(szFileName);
+			configView.setSelectedFile(szFileName);
 		}
 	}
 
 	void QBenchmarkConfigController::onStartBenchmark()
 	{
-		QString szVideoFileName = m_benchmarkConfigView.getSelectedFile();
+		auto& configView = m_mainView.getBenchmarkConfigView();
+		QString szVideoFileName = configView.getSelectedFile();
 
 		if (szVideoFileName.isEmpty()) {
-			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Video File"), tr("No video file is specified").arg(szVideoFileName));
+			QMessageBox::critical(&configView, tr("Invalid Video File"), tr("No video file is specified").arg(szVideoFileName));
 			return;
 		}
 
 		if (!QFile::exists(szVideoFileName)) {
-			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Video File"), tr("The file '%1' is invalid").arg(szVideoFileName));
+			QMessageBox::critical(&configView, tr("Invalid Video File"), tr("The file '%1' is invalid").arg(szVideoFileName));
 			return;
 		}
 
-		auto listCodec = m_benchmarkConfigView.getSelectedCodec();
+		auto listCodec = configView.getSelectedCodec();
 
 		if (listCodec.empty()) {
-			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Codec"), tr("At least one codec must be selected"));
+			QMessageBox::critical(&configView, tr("Invalid Codec"), tr("At least one codec must be selected"));
 			return;
 		}
 
-		int iMinCRF = m_benchmarkConfigView.getMinCRF();
-		int iMaxCRF = m_benchmarkConfigView.getMaxCRF();
+		int iMinCRF = configView.getMinCRF();
+		int iMaxCRF = configView.getMaxCRF();
 
 		if (iMinCRF < 0 || iMaxCRF > 51) {
-			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid CRF"), tr("The CRF range is invald. It must be included in [0 - 51]"));
+			QMessageBox::critical(&configView, tr("Invalid CRF"), tr("The CRF range is invald. It must be included in [0 - 51]"));
 			return;
 		}
 
@@ -61,12 +65,15 @@ namespace ctrl {
 			iMinCRF = iTmp;
 		}
 
-		std::vector<std::string> listPreset = m_benchmarkConfigView.getPresetList();
+		std::vector<std::string> listPreset = configView.getPresetList();
 
 		if (listPreset.empty()) {
-			QMessageBox::critical(&m_benchmarkConfigView, tr("Invalid Preset"), tr("At least one preset must be selected"));
+			QMessageBox::critical(&configView, tr("Invalid Preset"), tr("At least one preset must be selected"));
 			return;
 		}
+
+		// Show progress bar
+		m_mainView.showProgress();
 
 		std::thread([szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset]{
 			vmaf::Benchmark vmafBenchmark;

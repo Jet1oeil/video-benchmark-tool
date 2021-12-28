@@ -20,6 +20,7 @@ add_executable(video-benchmark-tool
 	src/Process/vmaf/Configuration.cpp
 	src/Process/vmaf/Experiment.cpp
 	src/View/QBenchmarkConfigView.cpp
+	src/View/QBenchmarkProgressView.cpp
 	src/View/QMainView.cpp
 	src/Types/Codec.cpp
 	src/main.cpp

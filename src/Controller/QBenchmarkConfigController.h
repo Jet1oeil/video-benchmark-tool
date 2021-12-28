@@ -7,7 +7,6 @@
 
 namespace view {
 	class QMainView;
-	class QBenchmarkConfigView;
 }
 
 namespace ctrl {
@@ -22,7 +21,7 @@ namespace ctrl {
 		void onStartBenchmark();
 
 	private:
-		view::QBenchmarkConfigView& m_benchmarkConfigView;
+		view::QMainView& m_mainView;
 	};
 }
 
