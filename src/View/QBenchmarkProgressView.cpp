@@ -13,8 +13,6 @@ namespace view {
 	{
 		QVBoxLayout* pLayout = new QVBoxLayout;
 
-		m_pProgressBar->setValue(42);
-
 		pLayout->addStretch();
 
 		// Centering label
@@ -37,6 +35,9 @@ namespace view {
 		pLayout->addStretch();
 
 		setLayout(pLayout);
+
+		// Connect signals
+		connect(m_pCancelButton, &QPushButton::clicked, this, &QBenchmarkProgressView::cancelBenchmarkTriggered);
 	}
 
 	void QBenchmarkProgressView::setTotalExperiment(int iTotalExperiment)
@@ -49,8 +50,19 @@ namespace view {
 		m_pProgressBar->setValue(0);
 	}
 
+	void QBenchmarkProgressView::showCancelAnimation()
+	{
+		m_pLabel->setText(tr("Canceling benchmark..."));
+		m_pCancelButton->setDisabled(true);
+		m_pProgressBar->setDisabled(true);
+	}
+
 	void QBenchmarkProgressView::updateProgress()
 	{
+		if (!m_pProgressBar->isEnabled()) {
+			return;
+		}
+
 		QMutexLocker lock(&m_mutex);
 
 		int currentValue = m_pProgressBar->value();

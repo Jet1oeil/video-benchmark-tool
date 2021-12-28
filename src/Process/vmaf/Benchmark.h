@@ -19,6 +19,7 @@ namespace vmaf {
 		Benchmark();
 
 		void setThreadCount(unsigned iCount);
+		void reset();
 
 		void start(
 			const std::string& szVideoFileName,
@@ -28,6 +29,8 @@ namespace vmaf {
 			const std::vector<std::string>& listPreset,
 			std::function<void()> callback = std::function<void()>()
 		);
+
+		void abort();
 
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);

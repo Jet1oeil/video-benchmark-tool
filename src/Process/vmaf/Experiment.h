@@ -1,6 +1,7 @@
 #ifndef VMAF_EXPERIMENT_H_
 #define VMAF_EXPERIMENT_H_
 
+#include <atomic>
 #include <functional>
 #include <map>
 #include <mutex>
@@ -23,7 +24,7 @@ namespace vmaf {
 			std::mutex& mutexExperiments,
 			std::function<void()> callback
 		);
-		~Experiment() = default;
+		~Experiment();
 
 		Experiment(const Experiment&) = delete;
 		Experiment(Experiment&& other);
@@ -35,6 +36,7 @@ namespace vmaf {
 
 		void start();
 		void wait();
+		void abort();
 
 	private:
 		void doStart();
@@ -48,6 +50,7 @@ namespace vmaf {
 		types::CodecParameters m_codecParameters;
 		std::vector<Configuration>& m_listConfiguration;
 
+		std::atomic_bool m_abort;
 		std::thread m_thread;
 		std::mutex& m_mutexExperiments;
 

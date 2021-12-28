@@ -39,16 +39,25 @@ namespace vmaf {
 	: m_yuvFrames(yuvFrames)
 	, m_codecParameters(codecParameters)
 	, m_listConfiguration(listConfigurations)
+	, m_abort(false)
 	, m_mutexExperiments(mutexExperiments)
 	, m_progressCallback(callback)
 	{
 
 	}
 
+	Experiment::~Experiment()
+	{
+		if (m_thread.joinable()) {
+			m_thread.detach();
+		}
+	}
+
 	Experiment::Experiment(Experiment&& other)
 	: m_yuvFrames(other.m_yuvFrames)
 	, m_codecParameters(other.m_codecParameters)
 	, m_listConfiguration(other.m_listConfiguration)
+	, m_abort((other.m_abort) ? true : false)
 	, m_mutexExperiments(other.m_mutexExperiments)
 	, m_progressCallback(other.m_progressCallback)
 	{
@@ -68,6 +77,12 @@ namespace vmaf {
 	void Experiment::wait()
 	{
 		m_thread.join();
+	}
+
+	void Experiment::abort()
+	{
+		helper::Log::debug("Abort...");
+		m_abort = true;
 	}
 
 	void Experiment::doStart()
@@ -148,6 +163,11 @@ namespace vmaf {
 
 	bool Experiment::stoleTask(Configuration& configuration)
 	{
+		if (m_abort) {
+			helper::Log::debug("Aborted");
+			return false;
+		}
+
 		std::lock_guard<std::mutex> locker(m_mutexExperiments);
 
 		// No last experiment

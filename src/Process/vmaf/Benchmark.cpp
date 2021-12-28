@@ -27,6 +27,20 @@ namespace vmaf {
 		m_iThreadCount = iCount;
 	}
 
+	void Benchmark::reset()
+	{
+		m_poolThreads.clear();
+		m_results.clear();
+	}
+
+	void Benchmark::abort()
+	{
+		// Abort all thread
+		for (auto& thread: m_poolThreads) {
+			thread.abort();
+		}
+	}
+
 	void Benchmark::start(
 		const std::string& szVideoFileName,
 		const CodecList& listCodec,

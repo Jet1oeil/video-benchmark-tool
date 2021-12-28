@@ -17,6 +17,17 @@ namespace ctrl {
 		auto& configView = mainView.getBenchmarkConfigView();
 		connect(&configView, &view::QBenchmarkConfigView::browseFileTriggered, this, &QBenchmarkController::onBrowseFile);
 		connect(&configView, &view::QBenchmarkConfigView::startBenchmarkTriggered, this, &QBenchmarkController::onStartBenchmark);
+
+		// Connect progress signals
+		auto& progressView = mainView.getBenchmarkProgressView();
+		connect(&progressView, &view::QBenchmarkProgressView::cancelBenchmarkTriggered, this, &QBenchmarkController::onCancelBenchmark);
+	}
+
+	QBenchmarkController::~QBenchmarkController()
+	{
+		if (m_thread.joinable()) {
+			m_thread.detach();
+		}
 	}
 
 	void QBenchmarkController::onBrowseFile()
@@ -84,10 +95,18 @@ namespace ctrl {
 		int iTotalExperiments = listCodec.size() * (iMaxCRF - iMinCRF + 1) * listPreset.size();
 		m_mainView.getBenchmarkProgressView().setTotalExperiment(iTotalExperiments);
 
-		std::thread([=]{
-			vmaf::Benchmark vmafBenchmark;
+		// TODO: need to check previous thread ?
+		m_thread = std::thread([=]{
+			m_vmafBenchmark.reset();
 
-			vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, iMinCRF, iMaxCRF, listPreset, callback);
-		}).detach();
+			m_vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, iMinCRF, iMaxCRF, listPreset, callback);
+		});
+	}
+
+	void QBenchmarkController::onCancelBenchmark() {
+		auto& progressView = m_mainView.getBenchmarkProgressView();
+		progressView.showCancelAnimation();
+
+		m_vmafBenchmark.abort();
 	}
 }

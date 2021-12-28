@@ -16,6 +16,11 @@ namespace view {
 
 		void setTotalExperiment(int iTotalExperiment);
 
+		void showCancelAnimation();
+
+	signals:
+		void cancelBenchmarkTriggered();
+
 	public slots:
 		void updateProgress();
 
