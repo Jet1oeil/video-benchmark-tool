@@ -1,6 +1,7 @@
 #ifndef VMAF_EXPERIMENT_H_
 #define VMAF_EXPERIMENT_H_
 
+#include <functional>
 #include <map>
 #include <mutex>
 #include <thread>
@@ -19,7 +20,8 @@ namespace vmaf {
 			const types::PacketList& yuvFrames,
 			const types::CodecParameters& codecParameters,
 			std::vector<Configuration>& listConfiguration,
-			std::mutex& mutexExperiments
+			std::mutex& mutexExperiments,
+			std::function<void()> callback
 		);
 		~Experiment() = default;
 
@@ -48,6 +50,8 @@ namespace vmaf {
 		std::mutex& m_mutexExperiments;
 
 		std::map<Configuration, Results> m_results;
+
+		std::function<void()> m_progressCallback;
 	};
 }
 

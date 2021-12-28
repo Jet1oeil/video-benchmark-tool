@@ -33,12 +33,14 @@ namespace vmaf {
 		const types::PacketList& yuvFrames,
 		const types::CodecParameters& codecParameters,
 		std::vector<Configuration>& listConfigurations,
-		std::mutex& mutexExperiments
+		std::mutex& mutexExperiments,
+		std::function<void()> callback
 	)
 	: m_yuvFrames(yuvFrames)
 	, m_codecParameters(codecParameters)
 	, m_listConfiguration(listConfigurations)
 	, m_mutexExperiments(mutexExperiments)
+	, m_progressCallback(callback)
 	{
 
 	}
@@ -48,6 +50,7 @@ namespace vmaf {
 	, m_codecParameters(other.m_codecParameters)
 	, m_listConfiguration(other.m_listConfiguration)
 	, m_mutexExperiments(other.m_mutexExperiments)
+	, m_progressCallback(other.m_progressCallback)
 	{
 
 	}
@@ -135,6 +138,11 @@ namespace vmaf {
 			results.dVMAFScore = vmaf.getVMAFScore();
 
 			m_results.insert({ currentConfiguration, results });
+
+			// Update progress state
+			if (m_progressCallback) {
+				m_progressCallback();
+			}
 		}
 	}
 

@@ -27,7 +27,14 @@ namespace vmaf {
 		m_iThreadCount = iCount;
 	}
 
-	void Benchmark::start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
+	void Benchmark::start(
+		const std::string& szVideoFileName,
+		const CodecList& listCodec,
+		int iMinCRF,
+		int iMaxCRF,
+		const std::vector<std::string>& listPreset,
+		std::function<void()> callback
+	)
 	{
 		helper::Log::info("selected video: %s", szVideoFileName.c_str());
 		helper::Log::info("selected codec:");
@@ -45,7 +52,7 @@ namespace vmaf {
 			helper::Log::error("Error decoding...");
 		}
 
-		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset);
+		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset, callback);
 	}
 
 	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
@@ -62,7 +69,14 @@ namespace vmaf {
 		return true;
 	}
 
-	void Benchmark::runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset)
+	void Benchmark::runExperiments(
+		const types::PacketList& yuvFrames,
+		const CodecList& listCodec,
+		int iMinCRF,
+		int iMaxCRF,
+		const std::vector<std::string>& listPreset,
+		std::function<void()> callback
+	)
 	{
 		std::vector<Configuration> listConfigurations;
 
@@ -87,7 +101,7 @@ namespace vmaf {
 		// Alloc the thread pool
 		std::mutex mutexExperiments;
 		for (int i = 0; i < static_cast<int>(m_iThreadCount); ++i) {
-			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments);
+			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments, callback);
 		}
 
 		// Start all threads

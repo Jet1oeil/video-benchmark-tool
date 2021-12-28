@@ -1,6 +1,7 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -19,11 +20,25 @@ namespace vmaf {
 
 		void setThreadCount(unsigned iCount);
 
-		void start(const std::string& szVideoFileName, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset);
+		void start(
+			const std::string& szVideoFileName,
+			const CodecList& listCodec,
+			int iMinCRF,
+			int iMaxCRF,
+			const std::vector<std::string>& listPreset,
+			std::function<void()> callback = std::function<void()>()
+		);
 
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
-		void runExperiments(const types::PacketList& yuvFrames, const CodecList& listCodec, int iMinCRF, int iMaxCRF, const std::vector<std::string>& listPreset);
+		void runExperiments(
+			const types::PacketList& yuvFrames,
+			const CodecList& listCodec,
+			int iMinCRF,
+			int iMaxCRF,
+			const std::vector<std::string>& listPreset,
+			std::function<void()> callback
+		);
 
 	private:
 		types::CodecParameters m_originalCodecParameters;
