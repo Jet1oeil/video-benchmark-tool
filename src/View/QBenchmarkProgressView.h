@@ -1,8 +1,10 @@
 #ifndef Q_BENCHMARK_PROGRESS_VIEW_H_
 #define Q_BENCHMARK_PROGRESS_VIEW_H_
 
-#include <QProgressBar>
+#include <QLabel>
 #include <QMutex>
+#include <QPushButton>
+#include <QProgressBar>
 
 namespace view {
 
@@ -18,7 +20,9 @@ namespace view {
 		void updateProgress();
 
 	private:
+		QLabel* m_pLabel;
 		QProgressBar* m_pProgressBar;
+		QPushButton* m_pCancelButton;
 		QMutex m_mutex;
 	};
 
