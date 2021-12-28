@@ -1,5 +1,6 @@
 #include "QBenchmarkProgressView.h"
 
+#include <QMutexLocker>
 #include <QVBoxLayout>
 
 namespace view {
@@ -16,5 +17,23 @@ namespace view {
 		pLayout->addStretch();
 
 		setLayout(pLayout);
+	}
+
+	void QBenchmarkProgressView::setTotalExperiment(int iTotalExperiment)
+	{
+		// Reset previous progress
+		m_pProgressBar->reset();
+
+		m_pProgressBar->setMinimum(0);
+		m_pProgressBar->setMaximum(iTotalExperiment);
+		m_pProgressBar->setValue(0);
+	}
+
+	void QBenchmarkProgressView::updateProgress()
+	{
+		QMutexLocker lock(&m_mutex);
+
+		int currentValue = m_pProgressBar->value();
+		m_pProgressBar->setValue(currentValue + 1);
 	}
 }

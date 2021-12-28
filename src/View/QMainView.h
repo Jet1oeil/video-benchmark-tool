@@ -22,6 +22,7 @@ namespace view {
 	QMainView& operator=(QMainView&&) = delete;
 
 	QBenchmarkConfigView& getBenchmarkConfigView();
+	QBenchmarkProgressView& getBenchmarkProgressView();
 
 	void showConfig();
 	void showProgress();

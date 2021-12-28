@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include "View/QBenchmarkConfigView.h"
+#include "View/QBenchmarkProgressView.h"
 #include "View/QMainView.h"
 
 namespace ctrl {
@@ -75,10 +76,18 @@ namespace ctrl {
 		// Show progress bar
 		m_mainView.showProgress();
 
-		std::thread([szVideoFileName, listCodec, iMinCRF, iMaxCRF, listPreset]{
+		auto callback = [this](){
+			auto& progressView = m_mainView.getBenchmarkProgressView();
+			progressView.updateProgress();
+		};
+
+		int iTotalExperiments = listCodec.size() * (iMaxCRF - iMinCRF + 1) * listPreset.size();
+		m_mainView.getBenchmarkProgressView().setTotalExperiment(iTotalExperiments);
+
+		std::thread([=]{
 			vmaf::Benchmark vmafBenchmark;
 
-			vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, iMinCRF, iMaxCRF, listPreset);
+			vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, iMinCRF, iMaxCRF, listPreset, callback);
 		}).detach();
 	}
 }

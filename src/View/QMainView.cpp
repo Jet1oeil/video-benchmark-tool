@@ -24,6 +24,11 @@ namespace view {
 		return *m_pBenchmarkConfigView;
 	}
 
+	QBenchmarkProgressView& QMainView::getBenchmarkProgressView()
+	{
+		return *m_pBenchmarkProgressView;
+	}
+
 	void QMainView::showConfig()
 	{
 		m_pStackedWidget->setCurrentIndex(0);
