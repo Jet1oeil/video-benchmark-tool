@@ -1,5 +1,5 @@
-#ifndef Q_BENCHMARK_CONFIG_CONTROLLER_H_
-#define Q_BENCHMARK_CONFIG_CONTROLLER_H_
+#ifndef Q_BENCHMARK_CONTROLLER_H_
+#define Q_BENCHMARK_CONTROLLER_H_
 
 #include <QObject>
 
@@ -10,11 +10,11 @@ namespace view {
 }
 
 namespace ctrl {
-	class QBenchmarkConfigController: public QObject {
+	class QBenchmarkController: public QObject {
 	Q_OBJECT
 
 	public:
-		QBenchmarkConfigController(view::QMainView& mainView);
+		QBenchmarkController(view::QMainView& mainView);
 
 	private slots:
 		void onBrowseFile();
@@ -25,4 +25,4 @@ namespace ctrl {
 	};
 }
 
-#endif // Q_BENCHMARK_CONFIG_CONTROLLER_H_
+#endif // Q_BENCHMARK_CONTROLLER_H_

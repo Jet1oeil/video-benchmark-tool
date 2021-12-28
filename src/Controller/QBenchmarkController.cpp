@@ -1,4 +1,4 @@
-#include "QBenchmarkConfigController.h"
+#include "QBenchmarkController.h"
 
 #include <thread>
 
@@ -10,16 +10,16 @@
 #include "View/QMainView.h"
 
 namespace ctrl {
-	QBenchmarkConfigController::QBenchmarkConfigController(view::QMainView& mainView)
+	QBenchmarkController::QBenchmarkController(view::QMainView& mainView)
 	: m_mainView(mainView)
 	{
 		// Connect config signals
 		auto& configView = mainView.getBenchmarkConfigView();
-		connect(&configView, &view::QBenchmarkConfigView::browseFileTriggered, this, &QBenchmarkConfigController::onBrowseFile);
-		connect(&configView, &view::QBenchmarkConfigView::startBenchmarkTriggered, this, &QBenchmarkConfigController::onStartBenchmark);
+		connect(&configView, &view::QBenchmarkConfigView::browseFileTriggered, this, &QBenchmarkController::onBrowseFile);
+		connect(&configView, &view::QBenchmarkConfigView::startBenchmarkTriggered, this, &QBenchmarkController::onStartBenchmark);
 	}
 
-	void QBenchmarkConfigController::onBrowseFile()
+	void QBenchmarkController::onBrowseFile()
 	{
 		auto& configView = m_mainView.getBenchmarkConfigView();
 		QString szFileName = QFileDialog::getOpenFileName(&configView, tr("Open Original Video"), QString(), tr("Video Files (*.avi *.mp4 *.mkv)"));
@@ -29,7 +29,7 @@ namespace ctrl {
 		}
 	}
 
-	void QBenchmarkConfigController::onStartBenchmark()
+	void QBenchmarkController::onStartBenchmark()
 	{
 		auto& configView = m_mainView.getBenchmarkConfigView();
 		QString szVideoFileName = configView.getSelectedFile();

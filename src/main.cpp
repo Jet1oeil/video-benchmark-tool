@@ -4,7 +4,7 @@
 
 #include "CLI/OptionParser.h"
 
-#include "Controller/QBenchmarkConfigController.h"
+#include "Controller/QBenchmarkController.h"
 
 #include "Process/vmaf/Benchmark.h"
 
@@ -191,7 +191,7 @@ int run_gui(int argc, char *argv[])
 	mainView.show();
 
 	// Controllers
-	ctrl::QBenchmarkConfigController benchmarkConfigController(mainView);
+	ctrl::QBenchmarkController benchmarkConfigController(mainView);
 
 	return application.exec();
 }
