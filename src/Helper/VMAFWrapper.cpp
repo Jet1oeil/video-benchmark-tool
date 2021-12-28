@@ -85,6 +85,8 @@ namespace helper {
 		};
 
 		for (std::size_t i = 0; i < originalVideo.size(); ++i) {
+			helper::Log::debug("read frame #%lu", i);
+
 			const types::Packet& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
 			if (!loadPicture(originalYUV, &referencePicture)){
