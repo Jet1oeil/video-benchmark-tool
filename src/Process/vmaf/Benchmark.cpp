@@ -1,5 +1,6 @@
 #include "Benchmark.h"
 
+#include <cassert>
 #include <clocale>
 #include <ctime>
 #include <fstream>
@@ -14,8 +15,11 @@
 #include "Configuration.h"
 
 using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 namespace vmaf {
+	const std::filesystem::path Benchmark::DumpDir = "dump";
+
 	Benchmark::Benchmark()
 	: m_iThreadCount(std::thread::hardware_concurrency())
 	{
@@ -64,6 +68,18 @@ namespace vmaf {
 		types::PacketList yuvFrames;
 		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
 			helper::Log::error("Error decoding...");
+		}
+
+		// Create video dump directory
+		fs::remove_all(DumpDir);
+		fs::create_directory(DumpDir);
+
+		// Dump original video
+		std::ofstream dumpFile(DumpDir / "original-video.yuv", std::ios::binary);
+		assert(dumpFile.good());
+
+		for (const auto& yuvFrame: yuvFrames) {
+			dumpFile.write(reinterpret_cast<const char*>(yuvFrame.data()), yuvFrame.size());
 		}
 
 		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset, callback);

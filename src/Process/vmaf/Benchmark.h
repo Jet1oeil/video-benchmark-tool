@@ -1,6 +1,7 @@
 #ifndef VMAF_BENCHMARK_H_
 #define VMAF_BENCHMARK_H_
 
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <string>
@@ -31,6 +32,9 @@ namespace vmaf {
 		);
 
 		void abort();
+
+	public:
+		static const std::filesystem::path DumpDir;
 
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);

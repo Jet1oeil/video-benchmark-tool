@@ -33,6 +33,7 @@ target_link_libraries(video-benchmark-tool
 		FFMPEG::avformat
 		FFMPEG::avutil
 		vmaf::vmaf
+		stdc++fs
 )
 
 target_include_directories(video-benchmark-tool

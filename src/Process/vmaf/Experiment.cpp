@@ -1,5 +1,8 @@
 #include "Experiment.h"
 
+#include <cassert>
+#include <iomanip>
+#include <fstream>
 #include <sstream>
 
 #include "Helper/AVCodecHelper.h"
@@ -9,6 +12,7 @@
 
 #include "Types/Clock.h"
 
+#include "Benchmark.h"
 #include "Configuration.h"
 #include "Results.h"
 
@@ -128,6 +132,26 @@ namespace vmaf {
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
 				logAndProgress("Frame count mismatch...");
 				continue;
+			}
+
+			// Filename
+			std::string codecName = types::getCodecName(currentConfiguration.codecType);
+			codecName.erase(std::remove_if(codecName.begin(), codecName.end(), [](auto c) {
+				return std::isspace(c);
+			}), codecName.end());
+
+			std::ostringstream filename;
+			filename << std::setw(3) << std::setfill('0')
+				<< "transcoded-video-codec-" << codecName
+				<< "-preset-" << currentConfiguration.szPreset
+				<< "-crf-" << currentConfiguration.iCRF << ".yuv";
+
+			// Dump transcoded video
+			std::ofstream dumpFile(Benchmark::DumpDir / filename.str(), std::ios::binary);
+			assert(dumpFile.good());
+
+			for (const auto& yuvFrame: transcodedYUVFrames) {
+				dumpFile.write(reinterpret_cast<const char*>(yuvFrame.data()), yuvFrame.size());
 			}
 
 			// Call vmaf
