@@ -12,7 +12,7 @@ extern "C" {
 namespace local {
 	class LinearSolver {
 	public:
-		LinearSolver(double dVideoDuration);
+		LinearSolver(double dVMAFLimit, double dVideoDuration);
 		~LinearSolver();
 
 		LinearSolver(const LinearSolver&) = delete;
@@ -21,7 +21,7 @@ namespace local {
 		LinearSolver& operator=(const LinearSolver&) = delete;
 		LinearSolver& operator=(LinearSolver&&) = delete;
 
-		void fillContraints(const Results& results);
+		void fillContraints(const ExperimentResults& results);
 		int solve();
 
 	private:

@@ -10,7 +10,7 @@
 namespace fs = std::filesystem;
 
 namespace local {
-	LinearSolver::LinearSolver(double dVideoDuration)
+	LinearSolver::LinearSolver(double dVMAFLimit, double dVideoDuration)
 	: m_pProgram(glp_create_prob())
 	, m_iTotalVariables(0)
 	{
@@ -31,7 +31,7 @@ namespace local {
 		// VMAF score over 90
 		++iRow;
 		glp_set_row_name(m_pProgram, iRow, "vmaf");
-		glp_set_row_bnds(m_pProgram, iRow, GLP_LO, 90.0, 0.0);
+		glp_set_row_bnds(m_pProgram, iRow, GLP_LO, dVMAFLimit, 0.0);
 
 		// Encoding time less than video duration
 		++iRow;
@@ -50,7 +50,7 @@ namespace local {
 		glp_free_env();
 	}
 
-	void LinearSolver::fillContraints(const Results& results)
+	void LinearSolver::fillContraints(const ExperimentResults& results)
 	{
 		std::array<char, 128> buffer;
 

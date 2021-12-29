@@ -15,20 +15,20 @@ namespace local {
 		bool operator<(const Configuration& other) const;
 	};
 
-	struct Result {
+	struct ExperimentResult {
 		double dVMAF;
 		int iEncodingTime;
 		int iBitstreamSize;
 	};
 
-	struct ResultEntry {
+	struct ExperimentResultEntry {
 		Configuration config;
-		Result result;
+		ExperimentResult result;
 	};
 
-	using Results = std::vector<ResultEntry>;
+	using ExperimentResults = std::vector<ExperimentResultEntry>;
 
-	Results loadResults(const std::filesystem::path& filePath);
+	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath);
 }
 
 #endif // LOCAL_DATA_H_

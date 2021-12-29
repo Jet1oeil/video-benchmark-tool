@@ -16,9 +16,9 @@ namespace local {
 		return lhs < rhs;
 	}
 
-	Results loadResults(const std::filesystem::path& filePath)
+	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath)
 	{
-		Results results;
+		ExperimentResults results;
 
 		// Open json file
 		std::ifstream file(filePath, std::ios::in);
@@ -34,7 +34,7 @@ namespace local {
 				experiment["key"]["crf"]
 			};
 
-			Result result = {
+			ExperimentResult result = {
 				experiment["results"]["vmaf"],
 				experiment["results"]["encoding_time"],
 				experiment["results"]["bitstream_size"]

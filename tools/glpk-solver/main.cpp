@@ -4,6 +4,26 @@
 #include "local/Data.h"
 #include "local/LinearSolver.h"
 
+bool solveLinearProgram(const local::ExperimentResults& exps, double vmafLimit, double maxTime)
+{
+	local::LinearSolver solver(vmafLimit, maxTime);
+	solver.fillContraints(exps);
+	int iResultIndex = solver.solve();
+
+	if (iResultIndex == -1) {
+		return false;
+	}
+
+	std::cout << "Selected config: " << std::endl;
+	std::cout << "\t- codec: " << exps[iResultIndex].config.szCodecName << std::endl;
+	std::cout << "\t- preset: " << exps[iResultIndex].config.szPreset << std::endl;
+	std::cout << "\t- crf: " << exps[iResultIndex].config.iCRF << std::endl;
+	std::cout << "\t- vmaf: " << exps[iResultIndex].result.dVMAF << std::endl;
+	std::cout << "\t- encoding time: " << exps[iResultIndex].result.iEncodingTime << " ms" << std::endl;
+
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
 	if (argc != 3) {
@@ -14,23 +34,12 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	auto results = local::loadResults(argv[1]);
-	assert(results.size() > 0);
+	auto exps = local::loadExperimentResults(argv[1]);
+	assert(exps.size() > 0);
 
-	local::LinearSolver solver(std::stod(argv[2]));
-	solver.fillContraints(results);
-	int iResultIndex = solver.solve();
-
-	if (iResultIndex == -1) {
-		return 1;
+	for (int i = 50; i < 100; ++i) {
+		solveLinearProgram(exps, i, std::stod(argv[2]));
 	}
-
-	std::cout << "Selected config: " << std::endl;
-	std::cout << "\t- codec: " << results[iResultIndex].config.szCodecName << std::endl;
-	std::cout << "\t- preset: " << results[iResultIndex].config.szPreset << std::endl;
-	std::cout << "\t- crf: " << results[iResultIndex].config.iCRF << std::endl;
-	std::cout << "\t- vmaf: " << results[iResultIndex].result.dVMAF << std::endl;
-	std::cout << "\t- encoding time: " << results[iResultIndex].result.iEncodingTime << " ms" << std::endl;
 
 	return 0;
 }
