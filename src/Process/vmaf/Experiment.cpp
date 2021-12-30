@@ -103,35 +103,16 @@ namespace vmaf {
 			Results results;
 
 			// Encode the video
-			helper::avcodec::Context encoder;
 			types::PacketList packets;
-
 			types::Clock clock;
-			if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
-				logAndProgress("Encode error...");
-				continue;
-			}
-			results.dEncodingTime = clock.getDuration().count();
+			{
+				helper::avcodec::Context encoder;
 
-			results.iBitstreamSize = 0;
-			for (const auto& packet: packets) {
-				results.iBitstreamSize += packet.size();
-			}
-
-			// Decode the transcoded video
-			types::PacketList transcodedYUVFrames;
-			helper::avcodec::Context decoder;
-
-			clock.restart();
-			if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
-				logAndProgress("Decode transcoded video error...");
-				continue;
-			}
-			results.dDecdodingTime = clock.getDuration().count();
-
-			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
-				logAndProgress("Frame count mismatch...");
-				continue;
+				if (encoder.encodeFrameStream(m_yuvFrames, m_codecParameters, currentConfiguration, packets) != helper::avcodec::Error::Success) {
+					logAndProgress("Encode error...");
+					continue;
+				}
+				results.dEncodingTime = clock.getDuration().count();
 			}
 
 			// Filename
@@ -140,18 +121,40 @@ namespace vmaf {
 				return std::isspace(c);
 			}), codecName.end());
 
-			std::ostringstream filename;
-			filename << std::setw(3) << std::setfill('0')
-				<< "transcoded-video-codec-" << codecName
-				<< "-preset-" << currentConfiguration.szPreset
-				<< "-crf-" << currentConfiguration.iCRF << ".yuv";
+			std::ostringstream crfNumber;
+			crfNumber << std::setw(2) << std::setfill('0') << currentConfiguration.iCRF;
+
+			std::string filename =
+				"transcoded-video-codec-" + codecName
+				+ "-preset-" + currentConfiguration.szPreset
+				+ "-crf-" + crfNumber.str() + ".yuv";
 
 			// Dump transcoded video
-			std::ofstream dumpFile(Benchmark::DumpDir / filename.str(), std::ios::binary);
+			std::ofstream dumpFile(Benchmark::DumpDir / filename, std::ios::binary);
 			assert(dumpFile.good());
 
-			for (const auto& yuvFrame: transcodedYUVFrames) {
-				dumpFile.write(reinterpret_cast<const char*>(yuvFrame.data()), yuvFrame.size());
+			results.iBitstreamSize = 0;
+			for (const auto& packet: packets) {
+				results.iBitstreamSize += packet.size();
+				dumpFile.write(reinterpret_cast<const char*>(packet.data()), packet.size());
+			}
+
+			// Decode the transcoded video
+			types::PacketList transcodedYUVFrames;
+			{
+				helper::avcodec::Context decoder;
+
+				clock.restart();
+				if (decoder.decodePacketStream(packets, currentConfiguration.codecType, transcodedYUVFrames) != helper::avcodec::Error::Success) {
+					logAndProgress("Decode transcoded video error...");
+					continue;
+				}
+				results.dDecdodingTime = clock.getDuration().count();
+			}
+
+			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
+				logAndProgress("Frame count mismatch...");
+				continue;
 			}
 
 			// Call vmaf

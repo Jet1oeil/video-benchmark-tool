@@ -1,6 +1,5 @@
 #include "Benchmark.h"
 
-#include <cassert>
 #include <clocale>
 #include <ctime>
 #include <fstream>
@@ -73,14 +72,6 @@ namespace vmaf {
 		// Create video dump directory
 		fs::remove_all(DumpDir);
 		fs::create_directory(DumpDir);
-
-		// Dump original video
-		std::ofstream dumpFile(DumpDir / "original-video.yuv", std::ios::binary);
-		assert(dumpFile.good());
-
-		for (const auto& yuvFrame: yuvFrames) {
-			dumpFile.write(reinterpret_cast<const char*>(yuvFrame.data()), yuvFrame.size());
-		}
 
 		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset, callback);
 	}
