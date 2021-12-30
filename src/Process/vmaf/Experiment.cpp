@@ -124,10 +124,17 @@ namespace vmaf {
 			std::ostringstream crfNumber;
 			crfNumber << std::setw(2) << std::setfill('0') << currentConfiguration.iCRF;
 
+			std::string extension;
+			if (currentConfiguration.codecType == types::CodecType::H265Main) {
+				extension = ".h265";
+			} else {
+				extension = ".h264";
+			}
+
 			std::string filename =
 				"transcoded-video-codec-" + codecName
 				+ "-preset-" + currentConfiguration.szPreset
-				+ "-crf-" + crfNumber.str() + ".yuv";
+				+ "-crf-" + crfNumber.str() + extension;
 
 			// Dump transcoded video
 			std::ofstream dumpFile(Benchmark::DumpDir / filename, std::ios::binary);
