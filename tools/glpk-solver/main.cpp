@@ -1,4 +1,6 @@
 #include <cassert>
+#include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <fstream>
 
@@ -45,15 +47,22 @@ int main(int argc, char* argv[])
 	assert(exps.size() > 0);
 
 	// Iterate over VMAF limit
-	std::ofstream vmafSolFile("vmaf-time-1.0.sol", std::ios::out);
-	assert(vmafSolFile.good());
-	vmafSolFile << "vmaf limit\tmax time\tcodec\t\tpreset\t\tcrf\tvmaf\tencoding time" << std::endl;
+	double cmdTimeLimit = std::stod(argv[2]) * 1000.0;
 
-	std::ofstream vmafDataFile("vmaf-time-1.0.dat", std::ios::out);
-	assert(vmafDataFile.good());
+	for (double timeLimit = std::round(cmdTimeLimit * 0.5); timeLimit <= std::round(cmdTimeLimit * 1.5); timeLimit += std::round(cmdTimeLimit * 0.1)) {
+		std::ostringstream paddingTimeLimit;
+		paddingTimeLimit << std::setw(5) << std::setfill('0') << static_cast<int>(timeLimit);
 
-	for (int i = 50; i < 100; ++i) {
-		solveLinearProgram(exps, i, std::stod(argv[2]), vmafSolFile, vmafDataFile);
+		std::ofstream vmafSolFile("vmaf-time-limit-" + paddingTimeLimit.str() + ".sol", std::ios::out);
+		assert(vmafSolFile.good());
+		vmafSolFile << "vmaf limit\tmax time\tcodec\t\tpreset\t\tcrf\tvmaf\tencoding time" << std::endl;
+
+		std::ofstream vmafDataFile("vmaf-time-limit-" + paddingTimeLimit.str() + ".dat", std::ios::out);
+		assert(vmafDataFile.good());
+
+		for (int i = 50; i < 100; ++i) {
+			solveLinearProgram(exps, i, timeLimit, vmafSolFile, vmafDataFile);
+		}
 	}
 
 	return 0;
