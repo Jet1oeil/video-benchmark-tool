@@ -27,6 +27,7 @@ namespace local {
 	private:
 		glp_prob* m_pProgram;
 		std::size_t m_iTotalVariables;
+		double m_dVideoDuration;
 	};
 }
 

@@ -13,6 +13,7 @@ namespace local {
 	LinearSolver::LinearSolver(double dVMAFLimit, double dVideoDuration)
 	: m_pProgram(glp_create_prob())
 	, m_iTotalVariables(0)
+	, m_dVideoDuration(dVideoDuration)
 	{
 		// Define linear program
 		glp_set_prob_name(m_pProgram, "best-bitstream-size");
@@ -36,7 +37,7 @@ namespace local {
 		// Encoding time less than video duration
 		++iRow;
 		glp_set_row_name(m_pProgram, iRow, "encoding-time");
-		glp_set_row_bnds(m_pProgram, iRow, GLP_UP, 0.0, dVideoDuration);
+		glp_set_row_bnds(m_pProgram, iRow, GLP_FX, 0.0, 0.0); // sum - Ttotal = 0
 
 		// Bitstream size
 		++iRow;
@@ -73,6 +74,12 @@ namespace local {
 		glp_set_col_bnds(m_pProgram, iIndexCol, GLP_LO, 0.0, 0.0);
 		glp_set_obj_coef(m_pProgram, iIndexCol, 1.0);
 
+		// Add total size variable
+		iIndexCol = glp_add_cols(m_pProgram, 1);
+		glp_set_col_name(m_pProgram, iIndexCol, "T_total");
+		glp_set_col_bnds(m_pProgram, iIndexCol, GLP_UP, 0.0, m_dVideoDuration);
+		glp_set_obj_coef(m_pProgram, iIndexCol, 100.0);
+
 		std::vector<int> indexRowArray;
 		std::vector<int> indexColArray;
 		std::vector<double> coeffArray;
@@ -105,6 +112,11 @@ namespace local {
 			indexColArray.push_back(iCol++);
 			coeffArray.push_back(result.result.iEncodingTime);
 		}
+
+		// Define total size variable
+		indexRowArray.push_back(3);
+		indexColArray.push_back(iCol + 1);
+		coeffArray.push_back(-1.0);
 
 		// Bitstreams size coeffcients
 		iCol = 1;

@@ -23,7 +23,8 @@ bool solveLinearProgram(const local::ExperimentResults& exps, double vmafLimit, 
 	solFile << "\t"<< exps[iResultIndex].config.szPreset;
 	solFile << "\t" << exps[iResultIndex].config.iCRF;
 	solFile << "\t" << exps[iResultIndex].result.dVMAF;
-	solFile << "\t" << exps[iResultIndex].result.iEncodingTime << std::endl;
+	solFile << "\t" << exps[iResultIndex].result.iEncodingTime;
+	solFile << "\t" << exps[iResultIndex].result.iBitstreamSize << std::endl;
 
 	dataFile << vmafLimit;
 	dataFile << "\t" << exps[iResultIndex].result.iEncodingTime;
@@ -55,7 +56,7 @@ int main(int argc, char* argv[])
 
 		std::ofstream vmafSolFile("vmaf-time-limit-" + paddingTimeLimit.str() + ".sol", std::ios::out);
 		assert(vmafSolFile.good());
-		vmafSolFile << "vmaf limit\tmax time\tcodec\t\tpreset\t\tcrf\tvmaf\tencoding time" << std::endl;
+		vmafSolFile << "vmaf limit\tmax time\tcodec\t\tpreset\t\tcrf\tvmaf\tencoding time\tbitstream size" << std::endl;
 
 		std::ofstream vmafDataFile("vmaf-time-limit-" + paddingTimeLimit.str() + ".dat", std::ios::out);
 		assert(vmafDataFile.good());
@@ -64,6 +65,13 @@ int main(int argc, char* argv[])
 			solveLinearProgram(exps, i, timeLimit, vmafSolFile, vmafDataFile);
 		}
 	}
+
+	// Debug purpose: only process Tmax = 1000
+	// std::ofstream vmafDataFile("vmaf-time-limit-1000.dat", std::ios::out);
+	// std::ofstream vmafSolFile("vmaf-time-limit-1000.sol", std::ios::out);
+	// for (int i = 50; i < 100; ++i) {
+	// 	solveLinearProgram(exps, i, cmdTimeLimit, vmafSolFile, vmafDataFile);
+	// }
 
 	return 0;
 }
