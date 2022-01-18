@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include "local/Data.h"
 #include "local/LinearSolver.h"
@@ -17,11 +18,15 @@ bool solveLinearProgram(const local::ExperimentResults& exps, double vmafLimit, 
 		return false;
 	}
 
+	// Format CRF to have two digits
+	std::stringstream ss;
+	ss << std::setw(2) << std::setfill('0') << exps[iResultIndex].config.iCRF;
+
 	solFile << vmafLimit;
 	solFile << "\t\t" << maxTime;
 	solFile << "\t\t" << exps[iResultIndex].config.szCodecName;
 	solFile << "\t"<< exps[iResultIndex].config.szPreset;
-	solFile << "\t" << exps[iResultIndex].config.iCRF;
+	solFile << "\t" << ss.str();
 	solFile << "\t" << exps[iResultIndex].result.dVMAF;
 	solFile << "\t" << exps[iResultIndex].result.iEncodingTime;
 	solFile << "\t" << exps[iResultIndex].result.iBitstreamSize << std::endl;
