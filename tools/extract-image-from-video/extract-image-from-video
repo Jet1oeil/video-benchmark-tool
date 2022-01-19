@@ -1,0 +1,49 @@
+#!/bin/bash
+
+if [ $# -ne 2 ]
+then
+	echo "Missing arguments"
+	echo "Usage:"
+	echo -e "\t$0 VIDEO_DIR RESULT_DIR"
+	exit 1
+fi
+
+VIDEO_FOLDER=$1
+RESULT_DIR=$2
+
+# Remove previous export
+rm -rf png
+mkdir -p png
+
+# Extract image from video
+function extract-image() {
+	ffmpeg -hide_banner -loglevel error -y -i "$1" -ss 00:00:05.3333333 -vframes 1 "$2"
+}
+
+# Extract transcoded video
+for SOL_FILE in $RESULT_DIR/*.sol
+do
+	# Format video filename
+	RESULT_ARRAY=$(cat "$SOL_FILE" | tail -n +2 | tr -s '\t' '\t' | cut -f 3,4,5 | sed -E 's/(x26[4-6] - [a-z]+)\t([a-z]+)\t([0-9]+)/transcoded-video-codec-\1-preset-\2-crf-\3/g' | tr -d ' ')
+
+	for VIDEO_BASENAME_FILE in $RESULT_ARRAY
+	do
+		if [[ "$VIDEO_BASENAME_FILE" == *"x264"* ]]
+		then
+			VIDEO_FILE="$VIDEO_FOLDER/$VIDEO_BASENAME_FILE.h264"
+		else
+			VIDEO_FILE="$VIDEO_FOLDER/$VIDEO_BASENAME_FILE.h265"
+		fi
+
+		PNG_FILE="png/$VIDEO_BASENAME_FILE.png"
+
+		if [ -e "$PNG_FILE" ]
+		then
+			continue
+		fi
+
+		extract-image "$VIDEO_FILE" "$PNG_FILE"
+	done
+done
+
+# Extract original video
