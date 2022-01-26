@@ -4,12 +4,12 @@ hold on;
 for vmaf_limit = 70:5:95
 	filename = sprintf("fixed-vmaf-%02d.dat", vmaf_limit);
 	exps = importdata(filename, "\t");
-	plot(exps.data(:,2)/10^6, exps.data(:,3)/10^3);
+	plot(exps.data(:,2)/10^6, exps.data(:,3)/10^3, "-o");
 endfor
 hold off;
 
-xlim([0 5])
-ylim([0 15])
+% xlim([0 5])
+ylim([0 20])
 
 title("Pareto front with fixed vmaf")
 xlabel("Bitstream size (Mo)")

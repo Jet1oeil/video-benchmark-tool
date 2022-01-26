@@ -131,7 +131,7 @@ namespace local {
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [vmafLimit](const auto& entry) {
-			return entry.result.dVMAF < vmafLimit || entry.result.dVMAF > vmafLimit + 1;
+			return entry.result.dVMAF < vmafLimit /*|| entry.result.dVMAF > vmafLimit + 1*/;
 		}), resultsCopy.end());
 
 		// Remove duplicate
@@ -146,9 +146,12 @@ namespace local {
 		// Write results to a file
 		std::ofstream dataFile("fixed-vmaf-" + niceNum(vmafLimit, 1) + ".dat");
 
+		int minEncoding = resultsCopy[0].result.iEncodingTime;
 		for (const auto& result: resultsCopy) {
-			// Config name
-			dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			if (result.result.iEncodingTime <= minEncoding) {
+				minEncoding = result.result.iEncodingTime;
+				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			}
 		}
 	}
 }
