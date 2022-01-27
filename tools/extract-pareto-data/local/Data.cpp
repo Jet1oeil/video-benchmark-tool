@@ -186,4 +186,32 @@ namespace local {
 			}
 		}
 	}
+
+	void fixedBitstreamsize(ExperimentResults resultsCopy, int limit)
+	{
+		// Remove config which exceed the encoding time limit or with insufisent quality
+		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
+			return entry.result.iBitstreamSize > limit;
+		}), resultsCopy.end());
+
+		// Remove duplicate
+		std::sort(resultsCopy.begin(), resultsCopy.end());
+		std::unique(resultsCopy.begin(), resultsCopy.end());
+
+		// Sort by bitstream size
+		std::sort(resultsCopy.begin(), resultsCopy.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs.result.iEncodingTime < rhs.result.iEncodingTime;
+		});
+
+		// Write results to a file
+		std::ofstream dataFile("fixed-bitstream-size-" + paddingNum(limit, 7) + ".dat");
+
+		double maxQuality = resultsCopy[0].result.dVMAF;
+		for (const auto& result: resultsCopy) {
+			if (result.result.dVMAF >= maxQuality) {
+				maxQuality = result.result.dVMAF;
+				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			}
+		}
+	}
 }

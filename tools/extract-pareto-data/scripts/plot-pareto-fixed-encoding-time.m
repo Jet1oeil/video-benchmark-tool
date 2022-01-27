@@ -3,7 +3,7 @@ clf;
 hold on;
 for limit = 4000:2000:16000
 	filename = sprintf("fixed-encoding-time-%05d.dat", limit);
-	exps = importdata(filename, "\t")
+	exps = importdata(filename, "\t");
 	plot(exps.data(:,2)/10^6, exps.data(:,1), "-o");
 endfor
 hold off;

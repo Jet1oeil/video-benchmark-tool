@@ -28,5 +28,10 @@ int main(int argc, char* argv[])
 		local::fixedEncodingTime(exps, i);
 	}
 
+	constexpr int mega = 1024*1024;
+	for (double i = 0.7 * mega ; i < 2.0 * mega; i += 0.1 * mega) {
+		local::fixedBitstreamsize(exps, std::round(i));
+	}
+
 	return 0;
 }
