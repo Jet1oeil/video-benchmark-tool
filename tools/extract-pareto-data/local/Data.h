@@ -33,6 +33,7 @@ namespace local {
 
 	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath);
 	void fixedVMAFPareto(ExperimentResults resultsCopy, double vmafLimit);
+	void fixedEncodingTime(ExperimentResults resultsCopy, int limit);
 }
 
 #endif // LOCAL_DATA_H_

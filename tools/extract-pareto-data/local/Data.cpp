@@ -65,15 +65,19 @@ namespace {
 
 		return result;
 	}
+
+	std::string paddingNum(int num, int padding) {
+		std::stringstream ss;
+		ss << std::setw(padding) << std::setfill('0') << num;
+
+		return ss.str();
+	}
 }
 
 namespace local {
 	std::string Configuration::toString() const
 	{
-		std::ostringstream ss;
-		ss << std::setw(2) << std::setfill('0') << static_cast<int>(iCRF);
-
-		std::string name = szCodecName + "-" + szPreset + "-crf-" + ss.str();
+		std::string name = szCodecName + "-" + szPreset + "-crf-" + paddingNum(iCRF, 2);
 
 		// Trim space
 		name.erase(std::remove(name.begin(), name.end(), ' '), name.end());
@@ -150,6 +154,34 @@ namespace local {
 		for (const auto& result: resultsCopy) {
 			if (result.result.iEncodingTime <= minEncoding) {
 				minEncoding = result.result.iEncodingTime;
+				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			}
+		}
+	}
+
+	void fixedEncodingTime(ExperimentResults resultsCopy, int limit)
+	{
+		// Remove config which exceed the encoding time limit or with insufisent quality
+		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
+			return entry.result.iEncodingTime > limit;
+		}), resultsCopy.end());
+
+		// Remove duplicate
+		std::sort(resultsCopy.begin(), resultsCopy.end());
+		std::unique(resultsCopy.begin(), resultsCopy.end());
+
+		// Sort by bitstream size
+		std::sort(resultsCopy.begin(), resultsCopy.end(), [](const auto& lhs, const auto& rhs) {
+			return lhs.result.iBitstreamSize < rhs.result.iBitstreamSize;
+		});
+
+		// Write results to a file
+		std::ofstream dataFile("fixed-encoding-time-" + paddingNum(limit, 5) + ".dat");
+
+		double maxQuality = resultsCopy[0].result.dVMAF;
+		for (const auto& result: resultsCopy) {
+			if (result.result.dVMAF >= maxQuality) {
+				maxQuality = result.result.dVMAF;
 				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
 			}
 		}

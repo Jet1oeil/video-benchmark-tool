@@ -24,5 +24,9 @@ int main(int argc, char* argv[])
 		local::fixedVMAFPareto(exps, i);
 	}
 
+	for (int i = 4000; i <= 16000; i += 1000) {
+		local::fixedEncodingTime(exps, i);
+	}
+
 	return 0;
 }
