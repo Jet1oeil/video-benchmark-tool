@@ -10,14 +10,19 @@ exps = {
 for j = 75:5:95
 	clf;
 	hold on;
+	x_max = 0;
 	for i = 1:length(exps)
 		exp = exps{i};
 		filename = sprintf("%s/fixed-vmaf-%d.dat", exp, j);
 		res = importdata(filename, "\t");
 		plot(res.data(:,2)/10^6, res.data(:,3)/10^3, "-o");
+		local_max = max(res.data(:,2)/10^6);
+		if x_max < local_max
+			x_max = local_max;
+		endif
 	endfor
 
-	plot([0 ; 3], [10 ; 10], "k--");
+	plot([0 ; x_max], [10 ; 10], "k--");
 	plot([1.3 ; 1.3], [0 ; 20], "k--");
 
 	hold off;
@@ -25,12 +30,12 @@ for j = 75:5:95
 	% xlim([0 5])
 	ylim([0 20])
 
-	t = sprintf("Pareto front comparaison with fixed vmaf at %d", j)
+	t = sprintf("Pareto front comparaison with fixed vmaf at %d", j);
 	title(t)
 	xlabel("Bitstream size (Mo)")
 	ylabel("Encoding time (seconds)")
 	legend("i5-4460","i7-6700","i7-12700K","i9-9900")
 
-	filename = sprintf("pareto-comparaison-fixed-vmaf-%d.png", j)
+	filename = sprintf("pareto-comparaison-vmaf-%d.png", j);
 	saveas(1, filename);
 endfor
