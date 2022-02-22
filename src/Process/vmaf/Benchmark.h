@@ -17,9 +17,6 @@
 namespace vmaf {
 	class Benchmark {
 	public:
-		Benchmark();
-
-		void setThreadCount(unsigned iCount);
 		void reset();
 
 		void start(
@@ -49,9 +46,8 @@ namespace vmaf {
 
 	private:
 		types::CodecParameters m_originalCodecParameters;
-		unsigned m_iThreadCount;
 
-		std::vector<Experiment> m_poolThreads;
+		std::unique_ptr<Experiment> m_experiment;
 		std::map<Configuration, Results> m_results;
 	};
 }

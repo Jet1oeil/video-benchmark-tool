@@ -7,6 +7,7 @@ extern "C" {
 
 #include <cassert>
 #include <cstring>
+#include <thread>
 
 #include "AVFormatHelper.h"
 #include "Log.h"
@@ -503,19 +504,16 @@ namespace helper {
 			m_pContext->width = parameters.videoSize.width;
 			m_pContext->height = parameters.videoSize.height;
 
-			m_pContext->thread_count = 1;
+			// For x265, let ffmpeg choose the optimal thread count
+			if (encoderParameters.codecType == types::CodecType::H265Main) {
+				m_pContext->thread_count = 0;
+			} else {
+				m_pContext->thread_count = std::thread::hardware_concurrency();
+			}
 
 			AVDictionary* options = nullptr;
 			av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
 			av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
-
-			if (encoderParameters.codecType == types::CodecType::H265Main) {
-#if DEBUG
-				av_dict_set(&options, "x265-params", "--log-level=info:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
-#else
-				av_dict_set(&options, "x265-params", "--log-level=warning:--pools=none:--numa-pools=none:--no-wpp=1:--lookahead-slices=0", 0);
-#endif
-			}
 
 			if (avcodec_open2(m_pContext, pCodec, &options) < 0) {
 				return Error::OpenCodec;
@@ -529,8 +527,6 @@ namespace helper {
 			if (av_frame_get_buffer(m_pFrame, 0) < 0) {
 				return Error::NoMemory;
 			}
-
-			assert(m_pContext->thread_count == 1);
 
 			return Error::Success;
 		}

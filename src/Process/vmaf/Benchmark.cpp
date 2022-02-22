@@ -19,29 +19,15 @@ namespace fs = std::filesystem;
 namespace vmaf {
 	const std::filesystem::path Benchmark::DumpDir = "dump";
 
-	Benchmark::Benchmark()
-	: m_iThreadCount(std::thread::hardware_concurrency())
-	{
-
-	}
-
-	void Benchmark::setThreadCount(unsigned iCount)
-	{
-		m_iThreadCount = iCount;
-	}
-
 	void Benchmark::reset()
 	{
-		m_poolThreads.clear();
+		m_experiment.release();
 		m_results.clear();
 	}
 
 	void Benchmark::abort()
 	{
-		// Abort all thread
-		for (auto& thread: m_poolThreads) {
-			thread.abort();
-		}
+		m_experiment->abort();
 	}
 
 	void Benchmark::start(
@@ -119,23 +105,14 @@ namespace vmaf {
 		std::setlocale(LC_NUMERIC, "C");
 		std::setlocale(LC_TIME, "C");
 
-		// Alloc the thread pool
+		// Alloc the thread
 		std::mutex mutexExperiments;
-		for (int i = 0; i < static_cast<int>(m_iThreadCount); ++i) {
-			m_poolThreads.emplace_back(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments, callback);
-		}
+		m_experiment = std::make_unique<Experiment>(yuvFrames, m_originalCodecParameters, listConfigurations, mutexExperiments, callback);
 
-		// Start all threads
-		for (auto& thread: m_poolThreads) {
-			thread.start();
-		}
+		m_experiment->start();
 
-		// Join all thread
-		for (auto& thread: m_poolThreads) {
-			thread.wait();
-			auto threadResults = thread.getResults();
-			m_results.insert(threadResults.begin(), threadResults.end());
-		}
+		m_experiment->wait();
+		m_results = m_experiment->getResults();
 
 		// Print results
 		json jsonDocument;

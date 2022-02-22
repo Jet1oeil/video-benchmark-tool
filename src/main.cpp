@@ -43,7 +43,6 @@ int run_cli(int argc, char *argv[])
 	parser.registerOption("codec-list", "all");
 	parser.registerOption("crf", "0-51");
 	parser.registerOption("preset-list", "all");
-	parser.registerOption("nproc", "all");
 
 	parser.parse(argc, argv);
 
@@ -67,7 +66,6 @@ int run_cli(int argc, char *argv[])
 		for (auto& preset: types::PresetList) {
 			std::cerr << "            - " << preset << std::endl;
 		}
-		std::cerr << "    --nproc: set number of parallel port used (default: all available)" << std::endl;
 	};
 
 	if (!parser["video-source"]) {
@@ -172,10 +170,6 @@ int run_cli(int argc, char *argv[])
 
 	// Run VMAF benchmark
 	vmaf::Benchmark benchmark;
-
-	if (parser["nproc"]) {
-		benchmark.setThreadCount(std::stoul(parser["nproc"].value));
-	}
 
 	benchmark.start(video, listCodec, minCRF, maxCRF, listPreset);
 

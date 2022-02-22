@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstring>
 #include <fstream>
+#include <thread>
 
 #include "Helper/Log.h"
 
@@ -34,7 +35,7 @@ namespace helper {
 	{
 		VmafConfiguration cfg = {
 			.log_level = VMAF_LOG_LEVEL_INFO,
-			.n_threads = 1,
+			.n_threads = std::thread::hardware_concurrency(),
 			.n_subsample = 0,
 			.cpumask = 0,
 		};
