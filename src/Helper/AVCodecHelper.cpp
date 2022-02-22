@@ -495,6 +495,7 @@ namespace helper {
 
 			m_pContext->time_base = { 1, parameters.iFPS };
 			m_pContext->framerate = { parameters.iFPS, 1 };
+			m_pContext->gop_size = parameters.iFPS * 2; // Set gop as 2 seconds
 
 			m_pContext->pix_fmt = details::convertPixelFormat(parameters.pixelFormat);
 			m_pContext->color_range = details::convertColorRange(parameters.colorRange);
