@@ -251,6 +251,7 @@ namespace helper {
 		: m_pContext(nullptr)
 		, m_pPacket(nullptr)
 		, m_pFrame(nullptr)
+		, m_currentPTS(0)
 		{
 			{
 				std::lock_guard<std::mutex> locker(s_logMutext);
@@ -508,7 +509,7 @@ namespace helper {
 			if (encoderParameters.codecType == types::CodecType::H265Main) {
 				m_pContext->thread_count = 0;
 			} else {
-				m_pContext->thread_count = std::thread::hardware_concurrency();
+				m_pContext->thread_count = std::min(std::thread::hardware_concurrency(), 16u);
 			}
 
 			AVDictionary* options = nullptr;
@@ -571,6 +572,7 @@ namespace helper {
 			std::memcpy(m_pFrame->data[1], pSrc, m_pFrame->width * m_pFrame->height / 4);
 			pSrc += m_pFrame->width * m_pFrame->height / 4;
 			std::memcpy(m_pFrame->data[2], pSrc, m_pFrame->width * m_pFrame->height / 4);
+			m_pFrame->pts = m_currentPTS++;
 
 			return encodeVideoFrame(m_pFrame, packets);
 		}

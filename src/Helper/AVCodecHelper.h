@@ -71,6 +71,7 @@ namespace helper {
 			AVCodecContext* m_pContext;
 			AVPacket* m_pPacket;
 			AVFrame* m_pFrame;
+			std::int64_t m_currentPTS;
 
 		private:
 			static bool s_bCallbackDefined;
