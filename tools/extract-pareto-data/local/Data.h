@@ -16,9 +16,9 @@ namespace local {
 	};
 
 	struct ExperimentResult {
-		double dVMAF;
-		int iEncodingTime;
-		int iBitstreamSize;
+		double VMAF;
+		double encodingTime;
+		double bitstreamSize;
 	};
 
 	struct ExperimentResultEntry {
@@ -31,10 +31,10 @@ namespace local {
 
 	using ExperimentResults = std::vector<ExperimentResultEntry>;
 
-	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath);
-	void fixedVMAFPareto(ExperimentResults resultsCopy, double vmafLimit);
-	void fixedEncodingTime(ExperimentResults resultsCopy, int limit);
-	void fixedBitstreamsize(ExperimentResults resultsCopy, int limit);
+	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath, double originalSize, double originalDuration);
+	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit);
+	void fixedEncodingTime(ExperimentResults resultsCopy, double limit);
+	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit);
 }
 
 #endif // LOCAL_DATA_H_

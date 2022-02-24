@@ -4,16 +4,23 @@ hold on;
 for vmaf_limit = 70:5:95
 	filename = sprintf("fixed-vmaf-%02d.dat", vmaf_limit);
 	exps = importdata(filename, "\t");
-	plot(exps.data(:,2)/10^6, exps.data(:,3)/10^3, "-o");
+	plot(exps.data(:,2), exps.data(:,3), "-o");
 endfor
 hold off;
 
-% xlim([0 5])
-ylim([0 20])
+xlim([0 2])
+ylim([0 0.3])
 
 title("Pareto front with fixed vmaf")
-xlabel("Bitstream size (Mo)")
-ylabel("Encoding time (seconds)")
-legend("70 VMAF limit","75 VMAF limit","80 VMAF limit","85 VMAF limit","90 VMAF limit","95 VMAF limit")
+xlabel("Bitstream size (ratio)")
+ylabel("Encoding time (ratio)")
+legend(
+ "70 VMAF limit",
+ "75 VMAF limit",
+ "80 VMAF limit",
+ "85 VMAF limit",
+ "90 VMAF limit",
+ "95 VMAF limit",
+ "location", "northwest")
 
 saveas(1, "pareto-fixed-vmaf.png");

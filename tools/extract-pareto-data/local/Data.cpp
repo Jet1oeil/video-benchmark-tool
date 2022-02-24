@@ -101,7 +101,7 @@ namespace local {
 		return ltuple == rtuple;
 	}
 
-	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath)
+	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath, double originalSize, double originalDuration)
 	{
 		ExperimentResults results;
 
@@ -121,8 +121,8 @@ namespace local {
 
 			ExperimentResult result = {
 				experiment["results"]["vmaf"],
-				experiment["results"]["encoding_time"],
-				experiment["results"]["bitstream_size"]
+				static_cast<double>(experiment["results"]["encoding_time"]) / originalDuration,
+				static_cast<double>(experiment["results"]["bitstream_size"]) / originalSize
 			};
 
 			results.push_back({ config, result });
@@ -131,12 +131,14 @@ namespace local {
 		return results;
 	}
 
-	void fixedVMAFPareto(ExperimentResults resultsCopy, double vmafLimit)
+	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
-		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [vmafLimit](const auto& entry) {
-			return entry.result.dVMAF < vmafLimit /*|| entry.result.dVMAF > vmafLimit + 1*/;
+		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
+			return entry.result.VMAF < limit;
 		}), resultsCopy.end());
+
+		assert(resultsCopy.size() > 0);
 
 		// Remove duplicate
 		std::sort(resultsCopy.begin(), resultsCopy.end());
@@ -144,26 +146,26 @@ namespace local {
 
 		// Sort by bitstream size
 		std::sort(resultsCopy.begin(), resultsCopy.end(), [](const auto& lhs, const auto& rhs) {
-			return lhs.result.iBitstreamSize < rhs.result.iBitstreamSize;
+			return lhs.result.bitstreamSize < rhs.result.bitstreamSize;
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-vmaf-" + niceNum(vmafLimit, 1) + ".dat");
+		std::ofstream dataFile("fixed-vmaf-" + niceNum(limit, 1) + ".dat");
 
-		int minEncoding = resultsCopy[0].result.iEncodingTime;
+		double minEncoding = resultsCopy[0].result.encodingTime;
 		for (const auto& result: resultsCopy) {
-			if (result.result.iEncodingTime <= minEncoding) {
-				minEncoding = result.result.iEncodingTime;
-				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			if (result.result.encodingTime <= minEncoding) {
+				minEncoding = result.result.encodingTime;
+				dataFile << result.config.toString() << "\t" << result.result.VMAF << "\t" << result.result.bitstreamSize << "\t" << result.result.encodingTime << std::endl;
 			}
 		}
 	}
 
-	void fixedEncodingTime(ExperimentResults resultsCopy, int limit)
+	void fixedEncodingTime(ExperimentResults resultsCopy, double limit)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
-			return entry.result.iEncodingTime > limit;
+			return entry.result.encodingTime > limit;
 		}), resultsCopy.end());
 
 		// Remove duplicate
@@ -172,26 +174,26 @@ namespace local {
 
 		// Sort by bitstream size
 		std::sort(resultsCopy.begin(), resultsCopy.end(), [](const auto& lhs, const auto& rhs) {
-			return lhs.result.iBitstreamSize < rhs.result.iBitstreamSize;
+			return lhs.result.bitstreamSize < rhs.result.bitstreamSize;
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-encoding-time-" + paddingNum(limit, 5) + ".dat");
+		std::ofstream dataFile("fixed-encoding-time-" + niceNum(limit, 0.1) + "x.dat");
 
-		double maxQuality = resultsCopy[0].result.dVMAF;
+		double maxQuality = resultsCopy[0].result.VMAF;
 		for (const auto& result: resultsCopy) {
-			if (result.result.dVMAF >= maxQuality) {
-				maxQuality = result.result.dVMAF;
-				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			if (result.result.VMAF >= maxQuality) {
+				maxQuality = result.result.VMAF;
+				dataFile << result.config.toString() << "\t" << result.result.VMAF << "\t" << result.result.bitstreamSize << "\t" << result.result.encodingTime << std::endl;
 			}
 		}
 	}
 
-	void fixedBitstreamsize(ExperimentResults resultsCopy, int limit)
+	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
-			return entry.result.iBitstreamSize > limit;
+			return entry.result.bitstreamSize > limit;
 		}), resultsCopy.end());
 
 		// Remove duplicate
@@ -200,17 +202,17 @@ namespace local {
 
 		// Sort by bitstream size
 		std::sort(resultsCopy.begin(), resultsCopy.end(), [](const auto& lhs, const auto& rhs) {
-			return lhs.result.iEncodingTime < rhs.result.iEncodingTime;
+			return lhs.result.encodingTime < rhs.result.encodingTime;
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-bitstream-size-" + paddingNum(limit, 7) + ".dat");
+		std::ofstream dataFile("fixed-bitstream-size-" + niceNum(limit, 0.1) + "x.dat");
 
-		double maxQuality = resultsCopy[0].result.dVMAF;
+		double maxQuality = resultsCopy[0].result.VMAF;
 		for (const auto& result: resultsCopy) {
-			if (result.result.dVMAF >= maxQuality) {
-				maxQuality = result.result.dVMAF;
-				dataFile << result.config.toString() << "\t" << result.result.dVMAF << "\t" << result.result.iBitstreamSize << "\t" << result.result.iEncodingTime << std::endl;
+			if (result.result.VMAF >= maxQuality) {
+				maxQuality = result.result.VMAF;
+				dataFile << result.config.toString() << "\t" << result.result.VMAF << "\t" << result.result.bitstreamSize << "\t" << result.result.encodingTime << std::endl;
 			}
 		}
 	}
