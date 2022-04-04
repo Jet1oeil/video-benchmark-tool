@@ -54,9 +54,9 @@ We provide some basic tools to extract useful informations from JSON. See [Tools
 ## Tools
 
 We provide different tools to exploit results from the benchmark :
-- [extract-image-from-video](tree/master/tools/extract-image-from-video): extract an image form a video
-- [extract-pareto-data](tree/master/tools/extract-pareto-data): generate data file to show pareto fronts (tradeoff between quality and encoding time, quality and size and encoding time and size)
-- [glpk-solver](tree/master/tools/glpk-solver): an linear program to find the optimal solution for specific constraints (obsolete)
-- [generate-graph](tree/master/tools/generate-graph): generate graphs from linaire solver (obsolete)
+- [extract-image-from-video](tools/extract-image-from-video): extract an image form a video
+- [extract-pareto-data](tools/extract-pareto-data): generate data file to show pareto fronts (tradeoff between quality and encoding time, quality and size and encoding time and size)
+- [glpk-solver](tools/glpk-solver): an linear program to find the optimal solution for specific constraints (obsolete)
+- [generate-graph](tools/generate-graph): generate graphs from linaire solver (obsolete)
 
-We provide also some [GNU octave scripts](tree/master/scripts) to plot pareto fronts from [extract-pareto-data](tree/master/tools/extract-pareto-data).
+We provide also some [GNU octave scripts](scripts) to plot pareto fronts from [extract-pareto-data](tools/extract-pareto-data).
