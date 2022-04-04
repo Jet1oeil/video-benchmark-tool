@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 		local::fixedVMAFPareto(exps, i);
 	}
 
-	for (double i = 0.5; i <= 1.5; i += 0.1) {
+	for (double i = 0.1; i <= 1.5; i += 0.1) {
 		local::fixedEncodingTime(exps, i);
 	}
 

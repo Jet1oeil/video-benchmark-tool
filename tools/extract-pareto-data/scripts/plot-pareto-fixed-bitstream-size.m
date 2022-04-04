@@ -9,7 +9,8 @@ for limit = 0.6:0.2:1.4
 endfor
 hold off;
 
-ylim([70 100])
+ylim([65 100])
+xlim([0 1.5])
 
 title("Pareto front with fixed bitstream size")
 xlabel("Encoding time (ratio)")

@@ -9,7 +9,7 @@ endfor
 hold off;
 
 xlim([0 2])
-ylim([0 0.3])
+ylim([0 1.5])
 
 title("Pareto front with fixed vmaf")
 xlabel("Bitstream size (ratio)")
@@ -21,6 +21,6 @@ legend(
  "85 VMAF limit",
  "90 VMAF limit",
  "95 VMAF limit",
- "location", "northwest")
+ "location", "northeast")
 
 saveas(1, "pareto-fixed-vmaf.png");
