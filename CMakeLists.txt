@@ -20,7 +20,7 @@
 
 cmake_minimum_required(VERSION 3.13)
 
-project(VideoBenchmarkTool VERSION 1.1.0 LANGUAGES CXX)
+project(VideoBenchmarkTool VERSION 1.2.0 LANGUAGES CXX)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake-modules")
 
