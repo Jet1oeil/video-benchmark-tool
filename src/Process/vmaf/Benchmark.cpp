@@ -54,8 +54,8 @@ namespace vmaf {
 	void Benchmark::start(
 		const std::string& szVideoFileName,
 		const CodecList& listCodec,
-		int iMinCRF,
-		int iMaxCRF,
+		std::pair<int, int> crfRange,
+		std::pair<int, int> bitrateRange,
 		const std::vector<std::string>& listPreset,
 		std::function<void()> callback
 	)
@@ -65,10 +65,25 @@ namespace vmaf {
 		for (const auto& codecID: listCodec) {
 			helper::Log::info("\t%s", types::getCodecName(codecID));
 		}
-		helper::Log::info("CRF: [%d - %d]", iMinCRF, iMaxCRF);
-		helper::Log::info("selected preset:");
-		for (const auto& szPreset: listPreset) {
-			helper::Log::info("\t%s", szPreset.c_str());
+
+		// Show openh264 parameters
+		if (std::find(listCodec.begin(), listCodec.end(), types::CodecType::OpenH264Baseline) != listCodec.end()) {
+			helper::Log::info("OpenH264 config:");
+			helper::Log::info("bitrate: [%d - %d]", bitrateRange.first, bitrateRange.second);
+			helper::Log::info(" "); // newline
+		}
+
+		// Show x264 / x265 parameters
+		if (std::find_if(listCodec.begin(), listCodec.end(), [](const auto& codecID) {
+			return (codecID == types::CodecType::X264Baseline) || (codecID == types::CodecType::X264Main) || (codecID == types::CodecType::X264Main) || (codecID == types::CodecType::X265Main);
+		}) != listCodec.end()) {
+			helper::Log::info("x264 / x265 config:");
+			helper::Log::info("CRF: [%d - %d]", crfRange.first, crfRange.second);
+			helper::Log::info("selected preset:");
+			for (const auto& szPreset: listPreset) {
+				helper::Log::info("\t%s", szPreset.c_str());
+			}
+			helper::Log::info(" "); // newline
 		}
 
 		types::PacketList yuvFrames;
@@ -80,7 +95,7 @@ namespace vmaf {
 		fs::remove_all(DumpDir);
 		fs::create_directory(DumpDir);
 
-		runExperiments(yuvFrames, listCodec, iMinCRF, iMaxCRF, listPreset, callback);
+		runExperiments(yuvFrames, listCodec, crfRange, bitrateRange, listPreset, callback);
 	}
 
 	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
@@ -100,8 +115,8 @@ namespace vmaf {
 	void Benchmark::runExperiments(
 		const types::PacketList& yuvFrames,
 		const CodecList& listCodec,
-		int iMinCRF,
-		int iMaxCRF,
+		std::pair<int, int> crfRange,
+		std::pair<int, int> bitrateRange,
 		const std::vector<std::string>& listPreset,
 		std::function<void()> callback
 	)
@@ -110,13 +125,18 @@ namespace vmaf {
 
 		// Generate all configuration
 		for (const auto& codecID: listCodec) {
-			// No CRF or preset for OpenH264
+			// No CRF or preset for OpenH264 just bitrate
 			if (codecID == types::CodecType::OpenH264Baseline) {
-				listConfigurations.push_back({ codecID, -1, "none" });
-			} else {
-				for (int iCRF = iMinCRF; iCRF <= iMaxCRF; ++iCRF) {
+				// Bitrate by step of 100 Kbit
+				for (int iBitrate = bitrateRange.first; iBitrate <= bitrateRange.second; iBitrate += 100) {
+					listConfigurations.push_back({ codecID, -1, "none", iBitrate });
+				}
+			}
+			// No bitrate for x264 / x265  just CRF and preset
+			else {
+				for (int iCRF = crfRange.first; iCRF <= crfRange.second; ++iCRF) {
 					for (const auto& szPreset: listPreset) {
-						listConfigurations.push_back({ codecID, iCRF, szPreset });
+						listConfigurations.push_back({ codecID, iCRF, szPreset, -1 });
 					}
 				}
 			}
@@ -143,13 +163,14 @@ namespace vmaf {
 		// Print results
 		json jsonDocument;
 		for (const auto& [key, value]: m_results) {
-			helper::Log::debug("[Codec=%d, CRF=%d, preset=%s]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), value.dVMAFScore);
+			helper::Log::debug("[Codec=%d, CRF=%d, preset=%s, bitrate=%d]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), key.iBitrate, value.dVMAFScore);
 			json jKey = {
 				"key", {
 					{ "codec_id", static_cast<int>(key.codecType) },
 					{ "codec_name", types::getCodecName(key.codecType) },
 					{ "crf", key.iCRF },
-					{ "preset", key.szPreset.c_str() }
+					{ "preset", key.szPreset.c_str() },
+					{ "bitrate", key.iBitrate }
 				}
 			};
 

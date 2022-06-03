@@ -26,6 +26,7 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Types/Codec.h"
@@ -43,8 +44,8 @@ namespace vmaf {
 		void start(
 			const std::string& szVideoFileName,
 			const CodecList& listCodec,
-			int iMinCRF,
-			int iMaxCRF,
+			std::pair<int, int> crfRange,
+			std::pair<int, int> bitrateRange,
 			const std::vector<std::string>& listPreset,
 			std::function<void()> callback = std::function<void()>()
 		);
@@ -59,8 +60,8 @@ namespace vmaf {
 		void runExperiments(
 			const types::PacketList& yuvFrames,
 			const CodecList& listCodec,
-			int iMinCRF,
-			int iMaxCRF,
+			std::pair<int, int> crfRange,
+			std::pair<int, int> bitrateRange,
 			const std::vector<std::string>& listPreset,
 			std::function<void()> callback
 		);

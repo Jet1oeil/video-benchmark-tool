@@ -192,7 +192,7 @@ int run_cli(int argc, char *argv[])
 	// Run VMAF benchmark
 	vmaf::Benchmark benchmark;
 
-	benchmark.start(video, listCodec, minCRF, maxCRF, listPreset);
+	benchmark.start(video, listCodec, std::make_pair(minCRF, maxCRF), std::make_pair(200, 2000), listPreset);
 
 	return 0;
 }

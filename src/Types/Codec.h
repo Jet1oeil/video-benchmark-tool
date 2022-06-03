@@ -87,6 +87,7 @@ namespace types {
 		CodecType codecType;
 		int iCRF;
 		std::string szPreset;
+		int iBitrate;
 	};
 }
 

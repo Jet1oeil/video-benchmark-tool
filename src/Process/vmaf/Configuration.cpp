@@ -26,8 +26,8 @@
 namespace vmaf {
 	bool Configuration::operator<(const Configuration& other) const
 	{
-		std::tuple<int, int, std::string> tuple{ static_cast<int>(codecType), iCRF, szPreset };
-		std::tuple<int, int, std::string> otherTuple{ static_cast<int>(other.codecType), other.iCRF, other.szPreset };
+		std::tuple<int, int, std::string, int> tuple{ static_cast<int>(codecType), iCRF, szPreset, iBitrate };
+		std::tuple<int, int, std::string, int> otherTuple{ static_cast<int>(other.codecType), other.iCRF, other.szPreset, other.iBitrate };
 
 		return tuple < otherTuple;
 	}

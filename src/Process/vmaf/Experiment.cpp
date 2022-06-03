@@ -115,10 +115,11 @@ namespace vmaf {
 		Configuration currentConfiguration;
 
 		while (stoleTask(currentConfiguration)) {
-			helper::Log::debug("codec: %d, CRF: %d, preset: %s",
+			helper::Log::debug("codec: %d, CRF: %d, preset: %s, bitrate: %d",
 				static_cast<int>(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
-				currentConfiguration.szPreset.c_str()
+				currentConfiguration.szPreset.c_str(),
+				currentConfiguration.iBitrate
 			);
 
 			Results results;
@@ -199,10 +200,11 @@ namespace vmaf {
 				continue;
 			}
 
-			helper::Log::info("End of experiment {Codec: %s, CRF: %d, preset: %s}",
+			helper::Log::info("End of experiment {Codec: %s, CRF: %d, preset: %s, bitrate: %d}",
 				types::getCodecName(currentConfiguration.codecType),
 				currentConfiguration.iCRF,
-				currentConfiguration.szPreset.c_str()
+				currentConfiguration.szPreset.c_str(),
+				currentConfiguration.iBitrate
 			);
 
 			results.dVMAFScore = vmaf.getVMAFScore();
