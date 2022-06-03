@@ -175,12 +175,12 @@ namespace helper {
 			AVCodecID getCodecID(types::CodecType codec)
 			{
 				switch (codec) {
-				case types::CodecType::H264Baseline:
-				case types::CodecType::H264Main:
-				case types::CodecType::H264High:
+				case types::CodecType::X264Baseline:
+				case types::CodecType::X264Main:
+				case types::CodecType::X264High:
 					return AV_CODEC_ID_H264;
 
-				case types::CodecType::H265Main:
+				case types::CodecType::X265Main:
 					return AV_CODEC_ID_HEVC;
 
 				case types::CodecType::Undefined:
@@ -193,16 +193,16 @@ namespace helper {
 			int getProfileID(types::CodecType codec)
 			{
 				switch (codec) {
-				case types::CodecType::H264Baseline:
+				case types::CodecType::X264Baseline:
 					return FF_PROFILE_H264_BASELINE;
 
-				case types::CodecType::H264Main:
+				case types::CodecType::X264Main:
 					return FF_PROFILE_H264_MAIN;
 
-				case types::CodecType::H264High:
+				case types::CodecType::X264High:
 					return FF_PROFILE_H264_HIGH;
 
-				case types::CodecType::H265Main:
+				case types::CodecType::X265Main:
 					return FF_PROFILE_HEVC_MAIN;
 
 				case types::CodecType::Undefined:
@@ -527,7 +527,7 @@ namespace helper {
 			m_pContext->height = parameters.videoSize.height;
 
 			// For x265, let ffmpeg choose the optimal thread count
-			if (encoderParameters.codecType == types::CodecType::H265Main) {
+			if (encoderParameters.codecType == types::CodecType::X265Main) {
 				m_pContext->thread_count = 0;
 			} else {
 				m_pContext->thread_count = std::min(std::thread::hardware_concurrency(), 16u);

@@ -29,17 +29,7 @@
 namespace {
 	types::CodecType getCodecType(const QString& szCodec)
 	{
-		if (szCodec == "x264 - baseline") {
-			return types::CodecType::H264Baseline;
-		} else if (szCodec == "x264 - main") {
-			return types::CodecType::H264Main;
-		} else if (szCodec == "x264 - high") {
-			return types::CodecType::H264High;
-		} else if (szCodec == "x265 - main") {
-			return types::CodecType::H265Main;
-		}
-
-		return types::CodecType::Undefined;
+		return types::getCodecID(szCodec.toStdString());
 	}
 }
 

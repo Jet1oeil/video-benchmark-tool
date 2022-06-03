@@ -30,10 +30,10 @@
 
 namespace types {
 	enum class CodecType {
-		H264Baseline,
-		H264Main,
-		H264High,
-		H265Main,
+		X264Baseline,
+		X264Main,
+		X264High,
+		X265Main,
 		Undefined,
 	};
 

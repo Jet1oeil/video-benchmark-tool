@@ -25,16 +25,16 @@ namespace types {
 	const char* getCodecName(CodecType codec)
 	{
 		switch (codec) {
-			case CodecType::H264Baseline:
+			case CodecType::X264Baseline:
 				return CodecList[0];
 
-			case CodecType::H264Main:
+			case CodecType::X264Main:
 				return CodecList[1];
 
-			case CodecType::H264High:
+			case CodecType::X264High:
 				return CodecList[2];
 
-			case CodecType::H265Main:
+			case CodecType::X265Main:
 				return CodecList[3];
 
 			case CodecType::Undefined:
@@ -48,13 +48,13 @@ namespace types {
 	CodecType getCodecID(const std::string& codec)
 	{
 		if (codec == CodecList[0]) {
-			return CodecType::H264Baseline;
+			return CodecType::X264Baseline;
 		} else if (codec == CodecList[1]) {
-			return CodecType::H264Main;
+			return CodecType::X264Main;
 		} else if (codec == CodecList[2]) {
-			return CodecType::H264High;
+			return CodecType::X264High;
 		} else if (codec == CodecList[3]) {
-			return CodecType::H265Main;
+			return CodecType::X265Main;
 		}
 
 		return CodecType::Undefined;

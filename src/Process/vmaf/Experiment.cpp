@@ -146,7 +146,7 @@ namespace vmaf {
 			crfNumber << std::setw(2) << std::setfill('0') << currentConfiguration.iCRF;
 
 			std::string extension;
-			if (currentConfiguration.codecType == types::CodecType::H265Main) {
+			if (currentConfiguration.codecType == types::CodecType::X265Main) {
 				extension = ".h265";
 			} else {
 				extension = ".h264";
