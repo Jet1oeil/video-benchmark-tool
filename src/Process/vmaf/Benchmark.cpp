@@ -110,9 +110,14 @@ namespace vmaf {
 
 		// Generate all configuration
 		for (const auto& codecID: listCodec) {
-			for (int iCRF = iMinCRF; iCRF <= iMaxCRF; ++iCRF) {
-				for (const auto& szPreset: listPreset) {
-					listConfigurations.push_back({ codecID, iCRF, szPreset });
+			// No CRF or preset for OpenH264
+			if (codecID == types::CodecType::OpenH264Baseline) {
+				listConfigurations.push_back({ codecID, -1, "none" });
+			} else {
+				for (int iCRF = iMinCRF; iCRF <= iMaxCRF; ++iCRF) {
+					for (const auto& szPreset: listPreset) {
+						listConfigurations.push_back({ codecID, iCRF, szPreset });
+					}
 				}
 			}
 		}

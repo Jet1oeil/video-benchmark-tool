@@ -172,22 +172,27 @@ namespace helper {
 				return -1;
 			}
 
-			AVCodecID getCodecID(types::CodecType codec)
+			const char* getAVCodecName(types::CodecType codec)
 			{
 				switch (codec) {
 				case types::CodecType::X264Baseline:
 				case types::CodecType::X264Main:
 				case types::CodecType::X264High:
-					return AV_CODEC_ID_H264;
+					return "libx264";
 
 				case types::CodecType::X265Main:
-					return AV_CODEC_ID_HEVC;
+					return "libx265";
+
+				case types::CodecType::OpenH264Baseline:
+					return "libopenh264";
 
 				case types::CodecType::Undefined:
-					return AV_CODEC_ID_NONE;
+					// Nothing, fall to the assert
+					break;
 				}
 
-				return AV_CODEC_ID_NONE;
+				assert(false);
+				return "Undefined";
 			}
 
 			int getProfileID(types::CodecType codec)
@@ -205,9 +210,14 @@ namespace helper {
 				case types::CodecType::X265Main:
 					return FF_PROFILE_HEVC_MAIN;
 
+				case types::CodecType::OpenH264Baseline:
+					return FF_PROFILE_H264_CONSTRAINED_BASELINE;
+
 				case types::CodecType::Undefined:
 					return FF_PROFILE_UNKNOWN;
 				}
+
+				assert(false);
 
 				return FF_PROFILE_UNKNOWN;
 			}
@@ -436,7 +446,7 @@ namespace helper {
 
 		Error Context::openDecoder(types::CodecType codecType)
 		{
-			AVCodec* pCodec = avcodec_find_decoder(details::getCodecID(codecType));
+			AVCodec* pCodec = avcodec_find_decoder_by_name(details::getAVCodecName(codecType));
 
 			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
@@ -505,7 +515,8 @@ namespace helper {
 			// Only support 8-bits
 			assert(parameters.iPixelDepth == 8);
 
-			const AVCodec* pCodec = avcodec_find_encoder(details::getCodecID(encoderParameters.codecType));
+			const AVCodec* pCodec = avcodec_find_encoder_by_name(details::getAVCodecName(encoderParameters.codecType));
+
 			if (pCodec == nullptr) {
 				return Error::NoCodecFound;
 			}
@@ -534,8 +545,10 @@ namespace helper {
 			}
 
 			AVDictionary* options = nullptr;
-			av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
-			av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
+			if (encoderParameters.codecType != types::CodecType::OpenH264Baseline) {
+				av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
+				av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
+			}
 
 			if (avcodec_open2(m_pContext, pCodec, &options) < 0) {
 				return Error::OpenCodec;
