@@ -156,7 +156,8 @@ namespace vmaf {
 			std::string filename =
 				"transcoded-video-codec-" + codecName
 				+ "-preset-" + currentConfiguration.szPreset
-				+ "-crf-" + crfNumber.str() + extension;
+				+ "-crf-" + crfNumber.str()
+				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7) + extension;
 
 			// Dump transcoded video
 			std::ofstream dumpFile(Benchmark::DumpDir / filename, std::ios::binary);
