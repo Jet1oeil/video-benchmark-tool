@@ -254,8 +254,12 @@ namespace helper {
 					return;
 				}
 
+				// Print avlog message with correct format
+				char buffer[256] = {0};
+				std::vsnprintf(buffer, 256, fmt, vl);
+
 				// Remove last end line
-				std::string strFmt(fmt);
+				std::string strFmt(buffer);
 				strFmt.pop_back();
 
 				// Get the class name
@@ -276,24 +280,24 @@ namespace helper {
 				case AV_LOG_VERBOSE:
 				case AV_LOG_DEBUG:
 				case AV_LOG_TRACE:
-					Log::debug(strFmt.c_str(), vl);
+					Log::debug(strFmt.c_str());
 					break;
 
 				case AV_LOG_INFO:
-					Log::info(strFmt.c_str(), vl);
+					Log::info(strFmt.c_str());
 					break;
 
 				case AV_LOG_WARNING:
-					Log::warning(strFmt.c_str(), vl);
+					Log::warning(strFmt.c_str());
 					break;
 
 				case AV_LOG_ERROR:
-					Log::error(strFmt.c_str(), vl);
+					Log::error(strFmt.c_str());
 					break;
 
 				case AV_LOG_PANIC:
 				case AV_LOG_FATAL:
-					Log::fatal(strFmt.c_str(), vl);
+					Log::fatal(strFmt.c_str());
 					break;
 
 				default:
