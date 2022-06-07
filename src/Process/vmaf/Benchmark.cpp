@@ -55,7 +55,7 @@ namespace vmaf {
 		const std::string& szVideoFileName,
 		const CodecList& listCodec,
 		std::pair<int, int> crfRange,
-		std::pair<int, int> bitrateRange,
+		std::vector<int> listBitrate,
 		const std::vector<std::string>& listPreset,
 		std::function<void()> callback
 	)
@@ -71,7 +71,10 @@ namespace vmaf {
 				return val == types::CodecType::OpenH264Baseline || val == types::CodecType::OpenH264High;
 			}) != listCodec.end()) {
 			helper::Log::info("OpenH264 config:");
-			helper::Log::info("bitrate: [%d - %d]", bitrateRange.first, bitrateRange.second);
+			helper::Log::info("bitrate:");
+			for (const auto& bitrate: listBitrate) {
+				helper::Log::info("\t%d", bitrate);
+			}
 			helper::Log::info(" "); // newline
 		}
 
@@ -97,7 +100,7 @@ namespace vmaf {
 		fs::remove_all(DumpDir);
 		fs::create_directory(DumpDir);
 
-		runExperiments(yuvFrames, listCodec, crfRange, bitrateRange, listPreset, callback);
+		runExperiments(yuvFrames, listCodec, crfRange, listBitrate, listPreset, callback);
 	}
 
 	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
@@ -118,7 +121,7 @@ namespace vmaf {
 		const types::PacketList& yuvFrames,
 		const CodecList& listCodec,
 		std::pair<int, int> crfRange,
-		std::pair<int, int> bitrateRange,
+		std::vector<int> listBitrate,
 		const std::vector<std::string>& listPreset,
 		std::function<void()> callback
 	)
@@ -129,8 +132,7 @@ namespace vmaf {
 		for (const auto& codecID: listCodec) {
 			// No CRF or preset for OpenH264 just bitrate
 			if (codecID == types::CodecType::OpenH264Baseline || codecID == types::CodecType::OpenH264High) {
-				// Bitrate by step of 100 Kbit
-				for (int iBitrate = bitrateRange.first; iBitrate <= bitrateRange.second; iBitrate += 100) {
+				for (const auto& iBitrate: listBitrate) {
 					listConfigurations.push_back({ codecID, -1, "none", iBitrate });
 				}
 			}

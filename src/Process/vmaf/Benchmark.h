@@ -45,7 +45,7 @@ namespace vmaf {
 			const std::string& szVideoFileName,
 			const CodecList& listCodec,
 			std::pair<int, int> crfRange,
-			std::pair<int, int> bitrateRange,
+			std::vector<int> listBitrate,
 			const std::vector<std::string>& listPreset,
 			std::function<void()> callback = std::function<void()>()
 		);
@@ -61,7 +61,7 @@ namespace vmaf {
 			const types::PacketList& yuvFrames,
 			const CodecList& listCodec,
 			std::pair<int, int> crfRange,
-			std::pair<int, int> bitrateRange,
+			std::vector<int> listBitrate,
 			const std::vector<std::string>& listPreset,
 			std::function<void()> callback
 		);

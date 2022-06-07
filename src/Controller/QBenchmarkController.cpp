@@ -120,7 +120,7 @@ namespace ctrl {
 		m_thread = std::thread([=]{
 			m_vmafBenchmark.reset();
 
-			m_vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, std::make_pair(iMinCRF, iMaxCRF), std::make_pair(200, 2000), listPreset, callback);
+			m_vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, std::make_pair(iMinCRF, iMaxCRF), std::vector({2000000}), listPreset, callback);
 		});
 	}
 

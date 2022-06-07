@@ -64,6 +64,7 @@ int run_cli(int argc, char *argv[])
 	parser.registerOption("codec-list", "all");
 	parser.registerOption("crf", "0-51");
 	parser.registerOption("preset-list", "all");
+	parser.registerOption("bitrate-list", "200000,400000,600000,800000,1200000,1400000,1600000,1800000,2000000,2500000,3000000,3500000,4000000,5000000,6000000,7000000,8000000");
 
 	parser.parse(argc, argv);
 
@@ -87,6 +88,7 @@ int run_cli(int argc, char *argv[])
 		for (auto& preset: types::PresetList) {
 			std::cerr << "            - " << preset << std::endl;
 		}
+		std::cerr << "    --bitrate-list VALUE1[,VALUE2...]: define the bitrate list (values are separated by comma) (default 200000,400000,600000,800000,1200000,1400000,1600000,1800000,2000000,2500000,3000000,3500000,4000000,5000000,6000000,7000000,8000000)" << std::endl;
 	};
 
 	if (!parser["video-source"]) {
@@ -189,10 +191,25 @@ int run_cli(int argc, char *argv[])
 		}
 	}
 
+	const auto& argBitrateList = parser["bitrate-list"].value;
+	std::vector<std::string> listStringBitrate = splitString(argBitrateList);
+
+	std::vector<int> listBitrate;
+	// Check if all bitrate are valid
+	for (auto selectedStringBitrate: listStringBitrate) {
+		int selectedBitrate = std::stoi(selectedStringBitrate);
+		if (selectedBitrate < 0) {
+			printUsage("Invalid bitrate '" + selectedStringBitrate + "'");
+			return 1;
+		} else {
+			listBitrate.push_back(selectedBitrate);
+		}
+	}
+
 	// Run VMAF benchmark
 	vmaf::Benchmark benchmark;
 
-	benchmark.start(video, listCodec, std::make_pair(minCRF, maxCRF), std::make_pair(200, 2000), listPreset);
+	benchmark.start(video, listCodec, std::make_pair(minCRF, maxCRF), listBitrate, listPreset);
 
 	return 0;
 }
