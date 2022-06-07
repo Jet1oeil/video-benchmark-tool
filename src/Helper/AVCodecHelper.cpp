@@ -172,6 +172,29 @@ namespace helper {
 				return -1;
 			}
 
+			AVCodecID getCodecID(types::CodecType codec)
+			{
+				switch (codec) {
+				case types::CodecType::X264Baseline:
+				case types::CodecType::X264Main:
+				case types::CodecType::X264High:
+				case types::CodecType::OpenH264Baseline:
+				case types::CodecType::OpenH264High:
+					return AV_CODEC_ID_H264;
+
+				case types::CodecType::X265Main:
+					return AV_CODEC_ID_HEVC;
+
+				case types::CodecType::Undefined:
+					return AV_CODEC_ID_NONE;
+					// Nothing, fall to the assert
+					break;
+				}
+
+				assert(false);
+				return AV_CODEC_ID_NONE;
+			}
+
 			const char* getAVCodecName(types::CodecType codec)
 			{
 				switch (codec) {
@@ -448,7 +471,7 @@ namespace helper {
 
 		Error Context::openDecoder(types::CodecType codecType)
 		{
-			AVCodec* pCodec = avcodec_find_decoder_by_name(details::getAVCodecName(codecType));
+			AVCodec* pCodec = avcodec_find_decoder(details::getCodecID(codecType));
 
 			if (allocateContext(pCodec) != Error::Success) {
 				return Error::NoMemory;
