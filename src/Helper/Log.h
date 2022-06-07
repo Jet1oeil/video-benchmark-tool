@@ -29,6 +29,7 @@
 #endif
 
 #include <cstdarg>
+#include <iomanip>
 #include <string>
 
 namespace helper {
@@ -58,6 +59,13 @@ namespace helper {
 	private:
 		static Level s_level;
 	};
+
+	inline std::string paddingNum(int num, int padding) {
+		std::stringstream ss;
+		ss << std::setw(padding) << std::setfill('0') << num;
+
+		return ss.str();
+	}
 }
 
 #endif // HELPER_LOG_H_
