@@ -67,7 +67,9 @@ namespace vmaf {
 		}
 
 		// Show openh264 parameters
-		if (std::find(listCodec.begin(), listCodec.end(), types::CodecType::OpenH264Baseline) != listCodec.end()) {
+		if (std::find_if(listCodec.begin(), listCodec.end(), [](const auto& val) {
+				return val == types::CodecType::OpenH264Baseline || val == types::CodecType::OpenH264High;
+			}) != listCodec.end()) {
 			helper::Log::info("OpenH264 config:");
 			helper::Log::info("bitrate: [%d - %d]", bitrateRange.first, bitrateRange.second);
 			helper::Log::info(" "); // newline
@@ -126,7 +128,7 @@ namespace vmaf {
 		// Generate all configuration
 		for (const auto& codecID: listCodec) {
 			// No CRF or preset for OpenH264 just bitrate
-			if (codecID == types::CodecType::OpenH264Baseline) {
+			if (codecID == types::CodecType::OpenH264Baseline || codecID == types::CodecType::OpenH264High) {
 				// Bitrate by step of 100 Kbit
 				for (int iBitrate = bitrateRange.first; iBitrate <= bitrateRange.second; iBitrate += 100) {
 					listConfigurations.push_back({ codecID, -1, "none", iBitrate });

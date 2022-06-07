@@ -35,6 +35,7 @@ namespace types {
 		X264High,
 		X265Main,
 		OpenH264Baseline, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
+		OpenH264High, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
 		Undefined,
 	};
 
@@ -53,12 +54,13 @@ namespace types {
 		JPEG,       ///< the normal     2^n-1   "JPEG" YUV ranges,
 	};
 
-	constexpr std::array<const char*, 5> CodecList = {
+	constexpr std::array<const char*, 6> CodecList = {
 		"x264 - baseline",
 		"x264 - main",
 		"x264 - high",
 		"x265 - main",
 		"openh264 - baseline",
+		"openh264 - high",
 	};
 
 	constexpr std::array<const char*, 10> PresetList = {

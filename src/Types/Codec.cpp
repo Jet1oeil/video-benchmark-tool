@@ -40,6 +40,9 @@ namespace types {
 			case CodecType::OpenH264Baseline:
 				return CodecList[4];
 
+			case CodecType::OpenH264High:
+				return CodecList[5];
+
 			case CodecType::Undefined:
 				return "undefined";
 		}
@@ -60,6 +63,8 @@ namespace types {
 			return CodecType::X265Main;
 		} else if (codec == CodecList[4]) {
 			return CodecType::OpenH264Baseline;
+		} else if (codec == CodecList[5]) {
+			return CodecType::OpenH264High;
 		}
 
 		return CodecType::Undefined;

@@ -184,6 +184,7 @@ namespace helper {
 					return "libx265";
 
 				case types::CodecType::OpenH264Baseline:
+				case types::CodecType::OpenH264High:
 					return "libopenh264";
 
 				case types::CodecType::Undefined:
@@ -205,6 +206,7 @@ namespace helper {
 					return FF_PROFILE_H264_MAIN;
 
 				case types::CodecType::X264High:
+				case types::CodecType::OpenH264High:
 					return FF_PROFILE_H264_HIGH;
 
 				case types::CodecType::X265Main:
@@ -545,7 +547,10 @@ namespace helper {
 			}
 
 			AVDictionary* options = nullptr;
-			if (encoderParameters.codecType != types::CodecType::OpenH264Baseline) {
+			if (encoderParameters.codecType == types::CodecType::OpenH264Baseline || encoderParameters.codecType == types::CodecType::OpenH264High) {
+				m_pContext->bit_rate = encoderParameters.iBitrate;
+				av_dict_set(&options, "rc_mode", "bitrate", 0);
+			} else {
 				av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
 				av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
 			}
