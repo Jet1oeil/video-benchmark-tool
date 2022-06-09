@@ -38,6 +38,8 @@
 #include "Configuration.h"
 #include "Results.h"
 
+namespace fs = std::filesystem;
+
 namespace {
 	// TODO: Add support for other format
 	VmafPixelFormat convertAVPixelFormat(types::PixelFormat pixelFormat)
@@ -219,16 +221,22 @@ namespace vmaf {
 				+ "-preset-" + currentConfiguration.szPreset
 				+ "-crf-" + crfNumber.str()
 				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7) + ".json";
-			std::filesystem::path jsonFilename = Benchmark::DumpDir / filename;
+			fs::path jsonFilename = Benchmark::DumpDir / filename;
 
 			// Write results to dumps dir
 			writeResult(jsonFilename.string(), currentConfiguration, results);
+
+			// Remove the current configuration form the resume configuration list file
+			writeConfigurationList(m_listConfiguration);
 
 			// Update progress state
 			if (m_progressCallback) {
 				m_progressCallback();
 			}
 		}
+
+		// When experiments are finished, clear the the resume configuration file
+		fs::remove(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
 	}
 
 	bool Experiment::stoleTask(Configuration& configuration)
