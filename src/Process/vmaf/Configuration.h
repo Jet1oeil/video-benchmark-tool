@@ -22,12 +22,16 @@
 #ifndef VMAF_CONFIGURATION_H_
 #define VMAF_CONFIGURATION_H_
 
+#include <vector>
+
 #include "Types/Codec.h"
 
 namespace vmaf {
 	struct Configuration : public types::EncoderParameters {
 		bool operator<(const Configuration& other) const;
 	};
+
+	bool writeConfigurationList(const std::vector<Configuration> &listConfigurations);
 }
 
 #endif // VMAF_CONFIGURATION_H_

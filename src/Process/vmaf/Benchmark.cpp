@@ -143,6 +143,12 @@ namespace vmaf {
 			}
 		}
 
+		// Dump configuration
+		if (!writeConfigurationList(listConfigurations)) {
+			helper::Log::error("Unable to open a temporary file...");
+			return;
+		}
+
 		// Keep previous locale
 		std::string szCurrentNumericLocale = std::setlocale(LC_NUMERIC, nullptr);
 		std::string szCurrentTimeLocale = std::setlocale(LC_TIME, nullptr);

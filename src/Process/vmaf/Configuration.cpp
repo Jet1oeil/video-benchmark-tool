@@ -21,7 +21,17 @@
 
 #include "Configuration.h"
 
+#include <filesystem>
+#include <fstream>
 #include <tuple>
+
+#include <json.hpp>
+
+#include "Helper/Log.h"
+
+namespace fs = std::filesystem;
+
+using json = nlohmann::json;
 
 namespace vmaf {
 	bool Configuration::operator<(const Configuration& other) const
@@ -30,5 +40,31 @@ namespace vmaf {
 		std::tuple<int, int, std::string, int> otherTuple{ static_cast<int>(other.codecType), other.iCRF, other.szPreset, other.iBitrate };
 
 		return tuple < otherTuple;
+	}
+
+	bool writeConfigurationList(const std::vector<Configuration> &listConfigurations)
+	{
+		// Dump configuration list to a json file
+		json jDocument;
+		for (const auto& configuration: listConfigurations) {
+			jDocument["configurations"].push_back(
+				{
+					{ "codec_type", configuration.codecType },
+					{ "bitrate", configuration.iBitrate },
+					{ "crf", configuration.iCRF },
+					{ "preset", configuration.szPreset }
+				}
+			);
+		}
+
+		std::ofstream configFile(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
+
+		if (!configFile.good()) {
+			return false;
+		}
+
+		configFile << jDocument;
+
+		return true;
 	}
 }
