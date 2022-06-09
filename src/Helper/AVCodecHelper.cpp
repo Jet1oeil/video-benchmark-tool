@@ -380,6 +380,9 @@ namespace helper {
 				return Error::Unkown;
 			}
 
+			// Free extra size
+			yuvFrames.shrink_to_fit();
+
 			return Error::Success;
 		}
 
@@ -405,6 +408,8 @@ namespace helper {
 				return Error::Unkown;
 			}
 
+			yuvFrames.shrink_to_fit();
+
 			return error;
 		}
 
@@ -429,6 +434,9 @@ namespace helper {
 			if (encodeFrame(types::Packet(), packets) != avcodec::Error::CodecFlushed) {
 				return Error::Unkown;
 			}
+
+			// Free extra memory
+			packets.shrink_to_fit();
 
 			return Error::Success;
 		}
@@ -511,9 +519,13 @@ namespace helper {
 
 				// Dump yuv
 				types::Packet yuvBytes;
+				yuvBytes.reserve(m_pFrame->width * m_pFrame->height * 1.5f);
 				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[0], m_pFrame->data[0] + m_pFrame->width * m_pFrame->height);
 				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[1], m_pFrame->data[1] + m_pFrame->width * m_pFrame->height / 4);
 				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[2], m_pFrame->data[2] + m_pFrame->width * m_pFrame->height / 4);
+				yuvBytes.shrink_to_fit();
+
+				assert(yuvBytes.capacity() == (m_pFrame->width * m_pFrame->height * 1.5f));
 
 				yuvFrames.push_back(yuvBytes);
 			}
@@ -617,6 +629,7 @@ namespace helper {
 
 				// Dump yuv
 				types::Packet packetBytes(m_pPacket->data, m_pPacket->data + m_pPacket->size);
+				packetBytes.shrink_to_fit();
 				packets.push_back(packetBytes);
 
 				av_packet_unref(m_pPacket);
