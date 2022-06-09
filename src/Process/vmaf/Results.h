@@ -22,6 +22,11 @@
 #ifndef VMAF_RESULTS_H_
 #define VMAF_RESULTS_H_
 
+#include <map>
+#include <string>
+
+#include "Configuration.h"
+
 namespace vmaf {
 	struct Results {
 		int iBitstreamSize;
@@ -29,6 +34,8 @@ namespace vmaf {
 		int dDecdodingTime;
 		double dVMAFScore;
 	};
+
+	void writeResult(const std::string& resultFile, const std::map<Configuration, Results>& results);
 }
 
 #endif // VMAF_RESULTS_H_

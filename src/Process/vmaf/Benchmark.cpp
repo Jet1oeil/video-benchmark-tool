@@ -26,15 +26,12 @@
 #include <fstream>
 #include <mutex>
 
-#include <json.hpp>
-
 #include "Helper/AVCodecHelper.h"
 #include "Helper/AVFormatHelper.h"
 #include "Helper/Log.h"
 
 #include "Configuration.h"
 
-using json = nlohmann::json;
 namespace fs = std::filesystem;
 
 namespace vmaf {
@@ -164,47 +161,14 @@ namespace vmaf {
 		m_experiment->wait();
 		m_results = m_experiment->getResults();
 
-		// Print results
-		json jsonDocument;
-		for (const auto& [key, value]: m_results) {
-			helper::Log::debug("[Codec=%d, CRF=%d, preset=%s, bitrate=%d]: VMAF=%f", static_cast<int>(key.codecType), key.iCRF, key.szPreset.c_str(), key.iBitrate, value.dVMAFScore);
-			json jKey = {
-				"key", {
-					{ "codec_id", static_cast<int>(key.codecType) },
-					{ "codec_name", types::getCodecName(key.codecType) },
-					{ "crf", key.iCRF },
-					{ "preset", key.szPreset.c_str() },
-					{ "bitrate", key.iBitrate }
-				}
-			};
-
-			json jResult = {
-				"results", {
-					{ "vmaf", value.dVMAFScore },
-					{ "bitstream_size", value.iBitstreamSize },
-					{ "encoding_time", value.dEncodingTime },
-					{ "decoding_time", value.dDecdodingTime },
-				}
-			};
-			jsonDocument["experiments"].push_back(
-				{ jKey, jResult }
-			);
-		}
-
-		std::ofstream jsonFile;
-
+		// Format filename
 		std::array<char, 256> dateTimeText = { 0 };
 
 		std::time_t currentTime = std::time(nullptr);
 		std::strftime(dateTimeText.data(), dateTimeText.size(), "%Y-%m-%d-%H%M%S-results.json", std::localtime(&currentTime));
-		jsonFile.open(dateTimeText.data());
 
-		if (!jsonFile.good()) {
-			helper::Log::error("Unable to store results :\n%s", jsonDocument.dump(4).c_str());
-			return;
-		}
-
-		jsonFile << jsonDocument;
+		// Print results
+		vmaf::writeResult(dateTimeText.data(), m_results);
 
 		// Restore the previous locale
 		std::setlocale(LC_NUMERIC, szCurrentNumericLocale.c_str());

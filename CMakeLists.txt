@@ -39,6 +39,7 @@ add_executable(video-benchmark-tool
 	src/Process/vmaf/Benchmark.cpp
 	src/Process/vmaf/Configuration.cpp
 	src/Process/vmaf/Experiment.cpp
+	src/Process/vmaf/Results.cpp
 	src/View/QBenchmarkConfigView.cpp
 	src/View/QBenchmarkProgressView.cpp
 	src/View/QMainView.cpp
