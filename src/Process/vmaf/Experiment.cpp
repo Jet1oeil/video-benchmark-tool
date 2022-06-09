@@ -23,6 +23,7 @@
 
 #include <cassert>
 #include <iomanip>
+#include <filesystem>
 #include <fstream>
 #include <sstream>
 
@@ -211,6 +212,17 @@ namespace vmaf {
 			results.dVMAFScore = vmaf.getVMAFScore();
 
 			m_results.insert({ currentConfiguration, results });
+
+			// Generate json file path
+			filename =
+				"transcoded-video-codec-" + codecName
+				+ "-preset-" + currentConfiguration.szPreset
+				+ "-crf-" + crfNumber.str()
+				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7) + ".json";
+			std::filesystem::path jsonFilename = Benchmark::DumpDir / filename;
+
+			// Write results to dumps dir
+			writeResult(jsonFilename.string(), currentConfiguration, results);
 
 			// Update progress state
 			if (m_progressCallback) {

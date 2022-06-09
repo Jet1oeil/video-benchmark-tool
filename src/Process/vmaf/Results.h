@@ -36,6 +36,7 @@ namespace vmaf {
 	};
 
 	void writeResult(const std::string& resultFile, const std::map<Configuration, Results>& results);
+	void writeResult(const std::string& resultFile, const Configuration& configuration, const Results& results);
 }
 
 #endif // VMAF_RESULTS_H_

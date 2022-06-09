@@ -47,23 +47,41 @@ namespace vmaf {
 
 			return jDocument;
 		}
+
+		json generateJSON(const Configuration& configuration, const Results& results) {
+			json jDocument;
+
+			jDocument["experiments"].push_back(
+				generateResultJSON(configuration, results)
+			);
+
+			return jDocument;
+		}
+
+		void dumpToHardDrive(const std::string& file, const json& jDocument )
+		{
+			std::ofstream jsonFile;
+
+			jsonFile.open(file);
+			if (!jsonFile.good()) {
+				helper::Log::error("Unable to store results :\n%s", jDocument.dump(4).c_str());
+				return;
+			}
+
+			jsonFile << jDocument;
+		}
 	}
 
 	void writeResult(const std::string& resultFile, const std::map<Configuration, Results>& results)
 	{
 		json jDocument = generateJSON(results);
+		dumpToHardDrive(resultFile, jDocument);
+	}
 
-		std::ofstream jsonFile;
-
-		jsonFile.open(resultFile);
-		if (!jsonFile.good()) {
-			helper::Log::error("Unable to store results :\n%s", jDocument.dump(4).c_str());
-			return;
-		}
-
-		jsonFile << jDocument;
-
-		return;
+	void writeResult(const std::string& resultFile, const Configuration& configuration, const Results& results)
+	{
+		json jDocument = generateJSON(configuration, results);
+		dumpToHardDrive(resultFile, jDocument);
 	}
 
 }
