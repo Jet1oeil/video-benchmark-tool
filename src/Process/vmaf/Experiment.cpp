@@ -60,7 +60,7 @@ namespace vmaf {
 	Experiment::Experiment(
 		const types::PacketList& yuvFrames,
 		const types::CodecParameters& codecParameters,
-		std::vector<Configuration>& listConfigurations,
+		const std::vector<Configuration>& listConfigurations,
 		std::mutex& mutexExperiments,
 		std::function<void()> callback
 	)
@@ -227,7 +227,7 @@ namespace vmaf {
 			writeResult(jsonFilename.string(), currentConfiguration, results);
 
 			// Remove the current configuration form the resume configuration list file
-			writeConfigurationList(m_listConfiguration);
+			updateConfigurationListFile(m_listConfiguration);
 
 			// Update progress state
 			if (m_progressCallback) {

@@ -41,7 +41,7 @@ namespace vmaf {
 		Experiment(
 			const types::PacketList& yuvFrames,
 			const types::CodecParameters& codecParameters,
-			std::vector<Configuration>& listConfiguration,
+			const std::vector<Configuration>& listConfiguration,
 			std::mutex& mutexExperiments,
 			std::function<void()> callback
 		);
@@ -69,7 +69,7 @@ namespace vmaf {
 	private:
 		const types::PacketList& m_yuvFrames;
 		types::CodecParameters m_codecParameters;
-		std::vector<Configuration>& m_listConfiguration;
+		std::vector<Configuration> m_listConfiguration;
 
 		std::atomic_bool m_abort;
 		std::thread m_thread;

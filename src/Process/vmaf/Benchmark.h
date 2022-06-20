@@ -58,11 +58,8 @@ namespace vmaf {
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
 		void runExperiments(
-			const types::PacketList& yuvFrames,
-			const CodecList& listCodec,
-			std::pair<int, int> crfRange,
-			std::vector<int> listBitrate,
-			const std::vector<std::string>& listPreset,
+			const std::string& szVideoFileName,
+			const std::vector<Configuration>& listConfigurations,
 			std::function<void()> callback
 		);
 

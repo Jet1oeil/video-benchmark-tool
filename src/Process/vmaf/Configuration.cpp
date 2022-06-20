@@ -42,10 +42,30 @@ namespace vmaf {
 		return tuple < otherTuple;
 	}
 
-	bool writeConfigurationList(const std::vector<Configuration> &listConfigurations)
+	bool updateConfigurationListFile(const std::vector<Configuration> &listConfigurations)
 	{
-		// Dump configuration list to a json file
 		json jDocument;
+
+		std::ifstream configFile(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
+
+		if (!configFile.good()) {
+			return false;
+		}
+
+		configFile >> jDocument;
+
+		std::string videoSource = jDocument["video_source"];
+
+		return writeConfigurationList(videoSource, listConfigurations);
+	}
+
+	bool writeConfigurationList(const std::string& videoFile, const std::vector<Configuration> &listConfigurations)
+	{
+		json jDocument;
+
+		jDocument["video_source"] = videoFile;
+
+		// Dump configuration list to a json file
 		for (const auto& configuration: listConfigurations) {
 			jDocument["configurations"].push_back(
 				{
@@ -64,6 +84,8 @@ namespace vmaf {
 		}
 
 		configFile << jDocument;
+
+		helper::Log::debug("%s", jDocument.dump(4).c_str());
 
 		return true;
 	}

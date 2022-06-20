@@ -88,41 +88,6 @@ namespace vmaf {
 			helper::Log::info(" "); // newline
 		}
 
-		types::PacketList yuvFrames;
-		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
-			helper::Log::error("Error decoding...");
-		}
-
-		// Create video dump directory
-		fs::remove_all(DumpDir);
-		fs::create_directory(DumpDir);
-
-		runExperiments(yuvFrames, listCodec, crfRange, listBitrate, listPreset, callback);
-	}
-
-	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
-	{
-		helper::avcodec::Context codecContex;
-
-		if (codecContex.decodeVideoFile(szVideoFileName.c_str(), yuvFrames) != helper::avcodec::Error::Success) {
-			helper::Log::error("Error decode video...");
-			return false;
-		}
-
-		m_originalCodecParameters = codecContex.getCodecParameters();
-
-		return true;
-	}
-
-	void Benchmark::runExperiments(
-		const types::PacketList& yuvFrames,
-		const CodecList& listCodec,
-		std::pair<int, int> crfRange,
-		std::vector<int> listBitrate,
-		const std::vector<std::string>& listPreset,
-		std::function<void()> callback
-	)
-	{
 		std::vector<Configuration> listConfigurations;
 
 		// Generate all configuration
@@ -144,10 +109,43 @@ namespace vmaf {
 		}
 
 		// Dump configuration
-		if (!writeConfigurationList(listConfigurations)) {
+		if (!writeConfigurationList(szVideoFileName, listConfigurations)) {
 			helper::Log::error("Unable to open a temporary file...");
 			return;
 		}
+
+		runExperiments(szVideoFileName, listConfigurations, callback);
+	}
+
+	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
+	{
+		helper::avcodec::Context codecContex;
+
+		if (codecContex.decodeVideoFile(szVideoFileName.c_str(), yuvFrames) != helper::avcodec::Error::Success) {
+			helper::Log::error("Error decode video...");
+			return false;
+		}
+
+		m_originalCodecParameters = codecContex.getCodecParameters();
+
+		return true;
+	}
+
+	void Benchmark::runExperiments(
+		const std::string& szVideoFileName,
+		const std::vector<Configuration>& listConfigurations,
+		std::function<void()> callback
+	)
+	{
+		// Decode original video
+		types::PacketList yuvFrames;
+		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
+			helper::Log::error("Error decoding...");
+		}
+
+		// Create video dump directory
+		fs::remove_all(DumpDir);
+		fs::create_directory(DumpDir);
 
 		// Keep previous locale
 		std::string szCurrentNumericLocale = std::setlocale(LC_NUMERIC, nullptr);
