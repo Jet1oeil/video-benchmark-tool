@@ -158,8 +158,8 @@ namespace vmaf {
 				prevConfig.szPreset = configJSON["preset"];
 
 				Results prevResult;
-				prevResult.dDecdodingTime = resultsJSON["decoding_time"];
-				prevResult.dEncodingTime = resultsJSON["encoding_time"];
+				prevResult.iDecodingTime = resultsJSON["decoding_time"];
+				prevResult.iEncodingTime = resultsJSON["encoding_time"];
 				prevResult.dVMAFScore = resultsJSON["vmaf"];
 				prevResult.iBitstreamSize = resultsJSON["bitstream_size"];
 

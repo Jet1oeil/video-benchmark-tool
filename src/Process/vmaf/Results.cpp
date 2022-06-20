@@ -28,8 +28,8 @@ namespace vmaf {
 				"results", {
 					{ "vmaf", value.dVMAFScore },
 					{ "bitstream_size", value.iBitstreamSize },
-					{ "encoding_time", value.dEncodingTime },
-					{ "decoding_time", value.dDecdodingTime },
+					{ "encoding_time", value.iEncodingTime },
+					{ "decoding_time", value.iDecodingTime },
 				}
 			};
 

@@ -137,7 +137,7 @@ namespace vmaf {
 					logAndProgress("Encode error...");
 					continue;
 				}
-				results.dEncodingTime = clock.getDuration().count();
+				results.iEncodingTime = clock.getDuration().count();
 			}
 
 			// Filename
@@ -182,7 +182,7 @@ namespace vmaf {
 					logAndProgress("Decode transcoded video error...");
 					continue;
 				}
-				results.dDecdodingTime = clock.getDuration().count();
+				results.iDecodingTime = clock.getDuration().count();
 			}
 
 			if (m_yuvFrames.size() != transcodedYUVFrames.size()) {
