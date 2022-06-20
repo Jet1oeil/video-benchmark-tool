@@ -26,6 +26,8 @@
 #include <fstream>
 #include <mutex>
 
+#include <json.hpp>
+
 #include "Helper/AVCodecHelper.h"
 #include "Helper/AVFormatHelper.h"
 #include "Helper/Log.h"
@@ -33,6 +35,8 @@
 #include "Configuration.h"
 
 namespace fs = std::filesystem;
+
+using json = nlohmann::json;
 
 namespace vmaf {
 	const std::filesystem::path Benchmark::DumpDir = "dump";
@@ -129,6 +133,46 @@ namespace vmaf {
 			return;
 		}
 
+		// Load the previous results from dump dir
+		for (const auto& dirEntry : fs::directory_iterator(DumpDir)) {
+			if (dirEntry.is_regular_file() && dirEntry.path().extension() == ".json") {
+				fs::path resultPath = dirEntry.path();
+
+				json experimentJSON;
+				std::ifstream resultFile(resultPath);
+				if (!resultFile.good()) {
+					helper::Log::error("Unable to open the previous result file: '%s'", resultPath.c_str());
+					return;
+				}
+
+				resultFile >> experimentJSON;
+
+				assert(experimentJSON["experiments"].size() == 1);
+				json configJSON = experimentJSON["experiments"][0]["key"];
+				json resultsJSON = experimentJSON["experiments"][0]["results"];
+
+				Configuration prevConfig;
+				prevConfig.codecType = configJSON["codec_id"];
+				prevConfig.iBitrate = configJSON["bitrate"];
+				prevConfig.iCRF = configJSON["crf"];
+				prevConfig.szPreset = configJSON["preset"];
+
+				Results prevResult;
+				prevResult.dDecdodingTime = resultsJSON["decoding_time"];
+				prevResult.dEncodingTime = resultsJSON["encoding_time"];
+				prevResult.dVMAFScore = resultsJSON["vmaf"];
+				prevResult.iBitstreamSize = resultsJSON["bitstream_size"];
+
+				auto [_, inserted] = m_results.insert(std::make_pair(prevConfig, prevResult));
+				if (!inserted) {
+					helper::Log::error("Unable to insert previous results...");
+					return;
+				}
+			}
+		}
+
+		helper::Log::info("Load %d previous results...", m_results.size());
+
 		runExperiments(szVideoFileName, listConfigurations, callback);
 	}
 
@@ -158,9 +202,11 @@ namespace vmaf {
 			helper::Log::error("Error decoding...");
 		}
 
-		// Create video dump directory
-		fs::remove_all(DumpDir);
-		fs::create_directory(DumpDir);
+		// Create video dump directory -- skiping if we resume a run
+		if (m_results.empty()) {
+			fs::remove_all(DumpDir);
+			fs::create_directory(DumpDir);
+		}
 
 		// Keep previous locale
 		std::string szCurrentNumericLocale = std::setlocale(LC_NUMERIC, nullptr);
@@ -178,7 +224,10 @@ namespace vmaf {
 		m_experiment->start();
 
 		m_experiment->wait();
-		m_results = m_experiment->getResults();
+
+		// Append new results to old results (for the resume case)
+		auto experimentResults = m_experiment->getResults();
+		m_results.insert(experimentResults.begin(), experimentResults.end());
 
 		// Format filename
 		std::array<char, 256> dateTimeText = { 0 };
