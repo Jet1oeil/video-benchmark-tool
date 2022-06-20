@@ -171,7 +171,7 @@ namespace vmaf {
 			}
 		}
 
-		helper::Log::info("Load %d previous results...", m_results.size());
+		helper::Log::info("Load %lu previous results...", m_results.size());
 
 		runExperiments(szVideoFileName, listConfigurations, callback);
 	}
