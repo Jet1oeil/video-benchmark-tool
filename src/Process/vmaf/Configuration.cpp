@@ -29,6 +29,8 @@
 
 #include "Helper/Log.h"
 
+#include "Benchmark.h"
+
 namespace fs = std::filesystem;
 
 using json = nlohmann::json;
@@ -46,7 +48,7 @@ namespace vmaf {
 	{
 		json jDocument;
 
-		std::ifstream configFile(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
+		std::ifstream configFile(Benchmark::CurrentConfigList);
 
 		if (!configFile.good()) {
 			return false;
@@ -77,7 +79,7 @@ namespace vmaf {
 			);
 		}
 
-		std::ofstream configFile(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
+		std::ofstream configFile(Benchmark::CurrentConfigList);
 
 		if (!configFile.good()) {
 			return false;

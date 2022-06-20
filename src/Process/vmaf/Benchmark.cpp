@@ -36,6 +36,7 @@ namespace fs = std::filesystem;
 
 namespace vmaf {
 	const std::filesystem::path Benchmark::DumpDir = "dump";
+	const std::filesystem::path Benchmark::CurrentConfigList = fs::temp_directory_path() / "vmaf-benchmark-configs.json";
 
 	void Benchmark::reset()
 	{

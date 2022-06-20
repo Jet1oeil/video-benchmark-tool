@@ -236,7 +236,7 @@ namespace vmaf {
 		}
 
 		// When experiments are finished, clear the the resume configuration file
-		fs::remove(fs::temp_directory_path() / "vmaf-benchmark-configs.json");
+		fs::remove(Benchmark::CurrentConfigList);
 	}
 
 	bool Experiment::stoleTask(Configuration& configuration)

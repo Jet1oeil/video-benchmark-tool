@@ -54,6 +54,7 @@ namespace vmaf {
 
 	public:
 		static const std::filesystem::path DumpDir;
+		static const std::filesystem::path CurrentConfigList;
 
 	private:
 		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
