@@ -118,6 +118,20 @@ namespace vmaf {
 		runExperiments(szVideoFileName, listConfigurations, callback);
 	}
 
+	void Benchmark::resume(std::function<void()> callback)
+	{
+		// Load the previous json configuration list
+		std::string szVideoFileName;
+		std::vector<Configuration> listConfigurations;
+		bool res = readConfigurationList(szVideoFileName, listConfigurations);
+		if (!res || szVideoFileName.empty() || listConfigurations.empty()) {
+			helper::Log::error("Unable to load the previous experiment steps...");
+			return;
+		}
+
+		runExperiments(szVideoFileName, listConfigurations, callback);
+	}
+
 	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
 	{
 		helper::avcodec::Context codecContex;

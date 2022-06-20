@@ -33,6 +33,7 @@ namespace vmaf {
 
 	bool updateConfigurationListFile(const std::vector<Configuration> &listConfigurations);
 	bool writeConfigurationList(const std::string& videoFile, const std::vector<Configuration> &listConfigurations);
+	bool readConfigurationList(std::string& szVideoFileName, std::vector<Configuration> &listConfigurations);
 }
 
 #endif // VMAF_CONFIGURATION_H_

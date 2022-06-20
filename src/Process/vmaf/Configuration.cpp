@@ -87,7 +87,33 @@ namespace vmaf {
 
 		configFile << jDocument;
 
-		helper::Log::debug("%s", jDocument.dump(4).c_str());
+		return true;
+	}
+
+	bool readConfigurationList(std::string& szVideoFileName, std::vector<Configuration> &listConfigurations)
+	{
+		std::ifstream configFile(Benchmark::CurrentConfigList);
+
+		if (!configFile.good()) {
+			return false;
+		}
+
+		json jDocument;
+		configFile >> jDocument;
+
+		// Load the video source
+		szVideoFileName = jDocument["video_source"];
+
+		// Load remaining configuration from the previous run
+		for (const auto& configuration: jDocument["configurations"]) {
+			Configuration resumeConfig;
+			resumeConfig.codecType = configuration["codec_type"];
+			resumeConfig.iCRF = configuration["crf"];
+			resumeConfig.szPreset = configuration["preset"];
+			resumeConfig.iBitrate = configuration["bitrate"];
+
+			listConfigurations.push_back(resumeConfig);
+		}
 
 		return true;
 	}

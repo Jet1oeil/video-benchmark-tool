@@ -60,6 +60,7 @@ int run_cli(int argc, char *argv[])
 {
 	cli::OptionParser parser;
 	parser.registerOption("cli");
+	parser.registerOption("resume");
 	parser.registerOption("video-source", "no-defined");
 	parser.registerOption("codec-list", "all");
 	parser.registerOption("crf", "0-51");
@@ -74,6 +75,7 @@ int run_cli(int argc, char *argv[])
 		std::cerr << "    " << argv[0] << " [OPTION]" << std::endl;
 		std::cerr << "CLI option:" << std::endl;
 		std::cerr << "    --cli: use cli interface" << std::endl;
+		std::cerr << "    --resume: start the experimentation from the last configuration (other parameters will be ignored)" << std::endl;
 		std::cerr << "    --video-source VIDEO_PATH: set the video source (mandatory)" << std::endl;
 		std::cerr << "    --crf DOWN-UP | --crf VAL: define the crf level (between 0-51)" << std::endl;
 		std::cerr << "    --codec-list LIST: set selected codecs separated by comma (default: all)" << std::endl;
@@ -90,6 +92,16 @@ int run_cli(int argc, char *argv[])
 		}
 		std::cerr << "    --bitrate-list VALUE1[,VALUE2...]: define the bitrate list (values are separated by comma) (default 200000,400000,600000,800000,1200000,1400000,1600000,1800000,2000000,2500000,3000000,3500000,4000000,5000000,6000000,7000000,8000000)" << std::endl;
 	};
+
+	// Resume from the last experiment
+	if (parser["resume"]) {
+		// Run VMAF benchmark
+		vmaf::Benchmark benchmark;
+
+		benchmark.resume();
+
+		return 0;
+	}
 
 	if (!parser["video-source"]) {
 		printUsage("A video source must be defined");

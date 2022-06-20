@@ -50,6 +50,8 @@ namespace vmaf {
 			std::function<void()> callback = std::function<void()>()
 		);
 
+		void resume(std::function<void()> callback = std::function<void()>());
+
 		void abort();
 
 	public:
