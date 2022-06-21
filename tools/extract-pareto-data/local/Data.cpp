@@ -25,6 +25,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <set>
 #include <sstream>
 
 #include <json.hpp>
@@ -152,12 +153,17 @@ namespace local {
 		return results;
 	}
 
-	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit)
+	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit, const std::string& prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
 			return entry.result.VMAF < limit;
 		}), resultsCopy.end());
+
+		if (resultsCopy.empty()) {
+			std::cout << "No results for this contraint: " << prefix << " -> VMAF < " << std::to_string(limit) << std::endl;
+			return;
+		}
 
 		assert(resultsCopy.size() > 0);
 
@@ -171,7 +177,7 @@ namespace local {
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-vmaf-" + niceNum(limit, 1) + ".dat");
+		std::ofstream dataFile(prefix + "fixed-vmaf-" + niceNum(limit, 1) + ".dat");
 
 		double minEncoding = resultsCopy[0].result.encodingTime;
 		for (const auto& result: resultsCopy) {
@@ -182,12 +188,19 @@ namespace local {
 		}
 	}
 
-	void fixedEncodingTime(ExperimentResults resultsCopy, double limit)
+	void fixedEncodingTime(ExperimentResults resultsCopy, double limit, const std::string& prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
 			return entry.result.encodingTime > limit;
 		}), resultsCopy.end());
+
+		if (resultsCopy.empty()) {
+			std::cout << "No results for this contraint: " << prefix << " -> encoding < " << std::to_string(limit) << std::endl;
+			return;
+		}
+
+		assert(resultsCopy.size() > 0);
 
 		// Remove duplicate
 		std::sort(resultsCopy.begin(), resultsCopy.end());
@@ -199,7 +212,7 @@ namespace local {
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-encoding-time-" + niceNum(limit, 0.1) + "x.dat");
+		std::ofstream dataFile(prefix + "fixed-encoding-time-" + niceNum(limit, 0.1) + "x.dat");
 
 		double maxQuality = resultsCopy[0].result.VMAF;
 		for (const auto& result: resultsCopy) {
@@ -210,12 +223,17 @@ namespace local {
 		}
 	}
 
-	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit)
+	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit, const std::string& prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
 			return entry.result.bitstreamSize > limit;
 		}), resultsCopy.end());
+
+		if (resultsCopy.empty()) {
+			std::cout << "No results for this contraint: " << prefix << " -> bitstream size < " << std::to_string(limit) << std::endl;
+			return;
+		}
 
 		// Remove duplicate
 		std::sort(resultsCopy.begin(), resultsCopy.end());
@@ -227,13 +245,38 @@ namespace local {
 		});
 
 		// Write results to a file
-		std::ofstream dataFile("fixed-bitstream-size-" + niceNum(limit, 0.1) + "x.dat");
+		std::ofstream dataFile(prefix + "fixed-bitstream-size-" + niceNum(limit, 0.1) + "x.dat");
 
 		double maxQuality = resultsCopy[0].result.VMAF;
 		for (const auto& result: resultsCopy) {
 			if (result.result.VMAF >= maxQuality) {
 				maxQuality = result.result.VMAF;
 				dataFile << result.config.toString() << "\t" << result.result.VMAF << "\t" << result.result.bitstreamSize << "\t" << result.result.encodingTime << std::endl;
+			}
+		}
+	}
+
+	void separatedCodec(ExperimentResults resultsCopy)
+	{
+		std::map<std::string, std::vector<ExperimentResultEntry>> resultsByCodecName;
+		for (const auto& result: resultsCopy) {
+			resultsByCodecName[result.config.szCodecName].push_back(result);
+		}
+
+		std::cout << "number of different codecs: " << resultsByCodecName.size() << std::endl;
+
+		// Iterate over codecs
+		for (const auto& [codec, results]: resultsByCodecName) {
+			for (int i = 70; i <= 95; i += 5) {
+				local::fixedVMAFPareto(results, i, codec);
+			}
+
+			for (double i = 0.1; i <= 1.5; i += 0.1) {
+				local::fixedEncodingTime(results, i, codec);
+			}
+
+			for (double i = 0.5; i <= 1.5; i += 0.1) {
+				local::fixedBitstreamsize(results, i, codec);
 			}
 		}
 	}
