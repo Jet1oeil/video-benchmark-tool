@@ -54,9 +54,9 @@ namespace local {
 	using ExperimentResults = std::vector<ExperimentResultEntry>;
 
 	ExperimentResults loadExperimentResults(const std::filesystem::path& filePath, double originalSize, double originalDuration);
-	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit, const std::string& prefix = "");
-	void fixedEncodingTime(ExperimentResults resultsCopy, double limit, const std::string& prefix = "");
-	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit, const std::string& prefix = "");
+	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit, std::string prefix = "");
+	void fixedEncodingTime(ExperimentResults resultsCopy, double limit, std::string prefix = "");
+	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit, std::string prefix = "");
 	void separatedCodec(ExperimentResults resultsCopy);
 }
 

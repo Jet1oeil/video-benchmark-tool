@@ -94,6 +94,10 @@ namespace {
 
 		return ss.str();
 	}
+
+	void trim(std::string& str) {
+		str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
+	}
 }
 
 namespace local {
@@ -114,7 +118,7 @@ namespace local {
 		}
 
 		// Trim space
-		name.erase(std::remove(name.begin(), name.end(), ' '), name.end());
+		trim(name);
 
 		return name;
 	}
@@ -166,7 +170,7 @@ namespace local {
 		return results;
 	}
 
-	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit, const std::string& prefix)
+	void fixedVMAFPareto(ExperimentResults resultsCopy, double limit, std::string prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
@@ -176,6 +180,11 @@ namespace local {
 		if (resultsCopy.empty()) {
 			std::cout << "No results for this contraint: " << prefix << " -> VMAF < " << std::to_string(limit) << std::endl;
 			return;
+		}
+
+		if (!prefix.empty()) {
+			trim(prefix);
+			prefix += "-";
 		}
 
 		assert(resultsCopy.size() > 0);
@@ -201,7 +210,7 @@ namespace local {
 		}
 	}
 
-	void fixedEncodingTime(ExperimentResults resultsCopy, double limit, const std::string& prefix)
+	void fixedEncodingTime(ExperimentResults resultsCopy, double limit, std::string prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
@@ -211,6 +220,11 @@ namespace local {
 		if (resultsCopy.empty()) {
 			std::cout << "No results for this contraint: " << prefix << " -> encoding < " << std::to_string(limit) << std::endl;
 			return;
+		}
+
+		if (!prefix.empty()) {
+			trim(prefix);
+			prefix += "-";
 		}
 
 		assert(resultsCopy.size() > 0);
@@ -236,7 +250,7 @@ namespace local {
 		}
 	}
 
-	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit, const std::string& prefix)
+	void fixedBitstreamsize(ExperimentResults resultsCopy, double limit, std::string prefix)
 	{
 		// Remove config which exceed the encoding time limit or with insufisent quality
 		resultsCopy.erase(std::remove_if(resultsCopy.begin(), resultsCopy.end(), [limit](const auto& entry) {
@@ -247,6 +261,13 @@ namespace local {
 			std::cout << "No results for this contraint: " << prefix << " -> bitstream size < " << std::to_string(limit) << std::endl;
 			return;
 		}
+
+		if (!prefix.empty()) {
+			trim(prefix);
+			prefix += "-";
+		}
+
+		assert(resultsCopy.size() > 0);
 
 		// Remove duplicate
 		std::sort(resultsCopy.begin(), resultsCopy.end());
