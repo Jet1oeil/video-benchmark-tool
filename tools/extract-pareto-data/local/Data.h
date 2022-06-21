@@ -32,6 +32,7 @@ namespace local {
 		std::string szCodecName;
 		std::string szPreset;
 		int iCRF;
+		int iBitrate;
 
 		std::string toString() const;
 	};

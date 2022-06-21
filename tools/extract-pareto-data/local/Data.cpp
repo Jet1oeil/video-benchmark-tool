@@ -99,7 +99,19 @@ namespace {
 namespace local {
 	std::string Configuration::toString() const
 	{
-		std::string name = szCodecName + "-" + szPreset + "-crf-" + paddingNum(iCRF, 2);
+		std::string name = szCodecName;
+
+		if (szPreset != "none") {
+			name += "-" + szPreset;
+		}
+
+		if (iCRF >= 0) {
+			name += "-crf-" + paddingNum(iCRF, 2);
+		}
+
+		if (iBitrate >= 0) {
+			name += "-bitrate-" + paddingNum(iBitrate, 7);
+		}
 
 		// Trim space
 		name.erase(std::remove(name.begin(), name.end(), ' '), name.end());
@@ -138,7 +150,8 @@ namespace local {
 			Configuration config = {
 				experiment["key"]["codec_name"],
 				experiment["key"]["preset"],
-				experiment["key"]["crf"]
+				experiment["key"]["crf"],
+				experiment["key"]["bitrate"]
 			};
 
 			ExperimentResult result = {
