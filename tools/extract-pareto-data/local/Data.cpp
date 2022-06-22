@@ -279,7 +279,7 @@ namespace local {
 		});
 
 		// Write results to a file
-		std::ofstream dataFile(prefix + "fixed-bitstream-size-" + niceNum(limit, 0.1) + "x.dat");
+		std::ofstream dataFile(prefix + "fixed-bitstream-size-" + niceNum(limit, 0.001) + "x.dat");
 
 		double maxQuality = resultsCopy[0].result.VMAF;
 		for (const auto& result: resultsCopy) {
@@ -305,11 +305,11 @@ namespace local {
 				local::fixedVMAFPareto(results, i, codec);
 			}
 
-			for (double i = 0.1; i <= 1.5; i += 0.1) {
+			for (double i = 0.1; i < 1.7; i += 0.1) {
 				local::fixedEncodingTime(results, i, codec);
 			}
 
-			for (double i = 0.5; i <= 1.5; i += 0.1) {
+			for (double i = 0.01; i < 0.051; i += 0.002) {
 				local::fixedBitstreamsize(results, i, codec);
 			}
 		}
