@@ -40,17 +40,17 @@ int main(int argc, char* argv[])
 	auto exps = local::loadExperimentResults(argv[1], originalSize, originalDuration);
 	assert(exps.size() > 0);
 
-	// for (int i = 70; i <= 95; i += 5) {
-	// 	local::fixedVMAFPareto(exps, i);
-	// }
+	for (int i = 70; i <= 95; i += 5) {
+		local::fixedVMAFPareto(exps, i);
+	}
 
-	// for (double i = 0.1; i <= 1.5; i += 0.1) {
-	// 	local::fixedEncodingTime(exps, i);
-	// }
+	for (double i = 0.1; i < 1.7; i += 0.1) {
+		local::fixedEncodingTime(exps, i);
+	}
 
-	// for (double i = 0.5; i <= 1.5; i += 0.1) {
-	// 	local::fixedBitstreamsize(exps, i);
-	// }
+	for (double i = 0.01; i < 0.051; i += 0.002) {
+		local::fixedBitstreamsize(exps, i);
+	}
 
 	separatedCodec(exps);
 
