@@ -23,6 +23,7 @@
 #define VMAF_CONFIGURATION_H_
 
 #include <vector>
+#include <filesystem>
 
 #include "Types/Codec.h"
 
@@ -31,9 +32,15 @@ namespace vmaf {
 		bool operator<(const Configuration& other) const;
 	};
 
+	std::vector<Configuration> generateAllConfigurations();
+	std::vector<Configuration> generateConfigurationsFromJSON(const std::filesystem::path& configFile);
+
 	bool updateConfigurationListFile(const std::vector<Configuration> &listConfigurations);
 	bool writeConfigurationList(const std::string& videoFile, const std::vector<Configuration> &listConfigurations);
 	bool readConfigurationList(std::string& szVideoFileName, std::vector<Configuration> &listConfigurations);
+
+	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::pair<int, int>& crfBounds, const std::vector<std::string>& listPresets);
+	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::vector<int>& listBitrate);
 }
 
 #endif // VMAF_CONFIGURATION_H_

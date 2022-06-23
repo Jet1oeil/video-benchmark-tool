@@ -30,13 +30,13 @@
 
 namespace types {
 	enum class CodecType {
-		X264Baseline,
-		X264Main,
-		X264High,
-		X265Main,
-		OpenH264Baseline, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
-		OpenH264High, // OpenH264 may be unstable https://github.com/cisco/openh264#encoder-features
-		Undefined,
+		X264Baseline		=  0,
+		X264Main			=  1,
+		X264High			=  2,
+		X265Main			=  3,
+		OpenH264Baseline	=  4, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
+		OpenH264High		=  5, // OpenH264 may be unstable https://github.com/cisco/openh264#encoder-features
+		Undefined			= -1,
 	};
 
 	const char* getCodecName(CodecType codec);
@@ -63,7 +63,7 @@ namespace types {
 		"openh264 - high",
 	};
 
-	constexpr std::array<const char*, 10> PresetList = {
+	const std::vector<std::string> PresetList = {
 		"ultrafast",
 		"superfast",
 		"veryfast",

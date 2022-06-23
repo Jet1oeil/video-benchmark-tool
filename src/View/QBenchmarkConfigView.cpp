@@ -164,9 +164,9 @@ namespace view {
 		pCRFGroupBox->setLayout(pCRFLayout);
 
 		// Preset selection
-		for (auto& preset: types::PresetList) {
+		for (const auto& preset: types::PresetList) {
 			// No tr needed since it's libx264/265 implementation names
-			m_listPresetCheckbox.append(new QCheckBox(preset, this));
+			m_listPresetCheckbox.append(new QCheckBox(preset.c_str(), this));
 		}
 
 		QGroupBox *pPresetGroupBox = new QGroupBox(tr("Preset selection"));

@@ -116,11 +116,15 @@ namespace ctrl {
 		int iTotalExperiments = listCodec.size() * (iMaxCRF - iMinCRF + 1) * listPreset.size();
 		m_mainView.getBenchmarkProgressView().setTotalExperiment(iTotalExperiments);
 
+		// FIXME: Dosen't work the other codec than x264 x265 (waiting for GUI rework)
+		std::vector<vmaf::Configuration> listConfigurations;
+		vmaf::generateConfigurations(listConfigurations, listCodec, std::make_pair(iMinCRF, iMaxCRF), listPreset);
+
 		// TODO: need to check previous thread ?
 		m_thread = std::thread([=]{
 			m_vmafBenchmark.reset();
 
-			m_vmafBenchmark.start(szVideoFileName.toStdString(), listCodec, std::make_pair(iMinCRF, iMaxCRF), std::vector({2000000}), listPreset, callback);
+			m_vmafBenchmark.start(szVideoFileName.toStdString(), listConfigurations, callback);
 		});
 	}
 

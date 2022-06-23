@@ -43,10 +43,7 @@ namespace vmaf {
 
 		void start(
 			const std::string& szVideoFileName,
-			const CodecList& listCodec,
-			std::pair<int, int> crfRange,
-			std::vector<int> listBitrate,
-			const std::vector<std::string>& listPreset,
+			const std::vector<Configuration>& listConfigurations,
 			std::function<void()> callback = std::function<void()>()
 		);
 
