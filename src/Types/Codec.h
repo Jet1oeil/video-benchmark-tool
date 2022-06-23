@@ -35,7 +35,7 @@ namespace types {
 		X264High,
 		X265Main,
 		OpenH264Baseline, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
-		OpenH264High, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
+		OpenH264High, // OpenH264 may be unstable https://github.com/cisco/openh264#encoder-features
 		Undefined,
 	};
 
