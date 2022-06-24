@@ -344,12 +344,14 @@ namespace vmaf {
 		}
 
 		if (configJSON.contains("vp9")) {
-			helper::Log::info("vp8 parameters:");
+			helper::Log::info("vp9 parameters:");
 
 			json vp9Params = configJSON["vp9"];
 
 			// Get bitrate
-			auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate, vp9Params);
+			auto listVP9Bitrate = listDefaultOpenH264VP8Bitrate;
+			listVP9Bitrate.push_back(0);
+			auto listBitrate = generateBitrate(listVP9Bitrate, vp9Params);
 
 			// Get CRF bounds
 			auto crfBounds = generateCRFBounds({1, 63}, vp9Params);
@@ -357,7 +359,7 @@ namespace vmaf {
 			// Get preset
 			auto listPreset = generatePresets(types::VPXPresetList, vp9Params);
 
-			// Create all vp8 configurations
+			// Create all vp9 configurations
 			generateConfigurations(listConfigurations, {types::CodecType::VP9}, listBitrate, crfBounds, listPreset);
 		}
 
