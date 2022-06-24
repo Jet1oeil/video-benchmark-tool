@@ -125,7 +125,9 @@ namespace view {
 		QHBoxLayout* pLayout = new QHBoxLayout();
 
 		// Codec selection
-		for (auto& codec: types::CodecList) {
+		for (int i = 0; i <= 3; ++i) {
+			const auto& codec = types::CodecList[i];
+
 			// No tr needed since it's libx264/265 implementation names
 			m_listCodecCheckbox.append(new QCheckBox(codec, this));
 		}
