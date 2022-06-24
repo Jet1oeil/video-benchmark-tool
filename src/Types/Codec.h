@@ -63,7 +63,7 @@ namespace types {
 		"openh264 - high",
 	};
 
-	const std::vector<std::string> PresetList = {
+	const std::vector<std::string> X264X265PresetList = {
 		"ultrafast",
 		"superfast",
 		"veryfast",

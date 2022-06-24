@@ -198,7 +198,7 @@ namespace vmaf {
 		auto crfBounds = generateCRFBounds({0, 51});
 
 		// Get preset
-		auto listPresets = generatePresets(types::PresetList);
+		auto listPresets = generatePresets(types::X264X265PresetList);
 
 		// Create all x264 configurations
 		generateConfigurations(listConfigurations, listCodec, crfBounds, listPresets);
@@ -211,7 +211,7 @@ namespace vmaf {
 		crfBounds = generateCRFBounds({0, 51});
 
 		// Get preset
-		listPresets = generatePresets(types::PresetList);
+		listPresets = generatePresets(types::X264X265PresetList);
 
 		// Create all x265 configurations
 		generateConfigurations(listConfigurations, { types::CodecType::X265Main }, crfBounds, listPresets);
@@ -255,7 +255,7 @@ namespace vmaf {
 			auto crfBounds = generateCRFBounds({0, 51}, x264Params);
 
 			// Get preset
-			auto listPresets = generatePresets(types::PresetList, x264Params);
+			auto listPresets = generatePresets(types::X264X265PresetList, x264Params);
 
 			// Create all x265 configurations
 			generateConfigurations(listConfigurations, listCodec, crfBounds, listPresets);
@@ -272,7 +272,7 @@ namespace vmaf {
 			auto crfBounds = generateCRFBounds({0, 51}, x265Params);
 
 			// Get preset
-			auto listPresets = generatePresets(types::PresetList, x265Params);
+			auto listPresets = generatePresets(types::X264X265PresetList, x265Params);
 
 			// Create all openh264 configurations
 			generateConfigurations(listConfigurations, { types::CodecType::X265Main }, crfBounds, listPresets);
