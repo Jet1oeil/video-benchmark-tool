@@ -50,6 +50,8 @@ namespace types {
 			return CodecType::OpenH264High;
 		} else if (codec == CodecList[6]) {
 			return CodecType::VP8;
+		} else if (codec == CodecList[7]) {
+			return CodecType::VP9;
 		}
 
 		return CodecType::Undefined;

@@ -188,6 +188,9 @@ namespace helper {
 				case types::CodecType::VP8:
 					return AV_CODEC_ID_VP8;
 
+				case types::CodecType::VP9:
+					return AV_CODEC_ID_VP9;
+
 				case types::CodecType::Undefined:
 					return AV_CODEC_ID_NONE;
 					// Nothing, fall to the assert
@@ -215,6 +218,9 @@ namespace helper {
 
 				case types::CodecType::VP8:
 					return "libvpx";
+
+				case types::CodecType::VP9:
+					return "libvpx-vp9";
 
 				case types::CodecType::Undefined:
 					// Nothing, fall to the assert
@@ -245,6 +251,7 @@ namespace helper {
 					return FF_PROFILE_H264_CONSTRAINED_BASELINE;
 
 				case types::CodecType::VP8:
+				case types::CodecType::VP9:
 				case types::CodecType::Undefined:
 					return FF_PROFILE_UNKNOWN;
 				}
@@ -597,7 +604,7 @@ namespace helper {
 				m_pContext->bit_rate = encoderParameters.iBitrate;
 				av_dict_set(&options, "rc_mode", "bitrate", 0);
 			}
-			else if (encoderParameters.codecType == types::CodecType::VP8) {
+			else if (encoderParameters.codecType == types::CodecType::VP8 ||encoderParameters.codecType == types::CodecType::VP9) {
 				m_pContext->bit_rate = encoderParameters.iBitrate;
 				av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
 				av_dict_set(&options, "quality", encoderParameters.szPreset.c_str(), 0);

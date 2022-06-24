@@ -232,16 +232,32 @@ namespace vmaf {
 		helper::Log::info("vp8 parameters:");
 
 		// Get bitrate
-		auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate);
+		listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate);
 
 		// Get CRF bounds
-		auto crfBounds = generateCRFBounds({4, 63});
+		crfBounds = generateCRFBounds({4, 63});
 
 		// Get preset
-		auto listPreset = generatePresets(types::VP8PresetList);
+		listPresets = generatePresets(types::VPXPresetList);
 
 		// Create all vp8 configurations
-		generateConfigurations(listConfigurations, {types::CodecType::VP8}, listBitrate, crfBounds, listPreset);
+		generateConfigurations(listConfigurations, {types::CodecType::VP8}, listBitrate, crfBounds, listPresets);
+
+		helper::Log::info("vp9 parameters:");
+
+		// Get bitrate
+		auto defaultBitrateVP9 = listDefaultOpenH264VP8Bitrate;
+		defaultBitrateVP9.push_back(0);
+		listBitrate = generateBitrate(defaultBitrateVP9);
+
+		// Get CRF bounds
+		crfBounds = generateCRFBounds({1, 63});
+
+		// Get preset
+		listPresets = generatePresets(types::VPXPresetList);
+
+		// Create all vp9 configurations
+		generateConfigurations(listConfigurations, {types::CodecType::VP9}, listBitrate, crfBounds, listPresets);
 
 		return listConfigurations;
 	}
@@ -321,10 +337,28 @@ namespace vmaf {
 			auto crfBounds = generateCRFBounds({4, 63}, vp8Params);
 
 			// Get preset
-			auto listPreset = generatePresets(types::VP8PresetList, vp8Params);
+			auto listPreset = generatePresets(types::VPXPresetList, vp8Params);
 
 			// Create all vp8 configurations
 			generateConfigurations(listConfigurations, {types::CodecType::VP8}, listBitrate, crfBounds, listPreset);
+		}
+
+		if (configJSON.contains("vp9")) {
+			helper::Log::info("vp8 parameters:");
+
+			json vp9Params = configJSON["vp9"];
+
+			// Get bitrate
+			auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate, vp9Params);
+
+			// Get CRF bounds
+			auto crfBounds = generateCRFBounds({1, 63}, vp9Params);
+
+			// Get preset
+			auto listPreset = generatePresets(types::VPXPresetList, vp9Params);
+
+			// Create all vp8 configurations
+			generateConfigurations(listConfigurations, {types::CodecType::VP9}, listBitrate, crfBounds, listPreset);
 		}
 
 		return listConfigurations;

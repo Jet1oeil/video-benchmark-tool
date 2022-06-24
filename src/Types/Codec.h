@@ -36,7 +36,8 @@ namespace types {
 		X265Main			=  3,
 		OpenH264Baseline	=  4, // OpenH264 only supports baseline https://github.com/cisco/openh264#encoder-features
 		OpenH264High		=  5, // OpenH264 may be unstable https://github.com/cisco/openh264#encoder-features
-		VP8					=  6, // OpenH264 may be unstable https://github.com/cisco/openh264#encoder-features
+		VP8					=  6,
+		VP9					=  7,
 		Undefined			= -1,
 	};
 
@@ -55,7 +56,7 @@ namespace types {
 		JPEG,       ///< the normal     2^n-1   "JPEG" YUV ranges,
 	};
 
-	constexpr std::array<const char*, 7> CodecList = {
+	constexpr std::array<const char*, 8> CodecList = {
 		"x264 - baseline",
 		"x264 - main",
 		"x264 - high",
@@ -63,6 +64,7 @@ namespace types {
 		"openh264 - baseline",
 		"openh264 - high",
 		"vp8",
+		"vp9",
 	};
 
 	const std::vector<std::string> X264X265PresetList = {
@@ -78,7 +80,7 @@ namespace types {
 		"placebo",
 	};
 
-	const std::vector<std::string> VP8PresetList = {
+	const std::vector<std::string> VPXPresetList = {
 		"best",
 		"good",
 		"realtime",
