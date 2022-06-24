@@ -50,7 +50,7 @@ for limit = 0.010:0.002:0.050
 	hold off;
 
 	xlim([0 0.5])
-	ylim([50 100])
+	ylim([70 100])
 
 	t = sprintf("Comparaison between codecs with fixed compression ratio at %0.3f", limit);
 	title(t);

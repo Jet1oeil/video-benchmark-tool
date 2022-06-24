@@ -28,7 +28,12 @@ codec_list = {
 	"x265-main";
 };
 
+
+
 for limit = 70:5:95
+	# Get the max for zoom the curves
+	max_y = 0;
+
 	clf;
 
 	hold on;
@@ -44,12 +49,14 @@ for limit = 70:5:95
 
 		res = importdata(filename, "\t");
 		plot(res.data(:,2), res.data(:,3), "-o", 'DisplayName', codec);
+
+		max_y = max(max_y, max(res.data(:,3)));
 	endfor
-	plot([0.012 0.012], [0 1.75], '--k', 'DisplayName', "Original ratio (H.265)");
+	plot([0.010 0.010], [0 1.75], '--k', 'DisplayName', "Original ratio (H.265)");
 
 	hold off;
 
-	ylim([0 1.75])
+	ylim([0 min(max_y, 1.75)])
 
 	t = sprintf("Comparaison between codecs with fixed vmaf at %d", limit);
 	title(t);

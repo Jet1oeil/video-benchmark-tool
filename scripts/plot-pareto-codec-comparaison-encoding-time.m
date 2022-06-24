@@ -45,7 +45,7 @@ for limit = 0.2:0.2:1.6
 		res = importdata(filename, "\t");
 		plot(res.data(:,2), res.data(:,1), "-o", 'DisplayName', codec);
 	endfor
-	plot([0.012 0.012], [70 100], '--k', 'DisplayName', "Original ratio (H.265)");
+	plot([0.010 0.010], [70 100], '--k', 'DisplayName', "Original ratio (H.265)");
 
 	hold off;
 
