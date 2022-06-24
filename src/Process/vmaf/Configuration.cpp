@@ -229,6 +229,20 @@ namespace vmaf {
 		// Create all openh264 configurations
 		generateConfigurations(listConfigurations, listCodec, listBitrate);
 
+		helper::Log::info("vp8 parameters:");
+
+		// Get bitrate
+		auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate);
+
+		// Get CRF bounds
+		auto crfBounds = generateCRFBounds({4, 63});
+
+		// Get preset
+		auto listPreset = generatePresets(types::VP8PresetList);
+
+		// Create all vp8 configurations
+		generateConfigurations(listConfigurations, {types::CodecType::VP8}, listBitrate, crfBounds, listPreset);
+
 		return listConfigurations;
 	}
 
