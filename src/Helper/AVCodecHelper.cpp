@@ -185,6 +185,9 @@ namespace helper {
 				case types::CodecType::X265Main:
 					return AV_CODEC_ID_HEVC;
 
+				case types::CodecType::VP8:
+					return AV_CODEC_ID_VP8;
+
 				case types::CodecType::Undefined:
 					return AV_CODEC_ID_NONE;
 					// Nothing, fall to the assert
@@ -209,6 +212,9 @@ namespace helper {
 				case types::CodecType::OpenH264Baseline:
 				case types::CodecType::OpenH264High:
 					return "libopenh264";
+
+				case types::CodecType::VP8:
+					return "libvpx";
 
 				case types::CodecType::Undefined:
 					// Nothing, fall to the assert
@@ -238,6 +244,7 @@ namespace helper {
 				case types::CodecType::OpenH264Baseline:
 					return FF_PROFILE_H264_CONSTRAINED_BASELINE;
 
+				case types::CodecType::VP8:
 				case types::CodecType::Undefined:
 					return FF_PROFILE_UNKNOWN;
 				}
@@ -589,7 +596,14 @@ namespace helper {
 			if (encoderParameters.codecType == types::CodecType::OpenH264Baseline || encoderParameters.codecType == types::CodecType::OpenH264High) {
 				m_pContext->bit_rate = encoderParameters.iBitrate;
 				av_dict_set(&options, "rc_mode", "bitrate", 0);
-			} else {
+			}
+			else if (encoderParameters.codecType == types::CodecType::VP8) {
+				m_pContext->bit_rate = encoderParameters.iBitrate;
+				av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
+				av_dict_set(&options, "quality", encoderParameters.szPreset.c_str(), 0);
+			}
+			// For x264 or x265
+			else {
 				av_dict_set(&options, "crf", std::to_string(encoderParameters.iCRF).c_str(), 0);
 				av_dict_set(&options, "preset", encoderParameters.szPreset.c_str(), 0);
 			}
