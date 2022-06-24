@@ -24,30 +24,13 @@
 namespace types {
 	const char* getCodecName(CodecType codec)
 	{
-		switch (codec) {
-			case CodecType::X264Baseline:
-				return CodecList[0];
+		int iCodec = static_cast<int>(codec);
 
-			case CodecType::X264Main:
-				return CodecList[1];
-
-			case CodecType::X264High:
-				return CodecList[2];
-
-			case CodecType::X265Main:
-				return CodecList[3];
-
-			case CodecType::OpenH264Baseline:
-				return CodecList[4];
-
-			case CodecType::OpenH264High:
-				return CodecList[5];
-
-			case CodecType::Undefined:
-				return "undefined";
+		if (iCodec == -1) {
+			return "undefined";
 		}
 
-		return "undefined";
+		return CodecList[iCodec];
 	}
 
 
@@ -65,6 +48,8 @@ namespace types {
 			return CodecType::OpenH264Baseline;
 		} else if (codec == CodecList[5]) {
 			return CodecType::OpenH264High;
+		} else if (codec == CodecList[6]) {
+			return CodecType::VP8;
 		}
 
 		return CodecType::Undefined;

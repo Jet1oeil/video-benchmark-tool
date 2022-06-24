@@ -36,8 +36,8 @@ namespace fs = std::filesystem;
 using json = nlohmann::json;
 
 namespace {
-	// Default openh264 bitrate
-	const std::vector<int> listDefaultOpenH264Bitrate = {
+	// Default openh264/vp8 bitrate
+	const std::vector<int> listDefaultOpenH264VP8Bitrate = {
 		200000,
 		400000,
 		600000,
@@ -224,7 +224,7 @@ namespace vmaf {
 		listCodec = generateProfiles("openh264", {"baseline", "high"});
 
 		// Get bitrate
-		auto listBitrate = generateBitrate(listDefaultOpenH264Bitrate);
+		auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate);
 
 		// Create all openh264 configurations
 		generateConfigurations(listConfigurations, listCodec, listBitrate);
@@ -257,7 +257,7 @@ namespace vmaf {
 			// Get preset
 			auto listPresets = generatePresets(types::X264X265PresetList, x264Params);
 
-			// Create all x265 configurations
+			// Create all x264 configurations
 			generateConfigurations(listConfigurations, listCodec, crfBounds, listPresets);
 
 			helper::Log::info(" ");
@@ -274,7 +274,7 @@ namespace vmaf {
 			// Get preset
 			auto listPresets = generatePresets(types::X264X265PresetList, x265Params);
 
-			// Create all openh264 configurations
+			// Create all x265 configurations
 			generateConfigurations(listConfigurations, { types::CodecType::X265Main }, crfBounds, listPresets);
 
 			helper::Log::info(" ");
@@ -289,10 +289,28 @@ namespace vmaf {
 			auto listCodec = generateProfiles("openh264", {"baseline", "high"}, openh264Params);
 
 			// Get bitrate
-			auto listBitrate = generateBitrate(listDefaultOpenH264Bitrate, openh264Params);
+			auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate, openh264Params);
 
-			// Create all x264 configurations
+			// Create all openh264 configurations
 			generateConfigurations(listConfigurations, listCodec, listBitrate);
+		}
+
+		if (configJSON.contains("vp8")) {
+			helper::Log::info("vp8 parameters:");
+
+			json vp8Params = configJSON["vp8"];
+
+			// Get bitrate
+			auto listBitrate = generateBitrate(listDefaultOpenH264VP8Bitrate, vp8Params);
+
+			// Get CRF bounds
+			auto crfBounds = generateCRFBounds({4, 63}, vp8Params);
+
+			// Get preset
+			auto listPreset = generatePresets(types::VP8PresetList, vp8Params);
+
+			// Create all vp8 configurations
+			generateConfigurations(listConfigurations, {types::CodecType::VP8}, listBitrate, crfBounds, listPreset);
 		}
 
 		return listConfigurations;
@@ -404,6 +422,25 @@ namespace vmaf {
 				config.szPreset = "none";
 
 				listConfigurations.push_back(config);
+			}
+		}
+	}
+
+	// VP8
+	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::vector<int>& listBitrate, const std::pair<int, int>& crfBounds, const std::vector<std::string>& listPresets) {
+		for (auto codec: listCodec) {
+			for (auto bitrate: listBitrate) {
+				for (auto preset: listPresets) {
+					for (int i = crfBounds.first; i <= crfBounds.second; ++i) {
+						vmaf::Configuration config;
+						config.codecType = codec;
+						config.iBitrate = bitrate;
+						config.iCRF = i;
+						config.szPreset = preset;
+
+						listConfigurations.push_back(config);
+					}
+				}
 			}
 		}
 	}

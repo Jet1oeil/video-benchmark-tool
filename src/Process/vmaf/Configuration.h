@@ -41,6 +41,7 @@ namespace vmaf {
 
 	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::pair<int, int>& crfBounds, const std::vector<std::string>& listPresets);
 	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::vector<int>& listBitrate);
+	void generateConfigurations(std::vector<Configuration>& listConfigurations, const std::vector<types::CodecType>& listCodec, const std::vector<int>& listBitrate, const std::pair<int, int>& crfBounds, const std::vector<std::string>& listPresets);
 }
 
 #endif // VMAF_CONFIGURATION_H_
