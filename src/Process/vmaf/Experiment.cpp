@@ -28,6 +28,7 @@
 #include <sstream>
 
 #include "Helper/AVCodecHelper.h"
+#include "Helper/AVFormatHelper.h"
 #include "Helper/VMAFWrapper.h"
 
 #include "Helper/Log.h"
@@ -58,7 +59,7 @@ namespace {
 
 namespace vmaf {
 	Experiment::Experiment(
-		const types::PacketList& yuvFrames,
+		const types::FrameList& yuvFrames,
 		const types::CodecParameters& codecParameters,
 		const std::vector<Configuration>& listConfigurations,
 		std::mutex& mutexExperiments,
@@ -127,6 +128,21 @@ namespace vmaf {
 
 			Results results;
 
+			// Create the file base name
+			// Codec name
+			std::string codecName = types::getCodecName(currentConfiguration.codecType);
+			codecName.erase(std::remove_if(codecName.begin(), codecName.end(), [](auto c) {
+				return std::isspace(c);
+			}), codecName.end());
+
+			// Base name
+			std::string basename =
+				Benchmark::DumpDir.string() +
+				+ "/transcoded-video-codec-" + codecName
+				+ "-preset-" + currentConfiguration.szPreset
+				+ "-crf-" + helper::paddingNum(currentConfiguration.iCRF, 2)
+				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7);
+
 			// Encode the video
 			types::PacketList packets;
 			types::Clock clock;
@@ -138,42 +154,22 @@ namespace vmaf {
 					continue;
 				}
 				results.iEncodingTime = clock.getDuration().count();
-			}
 
-			// Filename
-			std::string codecName = types::getCodecName(currentConfiguration.codecType);
-			codecName.erase(std::remove_if(codecName.begin(), codecName.end(), [](auto c) {
-				return std::isspace(c);
-			}), codecName.end());
+				std::string extension;
+				if (currentConfiguration.codecType == types::CodecType::VP8 || currentConfiguration.codecType == types::CodecType::VP9) {
+					extension = ".webm";
+				} else {
+					extension = ".mp4";
+				}
 
-			std::ostringstream crfNumber;
-			crfNumber << std::setw(2) << std::setfill('0') << currentConfiguration.iCRF;
+				std::string filename = basename + extension;
 
-			std::string extension;
-			if (currentConfiguration.codecType == types::CodecType::X265Main) {
-				extension = ".h265";
-			} else {
-				extension = ".h264";
-			}
-
-			std::string filename =
-				"transcoded-video-codec-" + codecName
-				+ "-preset-" + currentConfiguration.szPreset
-				+ "-crf-" + crfNumber.str()
-				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7) + extension;
-
-			// Dump transcoded video
-			std::ofstream dumpFile(Benchmark::DumpDir / filename, std::ios::binary);
-			assert(dumpFile.good());
-
-			results.iBitstreamSize = 0;
-			for (const auto& packet: packets) {
-				results.iBitstreamSize += packet.size();
-				dumpFile.write(reinterpret_cast<const char*>(packet.data()), packet.size());
+				helper::avformat::Context muxer;
+				muxer.writeOutputFile(packets, encoder.getCodeContext(), filename.c_str());
 			}
 
 			// Decode the transcoded video
-			types::PacketList transcodedYUVFrames;
+			types::FrameList transcodedYUVFrames;
 			{
 				helper::avcodec::Context decoder;
 
@@ -216,11 +212,7 @@ namespace vmaf {
 			m_results.insert({ currentConfiguration, results });
 
 			// Generate json file path
-			filename =
-				"transcoded-video-codec-" + codecName
-				+ "-preset-" + currentConfiguration.szPreset
-				+ "-crf-" + crfNumber.str()
-				+ "-bitrate-" + helper::paddingNum(currentConfiguration.iBitrate, 7) + ".json";
+			std::string filename = basename + ".json";
 			fs::path jsonFilename = Benchmark::DumpDir / filename;
 
 			// Write results to dumps dir

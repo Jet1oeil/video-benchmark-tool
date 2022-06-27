@@ -80,14 +80,14 @@ namespace helper {
 		return true;
 	}
 
-	bool VMAFWrapper::computeMetrics(const types::PacketList& originalVideo, types::PacketList transcodedVideo)
+	bool VMAFWrapper::computeMetrics(const types::FrameList& originalVideo, const types::FrameList& transcodedVideo)
 	{
 		// FIXME: We only support 420P 8 bits format
 		assert(m_pixelFormat == VMAF_PIX_FMT_YUV420P);
 		assert(m_iPixelDepth == 8);
 		assert(originalVideo.size() == transcodedVideo.size());
 
-		auto loadPicture = [&](const types::Packet& yuvFrame, VmafPicture* pPicture) {
+		auto loadPicture = [&](const types::Frame& yuvFrame, VmafPicture* pPicture) {
 			if (vmaf_picture_alloc(pPicture, m_pixelFormat, m_iPixelDepth, m_iWidth, m_iHeight) != 0) {
 				return false;
 			}
@@ -109,14 +109,14 @@ namespace helper {
 		for (std::size_t i = 0; i < originalVideo.size(); ++i) {
 			helper::Log::debug("read frame #%lu", i);
 
-			const types::Packet& originalYUV = originalVideo[i];
+			const types::Frame& originalYUV = originalVideo[i];
 			VmafPicture referencePicture;
 			if (!loadPicture(originalYUV, &referencePicture)){
 				helper::Log::error("Error to load reference picture...");
 				return false;
 			}
 
-			const types::Packet& transcodedYUV = transcodedVideo[i];
+			const types::Frame& transcodedYUV = transcodedVideo[i];
 			VmafPicture transcodedPicture;
 			if (!loadPicture(transcodedYUV, &transcodedPicture)){
 				helper::Log::error("Error to load reference picture...");

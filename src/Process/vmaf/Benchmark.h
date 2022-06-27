@@ -56,7 +56,7 @@ namespace vmaf {
 		static const std::filesystem::path CurrentConfigList;
 
 	private:
-		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames);
+		bool decodeOriginalVideoFile(const std::string& szVideoFileName, types::FrameList& yuvFrames);
 		void runExperiments(
 			const std::string& szVideoFileName,
 			const std::vector<Configuration>& listConfigurations,

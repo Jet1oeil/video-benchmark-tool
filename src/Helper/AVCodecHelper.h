@@ -27,6 +27,8 @@
 #include "Types/Codec.h"
 #include "Types/Packet.h"
 
+#include "AVPacketHelper.h"
+
 extern "C" {
 	struct AVCodecContext;
 	struct AVCodec;
@@ -65,12 +67,13 @@ namespace helper {
 			Context& operator=(Context&&) = delete;
 
 			types::CodecParameters getCodecParameters() const;
+			const AVCodecContext* getCodeContext();
 
-			Error decodeVideoFile(const char* szVideoFileName, types::PacketList& yuvFrames);
-			Error decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::PacketList& yuvFrames);
+			Error decodeVideoFile(const char* szVideoFileName, types::FrameList& yuvFrames);
+			Error decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::FrameList& yuvFrames);
 
 			Error encodeFrameStream(
-				const types::PacketList& yuvFrames,
+				const types::FrameList& yuvFrames,
 				const types::CodecParameters& parameters,
 				const types::EncoderParameters& encoderParameters,
 				types::PacketList& packets
@@ -81,12 +84,12 @@ namespace helper {
 
 			Error openDecoder(const avformat::Context& formatContext);
 			Error openDecoder(types::CodecType codecType);
-			Error decodeVideoFrame(const AVPacket* pPacket, types::PacketList& yuvFrames);
-			Error decodePacket(avformat::Context& formatContext, types::PacketList& yuvFrames);
+			Error decodeVideoFrame(const AVPacket* pPacket, types::FrameList& yuvFrames);
+			Error decodePacket(avformat::Context& formatContext, types::FrameList& yuvFrames);
 
 			Error openEncoder(const types::CodecParameters& parameters, const types::EncoderParameters& encoderParameters);
 			Error encodeVideoFrame(const AVFrame* pFrame, types::PacketList& packets);
-			Error encodeFrame(const types::Packet& yuvFrame, types::PacketList& packets);
+			Error encodeFrame(const types::Frame& yuvFrame, types::PacketList& packets);
 
 		private:
 			AVCodecContext* m_pContext;

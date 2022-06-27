@@ -122,7 +122,7 @@ namespace vmaf {
 		runExperiments(szVideoFileName, listConfigurations, callback);
 	}
 
-	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::PacketList& yuvFrames)
+	bool Benchmark::decodeOriginalVideoFile(const std::string& szVideoFileName, types::FrameList& yuvFrames)
 	{
 		helper::avcodec::Context codecContex;
 
@@ -143,7 +143,7 @@ namespace vmaf {
 	)
 	{
 		// Decode original video
-		types::PacketList yuvFrames;
+		types::FrameList yuvFrames;
 		if (!decodeOriginalVideoFile(szVideoFileName, yuvFrames)) {
 			helper::Log::error("Error decoding...");
 		}

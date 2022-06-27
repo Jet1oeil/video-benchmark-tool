@@ -26,12 +26,14 @@ extern "C" {
 }
 
 #include "AVCodecHelper.h"
+#include "Log.h"
 
 namespace helper {
 	namespace avformat {
 		Context::Context()
 		: m_pContext(nullptr)
 		, m_pCodec(nullptr)
+		, m_mode(Mode::None)
 		{
 
 		}
@@ -39,7 +41,11 @@ namespace helper {
 		Context::~Context()
 		{
 			if (m_pContext != nullptr) {
-				avformat_close_input(&m_pContext);
+				if (m_mode == Mode::Input) {
+					avformat_close_input(&m_pContext);
+				} else if (m_mode == Mode::Output) {
+					avformat_free_context(m_pContext);
+				}
 			}
 		}
 
@@ -55,6 +61,8 @@ namespace helper {
 
 		Error Context::openFile(const char* szVideoFileName)
 		{
+			m_mode = Mode::Input;
+
 			if (avformat_open_input(&m_pContext, szVideoFileName, nullptr, nullptr) != 0) {
 				return Error::InvalidInputFile;
 			}
@@ -99,6 +107,66 @@ namespace helper {
 			}
 
 			return error;
+		}
+
+		Error Context::writeOutputFile(std::vector<helper::avpacket::Packet>& packets, const AVCodecContext* pCodecContext, const char* szOutputFile)
+		{
+			m_mode = Mode::Output;
+
+			m_pCodec = pCodecContext->codec;
+
+			// Allocate the output media context
+			int iRes = avformat_alloc_output_context2(&m_pContext, nullptr, nullptr, szOutputFile);
+			if (iRes < 0) {
+				return Error::ContextAllocation;
+			}
+
+			// Allocate the video stream
+			m_videoStream.pStream = avformat_new_stream(m_pContext, m_pCodec);
+			if (m_videoStream.pStream == nullptr) {
+				return Error::ContextAllocation;
+			}
+			m_videoStream.iIndex = m_videoStream.pStream->index;
+
+			// Copy codec parameter
+			iRes = avcodec_parameters_from_context(m_videoStream.pStream->codecpar, pCodecContext);
+			if (iRes < 0) {
+				return Error::ContextAllocation;
+			}
+
+			// Create AVIOcontext
+			iRes = avio_open(&m_pContext->pb, szOutputFile, AVIO_FLAG_WRITE);
+			if (iRes < 0) {
+				return Error::ContextAllocation;
+			}
+
+			// Define time base
+			m_videoStream.pStream->time_base = pCodecContext->time_base;
+
+			// Write header
+			iRes = avformat_write_header(m_pContext, nullptr);
+			if (iRes < 0) {
+				return Error::ContextAllocation;
+			}
+
+			for (auto& packet: packets) {
+				// rescale timestamp
+				av_packet_rescale_ts(packet.get(), pCodecContext->time_base, m_videoStream.pStream->time_base);
+				packet->stream_index = m_videoStream.pStream->index;
+
+				iRes = av_write_frame(m_pContext, packet.get());
+				if (iRes < 0) {
+					Log::error("Unable to mux packet...");
+					break;
+				}
+			}
+
+			iRes = av_write_trailer(m_pContext);
+			if (iRes < 0) {
+				return Error::ContextAllocation;
+			}
+
+			return Error::Success;
 		}
 	}
 }

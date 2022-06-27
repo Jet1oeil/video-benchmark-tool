@@ -25,9 +25,14 @@
 #include <cstdint>
 #include <vector>
 
+#include "Helper/AVPacketHelper.h"
+
 namespace types {
-	using Packet = std::vector<std::uint8_t>;
+	using Packet = helper::avpacket::Packet;
 	using PacketList = std::vector<Packet>;
+
+	using Frame = std::vector<uint8_t>;
+	using FrameList = std::vector<Frame>;
 }
 
 #endif // TYPES_PACKET_H_

@@ -19,70 +19,43 @@
  * SOFTWARE.
  */
 
-#ifndef HELPER_AVFORMAT_HELPER_H_
-#define HELPER_AVFORMAT_HELPER_H_
-
-#include <vector>
-
-#include "AVPacketHelper.h"
+#ifndef HELPER_AVPACKET_HELPER_H_
+#define HELPER_AVPACKET_HELPER_H_
 
 extern "C" {
-	struct AVCodec;
-	struct AVCodecContext;
-	struct AVFormatContext;
 	struct AVPacket;
-	struct AVStream;
 }
 
 namespace helper {
-	namespace avformat {
-		enum class Error {
-			Success,
-			InvalidInputFile,
-			NoStreamInfo,
-			NoVideoStream,
-			EndOfFile,
-			ContextAllocation,
-			Unkown,
-		};
-
-		enum class Mode {
-			Input,
-			Output,
-			None,
-		};
-
-		struct Stream {
-			AVStream* pStream = nullptr;
-			int iIndex = -1;
-		};
-
-		class Context {
+	namespace avpacket {
+		class Packet {
 		public:
-			Context();
-			~Context();
+			Packet();
+			Packet(const AVPacket* pPacket);
+			~Packet();
 
-			Context(const Context&) = delete;
-			Context(Context&&) = delete;
+			Packet(const Packet& other);
+			Packet(Packet&&) = delete;
 
-			Context& operator=(const Context&) = delete;
-			Context& operator=(Context&&) = delete;
+			Packet& operator=(const Packet& other);
+			Packet& operator=(Packet&&) = delete;
 
-			const Stream& getVideoStream() const;
-			const AVCodec* getCodec() const;
+			const AVPacket* get() const;
+			AVPacket* get();
 
-			Error openFile(const char* szVideoFileName);
-			Error readVideoFrame(AVPacket& packet);
+			const AVPacket& operator*() const;
+			AVPacket& operator*();
 
-			Error writeOutputFile(std::vector<helper::avpacket::Packet>& packets, const AVCodecContext* pCodecContext, const char* szOutputFile);
+			const AVPacket* operator->() const;
+			AVPacket* operator->();
 
 		private:
-			AVFormatContext* m_pContext;
-			Stream m_videoStream;
-			const AVCodec* m_pCodec;
-			Mode m_mode;
+			void freePacket();
+
+		private:
+			AVPacket* m_pPacket;
 		};
 	}
 }
 
-#endif // HELPER_AVFORMAT_HELPER_H_
+#endif // HELPER_AVPACKET_HELPER_H_

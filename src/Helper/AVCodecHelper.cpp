@@ -372,7 +372,12 @@ namespace helper {
 			return parameters;
 		}
 
-		Error Context::decodeVideoFile(const char* szVideoFileName, types::PacketList& yuvFrames)
+		const AVCodecContext* Context::getCodeContext()
+		{
+			return m_pContext;
+		}
+
+		Error Context::decodeVideoFile(const char* szVideoFileName, types::FrameList& yuvFrames)
 		{
 			avformat::Context formatContext;
 
@@ -400,7 +405,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::PacketList& yuvFrames)
+		Error Context::decodePacketStream(types::PacketList& packets, types::CodecType codecType, types::FrameList& yuvFrames)
 		{
 			Error error = Error::Success;
 
@@ -409,10 +414,7 @@ namespace helper {
 			}
 
 			for (auto& packet: packets) {
-				m_pPacket->data = reinterpret_cast<uint8_t*>(packet.data());
-				m_pPacket->size = packet.size();
-
-				if (decodeVideoFrame(m_pPacket, yuvFrames) != avcodec::Error::Success) {
+				if (decodeVideoFrame(packet.get(), yuvFrames) != avcodec::Error::Success) {
 					return Error::Unkown;
 				}
 			}
@@ -428,10 +430,10 @@ namespace helper {
 		}
 
 		Error Context::encodeFrameStream(
-			const types::PacketList& yuvFrames,
+			const types::FrameList& yuvFrames,
 			const types::CodecParameters& parameters,
 			const types::EncoderParameters& encoderParameters,
-			types::PacketList& packets
+			std::vector<avpacket::Packet>& packets
 		)
 		{
 			if (openEncoder(parameters, encoderParameters) != avcodec::Error::Success) {
@@ -445,7 +447,7 @@ namespace helper {
 			}
 
 			// Flush decoder
-			if (encodeFrame(types::Packet(), packets) != avcodec::Error::CodecFlushed) {
+			if (encodeFrame(types::Frame(), packets) != avcodec::Error::CodecFlushed) {
 				return Error::Unkown;
 			}
 
@@ -514,7 +516,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodeVideoFrame(const AVPacket* pPacket, types::PacketList& yuvFrames)
+		Error Context::decodeVideoFrame(const AVPacket* pPacket, types::FrameList& yuvFrames)
 		{
 			if (avcodec_send_packet(m_pContext, pPacket) < 0) {
 				return Error::SendPacket;
@@ -532,7 +534,7 @@ namespace helper {
 				}
 
 				// Dump yuv
-				types::Packet yuvBytes;
+				types::Frame yuvBytes;
 				yuvBytes.reserve(m_pFrame->width * m_pFrame->height * 1.5f);
 				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[0], m_pFrame->data[0] + m_pFrame->width * m_pFrame->height);
 				yuvBytes.insert(yuvBytes.end(), m_pFrame->data[1], m_pFrame->data[1] + m_pFrame->width * m_pFrame->height / 4);
@@ -547,7 +549,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::decodePacket(avformat::Context& formatContext, types::PacketList& yuvFrames)
+		Error Context::decodePacket(avformat::Context& formatContext, types::FrameList& yuvFrames)
 		{
 			Error codecError = Error::Success;
 			auto formatError = formatContext.readVideoFrame(*m_pPacket);
@@ -631,7 +633,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::encodeVideoFrame(const AVFrame* pFrame, types::PacketList& packets)
+		Error Context::encodeVideoFrame(const AVFrame* pFrame, std::vector<avpacket::Packet>& packets)
 		{
 			if (avcodec_send_frame(m_pContext, pFrame) < 0) {
 				return Error::SendFrame;
@@ -648,10 +650,7 @@ namespace helper {
 					return Error::ReceiveFrame;
 				}
 
-				// Dump yuv
-				types::Packet packetBytes(m_pPacket->data, m_pPacket->data + m_pPacket->size);
-				packetBytes.shrink_to_fit();
-				packets.push_back(packetBytes);
+				packets.emplace_back(m_pPacket);
 
 				av_packet_unref(m_pPacket);
 			}
@@ -659,7 +658,7 @@ namespace helper {
 			return Error::Success;
 		}
 
-		Error Context::encodeFrame(const types::Packet& yuvFrame, types::PacketList& packets)
+		Error Context::encodeFrame(const types::Frame& yuvFrame, std::vector<avpacket::Packet>& packets)
 		{
 			if (yuvFrame.empty()) {
 				return encodeVideoFrame(nullptr, packets);

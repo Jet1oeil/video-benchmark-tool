@@ -39,7 +39,7 @@ namespace vmaf {
 	class Experiment {
 	public:
 		Experiment(
-			const types::PacketList& yuvFrames,
+			const types::FrameList& yuvFrames,
 			const types::CodecParameters& codecParameters,
 			const std::vector<Configuration>& listConfiguration,
 			std::mutex& mutexExperiments,
@@ -67,7 +67,7 @@ namespace vmaf {
 		void logAndProgress(const char* message);
 
 	private:
-		const types::PacketList& m_yuvFrames;
+		const types::FrameList& m_yuvFrames;
 		types::CodecParameters m_codecParameters;
 		std::vector<Configuration> m_listConfiguration;
 

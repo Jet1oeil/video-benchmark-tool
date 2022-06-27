@@ -39,7 +39,7 @@ namespace helper {
 		VMAFWrapper& operator=(VMAFWrapper&&) = delete;
 
 		bool open();
-		bool computeMetrics(const types::PacketList& originalVideo, types::PacketList transcodedVideo);
+		bool computeMetrics(const types::FrameList& originalVideo, const types::FrameList& transcodedVideo);
 
 		double getVMAFScore() const;
 
