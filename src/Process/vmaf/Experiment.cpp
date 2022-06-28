@@ -213,10 +213,9 @@ namespace vmaf {
 
 			// Generate json file path
 			std::string filename = basename + ".json";
-			fs::path jsonFilename = Benchmark::DumpDir / filename;
 
 			// Write results to dumps dir
-			writeResult(jsonFilename.string(), currentConfiguration, results);
+			writeResult(filename, currentConfiguration, results);
 
 			// Remove the current configuration form the resume configuration list file
 			updateConfigurationListFile(m_listConfiguration);
